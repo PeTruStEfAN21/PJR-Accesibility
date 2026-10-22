@@ -638,6 +638,66 @@ abstract class AppLocalizations {
   /// **'Tot ce se aude apare ca spus de tine'**
   String get presenterForceSpeakerHint;
 
+  /// No description provided for @enrollTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Învață vocea ta'**
+  String get enrollTitle;
+
+  /// No description provided for @enrollIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citește textul de mai jos cu voce normală, cam 20 de secunde. Așa Echo îți recunoaște vocea și știe când vorbești tu și când vorbește cineva din sală. Sunetul rămâne pe acest laptop.'**
+  String get enrollIntro;
+
+  /// No description provided for @enrollText.
+  ///
+  /// In ro, this message translates to:
+  /// **'Bună ziua tuturor. Astăzi vorbim despre planurile echipei pentru luna următoare. Trecem prin bugetul proiectului, prin termenele importante și prin sarcinile fiecăruia. Dacă aveți întrebări, le puteți pune oricând. Vă mulțumesc că sunteți aici și sper să avem o discuție utilă, clară și scurtă. Să începem cu subiectele cele mai urgente.'**
+  String get enrollText;
+
+  /// No description provided for @enrollStart.
+  ///
+  /// In ro, this message translates to:
+  /// **'Începe'**
+  String get enrollStart;
+
+  /// No description provided for @enrollListening.
+  ///
+  /// In ro, this message translates to:
+  /// **'Te ascult… citește textul'**
+  String get enrollListening;
+
+  /// No description provided for @enrollDone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vocea ta e învățată'**
+  String get enrollDone;
+
+  /// No description provided for @enrollTooShort.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am auzit prea puțin. Citește din nou textul, cu voce normală.'**
+  String get enrollTooShort;
+
+  /// No description provided for @enrollFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut învăța vocea. Încearcă din nou.'**
+  String get enrollFailed;
+
+  /// No description provided for @voiceUnavailable.
+  ///
+  /// In ro, this message translates to:
+  /// **'Recunoașterea vocii nu merge în acest browser; toate replicile sunt „Speaker”'**
+  String get voiceUnavailable;
+
+  /// No description provided for @relearnVoice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Reînvață vocea'**
+  String get relearnVoice;
+
   /// No description provided for @presenterCreateError.
   ///
   /// In ro, this message translates to:

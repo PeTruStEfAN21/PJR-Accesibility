@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:typed_data';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -10,14 +12,17 @@ import '../../core/services.dart';
 import '../../core/session_connection.dart';
 import '../../core/speech/speech_service.dart';
 import '../../core/tts/tts_service.dart';
+import '../../core/voice/speaker_labeler.dart';
+import '../../core/voice/voice_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../widgets/caption_tile.dart';
 import '../../widgets/connection_banner.dart';
+import 'enroll_view.dart';
 
-/// Runs on the speaker's laptop (Chrome): creates the meeting, shows the join code,
-/// captions the room, and shows the participant's raised hand and questions, which
-/// it can read out loud.
+/// Runs on the speaker's laptop (Chrome): learns the speaker's voice, creates the meeting,
+/// shows the join code, captions the room labelling each line by voice (speaker or room),
+/// and shows the participant's raised hand and questions, which it can read out loud.
 class PresenterScreen extends StatefulWidget {
   const PresenterScreen({super.key});
 
@@ -34,11 +39,20 @@ class _ReceivedMessage {
   ReadBy? readBy;
 }
 
+/// Where voice recognition is: starting, waiting for the speaker to read the text, working, or not
+/// available in this browser (then every line is the speaker's).
+enum _VoiceStage { checking, enrolling, ready, unavailable }
+
 class _PresenterScreenState extends State<PresenterScreen> {
   late Future<(JoinLink local, JoinLink public)> _setup;
   SessionConnection? _connection;
   late final SpeechService _speech;
   late final TtsService _tts;
+  late final VoiceEngine _voice;
+  SpeakerLabeler? _labeler;
+  _VoiceStage _voiceStage = _VoiceStage.checking;
+  String? _enrollMessage;
+  bool _justEnrolled = false;
   StreamSubscription<ServerEvent>? _events;
   StreamSubscription<SpeechSegment>? _segments;
   final _messages = <_ReceivedMessage>[];
@@ -57,7 +71,56 @@ class _PresenterScreenState extends State<PresenterScreen> {
     _started = true;
     _speech = ServicesScope.of(context).speech;
     _tts = ServicesScope.of(context).tts;
+    _voice = ServicesScope.of(context).voice;
     _setup = _createMeeting();
+    _startVoice();
+  }
+
+  Future<void> _startVoice() async {
+    final saved = SettingsScope.of(context).voiceprint;
+    if (!await _voice.start()) {
+      if (mounted) setState(() => _voiceStage = _VoiceStage.unavailable);
+      return;
+    }
+    final labeler = SpeakerLabeler(_voice, await _voice.loadHead())..forceSpeaker = _forceSpeaker;
+    if (saved != null) labeler.voiceprint = Float32List.fromList(saved);
+    if (!mounted) return;
+    setState(() {
+      _labeler = labeler;
+      _voiceStage = labeler.enrolled ? _VoiceStage.ready : _VoiceStage.enrolling;
+    });
+  }
+
+  /// The enrollment text was read: learn the voice from the last 20 s, or ask again.
+  Future<void> _finishEnrollment() async {
+    final labeler = _labeler!;
+    final l10n = AppLocalizations.of(context);
+    final settings = SettingsScope.of(context);
+    final result = await labeler.enroll(_voice.recent(const Duration(seconds: 20)));
+    if (!mounted) return;
+    if (result == EnrollResult.ok) settings.update((s) => s.voiceprint = labeler.voiceprint!.toList());
+    setState(() {
+      switch (result) {
+        case EnrollResult.ok:
+          _voiceStage = _VoiceStage.ready;
+          _justEnrolled = true;
+          _enrollMessage = null;
+        case EnrollResult.tooLittleSpeech:
+          _enrollMessage = l10n.enrollTooShort;
+        case EnrollResult.failed:
+          _enrollMessage = l10n.enrollFailed;
+      }
+    });
+  }
+
+  void _relearnVoice() {
+    _labeler?.voiceprint = null;
+    SettingsScope.of(context).update((s) => s.voiceprint = null);
+    setState(() {
+      _voiceStage = _VoiceStage.enrolling;
+      _justEnrolled = false;
+      _enrollMessage = null;
+    });
   }
 
   Future<(JoinLink, JoinLink)> _createMeeting() async {
@@ -80,6 +143,7 @@ class _PresenterScreenState extends State<PresenterScreen> {
     _events?.cancel();
     _segments?.cancel();
     if (_listening) _speech.stop();
+    _voice.stop();
     _connection?.dispose();
     super.dispose();
   }
@@ -98,10 +162,18 @@ class _PresenterScreenState extends State<PresenterScreen> {
       return;
     }
     final localeId = SettingsScope.of(context).speechLocaleId;
-    _segments = _speech.segments.listen((segment) {
+    _segments = _speech.segments.listen((segment) async {
+      // A final line is judged on its own audio; a partial one keeps the last decided label.
+      final labeler = _labeler;
+      final speaker = labeler == null
+          ? Speaker.coordinator
+          : segment.isFinal
+              ? await labeler.labelFinal(clock.now())
+              : labeler.current;
+      if (!mounted) return;
       final caption = Caption(
         id: segment.id,
-        speaker: _currentSpeaker(),
+        speaker: speaker,
         text: segment.text,
         isFinal: segment.isFinal,
         lang: localeId,
@@ -121,9 +193,6 @@ class _PresenterScreenState extends State<PresenterScreen> {
     }
     setState(() => _listening = true);
   }
-
-  /// Who the laptop is hearing. Voice recognition plugs in here; until then everything is the speaker.
-  Speaker _currentSpeaker() => Speaker.coordinator;
 
   /// Reads the question with the laptop's voice. Captioning stops meanwhile, so the laptop does not
   /// caption itself, and starts again afterwards whether or not the voice worked.
@@ -188,8 +257,25 @@ class _PresenterScreenState extends State<PresenterScreen> {
             lastCaption: _lastOwnCaption,
             onToggle: _toggleListening,
             forceSpeaker: _forceSpeaker,
-            onForceSpeaker: (value) => setState(() => _forceSpeaker = value),
+            onForceSpeaker: (value) => setState(() {
+              _forceSpeaker = value;
+              _labeler?.forceSpeaker = value;
+            }),
+            voiceNote: switch (_voiceStage) {
+              _VoiceStage.unavailable => l10n.voiceUnavailable,
+              _VoiceStage.ready when _justEnrolled => l10n.enrollDone,
+              _ => null,
+            },
+            onRelearn: _voiceStage == _VoiceStage.ready ? _relearnVoice : null,
           );
+          final left = switch (_voiceStage) {
+            _VoiceStage.checking => const Padding(
+                padding: EdgeInsets.all(48),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            _VoiceStage.enrolling => EnrollView(onRecorded: _finishEnrollment, message: _enrollMessage),
+            _ => join,
+          };
           final messages = _MessagesPanel(
             messages: _messages,
             onSeen: _markSeen,
@@ -214,12 +300,12 @@ class _PresenterScreenState extends State<PresenterScreen> {
                       ? Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(child: SingleChildScrollView(child: join)),
+                            Expanded(child: SingleChildScrollView(child: left)),
                             const VerticalDivider(width: 1),
                             Expanded(child: messages),
                           ],
                         )
-                      : ListView(children: [join, const Divider(), SizedBox(height: 480, child: messages)]),
+                      : ListView(children: [left, const Divider(), SizedBox(height: 480, child: messages)]),
                 ),
               ),
             ],
@@ -238,6 +324,8 @@ class _JoinPanel extends StatelessWidget {
     required this.onToggle,
     required this.forceSpeaker,
     required this.onForceSpeaker,
+    required this.voiceNote,
+    required this.onRelearn,
   });
 
   final JoinLink link;
@@ -247,6 +335,12 @@ class _JoinPanel extends StatelessWidget {
   final bool forceSpeaker;
   final ValueChanged<bool> onForceSpeaker;
 
+  /// How voice recognition is doing („Vocea ta e învățată”, or that it does not work here).
+  final String? voiceNote;
+
+  /// „Reînvață vocea”; null when there is no voice recognition.
+  final VoidCallback? onRelearn;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -255,6 +349,21 @@ class _JoinPanel extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       child: Column(
         children: [
+          if (voiceNote case final note?)
+            Semantics(
+              liveRegion: true,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.record_voice_over),
+                    const SizedBox(width: 8),
+                    Flexible(child: Text(note, style: theme.textTheme.titleMedium)),
+                  ],
+                ),
+              ),
+            ),
           Text(l10n.presenterCodeLabel, style: theme.textTheme.titleMedium),
           SelectableText(
             link.code.split('').join(' '),
@@ -291,6 +400,13 @@ class _JoinPanel extends StatelessWidget {
               onChanged: onForceSpeaker,
             ),
           ),
+          if (onRelearn != null)
+            TextButton.icon(
+              style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
+              onPressed: onRelearn,
+              icon: const Icon(Icons.refresh),
+              label: Text(l10n.relearnVoice),
+            ),
           if (lastCaption != null) ...[
             const SizedBox(height: 12),
             CaptionTile(caption: lastCaption!),

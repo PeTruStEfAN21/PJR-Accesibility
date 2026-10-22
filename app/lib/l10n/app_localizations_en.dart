@@ -311,6 +311,40 @@ class AppLocalizationsEn extends AppLocalizations {
       'Everything heard shows as said by you';
 
   @override
+  String get enrollTitle => 'Learn your voice';
+
+  @override
+  String get enrollIntro =>
+      'Read the text below in your normal voice, for about 20 seconds. This is how Echo recognises your voice and knows when you are speaking and when someone in the room is. The sound stays on this laptop.';
+
+  @override
+  String get enrollText =>
+      'Good afternoon, everyone. Today we talk about the team\'s plans for next month. We go through the project budget, the important deadlines and everyone\'s tasks. If you have questions, you can ask them at any time. Thank you for being here, and I hope we have a useful, clear and short discussion. Let\'s start with the most urgent topics.';
+
+  @override
+  String get enrollStart => 'Start';
+
+  @override
+  String get enrollListening => 'Listening… read the text';
+
+  @override
+  String get enrollDone => 'Your voice is learned';
+
+  @override
+  String get enrollTooShort =>
+      'I heard too little. Read the text again, in your normal voice.';
+
+  @override
+  String get enrollFailed => 'Could not learn your voice. Try again.';
+
+  @override
+  String get voiceUnavailable =>
+      'Voice recognition does not work in this browser; every line is labelled “Speaker”';
+
+  @override
+  String get relearnVoice => 'Learn my voice again';
+
+  @override
   String get presenterCreateError =>
       'Could not create the meeting. Check that the server is running.';
 
