@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../core/account/account_service.dart';
 import '../../core/history/meeting_store.dart';
+import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../history/history_screen.dart';
+import '../organization/org_screen.dart';
 
 /// Who is signed in, the saved meetings, sign out and account deletion.
 class AccountScreen extends StatefulWidget {
@@ -61,6 +63,7 @@ class _AccountScreenState extends State<AccountScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final email = widget.account.user?.email ?? '';
+    final organizations = ServicesScope.of(context).organizations;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.account)),
@@ -78,6 +81,16 @@ class _AccountScreenState extends State<AccountScreen> {
                 MaterialPageRoute(builder: (_) => HistoryScreen(meetings: widget.meetings)),
               ),
             ),
+            if (organizations != null)
+              ListTile(
+                leading: const Icon(Icons.business),
+                title: Text(l10n.orgTitle),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  organizations.refresh();
+                  Navigator.of(context).push(MaterialPageRoute(builder: (_) => OrgScreen(organizations: organizations)));
+                },
+              ),
             const Divider(),
             ListTile(
               enabled: !_busy,

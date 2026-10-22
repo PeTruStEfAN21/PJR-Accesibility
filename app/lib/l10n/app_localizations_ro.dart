@@ -728,4 +728,215 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get meetingSaving => 'Transcrierea se salvează în contul tău';
+
+  @override
+  String get locSoundsTitle => 'Sunetele locației';
+
+  @override
+  String get locSoundsHint =>
+      'Învață sunetele care contează aici: alarma halei, soneria biroului. Se păstrează doar amprenta sunetului, nu înregistrarea.';
+
+  @override
+  String get locSoundsEmpty => 'Niciun sunet învățat încă.';
+
+  @override
+  String get locSoundsLearn => 'Învață un sunet';
+
+  @override
+  String get locSoundsFromCompany => 'De la companie';
+
+  @override
+  String get locSoundsShare => 'Împarte cu compania';
+
+  @override
+  String get locSoundsShared => 'Sunetul a fost trimis companiei.';
+
+  @override
+  String get locSoundsDelete => 'Șterge sunetul';
+
+  @override
+  String get learnName => 'Numele sunetului';
+
+  @override
+  String get learnNameHint => 'De exemplu: Alarma halei 2';
+
+  @override
+  String get learnLevel => 'Cât de important e';
+
+  @override
+  String get levelCritical => 'Critic: ecran roșu până confirmi';
+
+  @override
+  String get levelWarning => 'Atenție: ecran galben';
+
+  @override
+  String get levelInfo => 'Informativ: notificare discretă';
+
+  @override
+  String get learnRecord => 'Înregistrează o mostră (3 secunde)';
+
+  @override
+  String get learnRecording => 'Ascult… redă sunetul acum.';
+
+  @override
+  String learnSamples(int count) {
+    return 'Mostre: $count din 3';
+  }
+
+  @override
+  String get learnNothingHeard =>
+      'N-am auzit nimic. Apropie telefonul de sunet și încearcă din nou.';
+
+  @override
+  String get learnSave => 'Salvează sunetul';
+
+  @override
+  String get orgError =>
+      'Nu s-a putut. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get orgTitle => 'Compania mea';
+
+  @override
+  String get orgNone => 'Nu faci parte din nicio companie.';
+
+  @override
+  String get orgInvitesTitle => 'Invitații primite';
+
+  @override
+  String orgInviteFrom(String org) {
+    return '$org te invită să te alături';
+  }
+
+  @override
+  String get orgAccept => 'Acceptă';
+
+  @override
+  String get orgCreateTitle => 'Creează o companie';
+
+  @override
+  String get orgCreateHint =>
+      'Pentru angajator: invită angajații, împarte sunetele locației și vezi cine e în siguranță la o alarmă.';
+
+  @override
+  String get orgName => 'Numele companiei';
+
+  @override
+  String get orgCreate => 'Creează';
+
+  @override
+  String get orgRoleAdmin => 'Administrator';
+
+  @override
+  String get orgRoleEmployee => 'Angajat';
+
+  @override
+  String get orgMyNeeds => 'Nevoile mele';
+
+  @override
+  String get orgMyNeedsHint =>
+      'Compania vede doar ce bifezi aici. Fără detalii medicale.';
+
+  @override
+  String get needCaptions => 'Subtitrare la meetinguri';
+
+  @override
+  String get needVisualAlerts => 'Alerte vizuale pentru sunete';
+
+  @override
+  String get needWatchAlerts => 'Alerte pe ceas';
+
+  @override
+  String get needLargeText => 'Text mare';
+
+  @override
+  String get orgSave => 'Salvează';
+
+  @override
+  String get orgSaved => 'Salvat.';
+
+  @override
+  String get orgLeave => 'Părăsește compania';
+
+  @override
+  String orgLeaveTitle(String org) {
+    return 'Părăsești $org?';
+  }
+
+  @override
+  String get orgLeaveBody =>
+      'Compania nu va mai vedea nevoile tale și nici răspunsurile tale la alarme.';
+
+  @override
+  String get orgMembers => 'Angajați';
+
+  @override
+  String get orgMakeAdmin => 'Fă administrator';
+
+  @override
+  String get orgMakeEmployee => 'Fă angajat';
+
+  @override
+  String get orgRemove => 'Scoate din companie';
+
+  @override
+  String get orgNeedsNotShared => 'Nevoile nu sunt completate';
+
+  @override
+  String get orgInvite => 'Invită un angajat';
+
+  @override
+  String get orgEmail => 'Emailul angajatului';
+
+  @override
+  String get orgDepartment => 'Departament (opțional)';
+
+  @override
+  String get orgSendInvite => 'Trimite invitația';
+
+  @override
+  String get orgInviteSent =>
+      'Invitația a fost trimisă. Angajatul o vede după ce se autentifică cu acest email.';
+
+  @override
+  String get orgPending => 'Invitații în așteptare';
+
+  @override
+  String get orgCancelInvite => 'Anulează invitația';
+
+  @override
+  String get orgAlarms => 'Alarme în desfășurare';
+
+  @override
+  String get orgNoAlarms => 'Nicio alarmă acum.';
+
+  @override
+  String orgAlarmSafe(int count) {
+    return 'În siguranță: $count';
+  }
+
+  @override
+  String orgAlarmHelp(int count) {
+    return 'Au nevoie de ajutor: $count';
+  }
+
+  @override
+  String orgAlarmNoAnswer(int count) {
+    return 'Fără răspuns: $count';
+  }
+
+  @override
+  String get orgCloseAlarm => 'Închide alarma';
+
+  @override
+  String get orgRollCallNote => 'Lista nu înlocuiește procedura de evacuare.';
+
+  @override
+  String get alertSafe => 'Sunt în siguranță';
+
+  @override
+  String get alertNeedHelp => 'Am nevoie de ajutor';
+
+  @override
+  String get alertAnswerSent => 'Răspunsul a fost trimis companiei.';
 }

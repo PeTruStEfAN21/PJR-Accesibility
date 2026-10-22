@@ -32,6 +32,8 @@ create table public.org_members (
   org_id uuid not null references public.organizations (id) on delete cascade,
   user_id uuid not null references auth.users (id) on delete cascade,
   role public.org_role not null default 'employee',
+  -- The email the member was invited with (or signed up with, for the founder), so admins know who is who.
+  email text check (char_length(email) <= 320),
   display_name text check (char_length(display_name) <= 100),
   department text check (char_length(department) <= 100),
   location_id uuid,
@@ -222,7 +224,8 @@ begin
     raise exception 'not signed in' using errcode = 'insufficient_privilege';
   end if;
   insert into public.organizations (name) values (org_name) returning id into org;
-  insert into public.org_members (org_id, user_id, role) values (org, auth.uid(), 'admin');
+  insert into public.org_members (org_id, user_id, role, email)
+  values (org, auth.uid(), 'admin', lower(auth.jwt() ->> 'email'));
   return org;
 end;
 $$;
@@ -245,12 +248,30 @@ begin
   if auth.uid() is null or found.id is null then
     raise exception 'invitation not found' using errcode = 'insufficient_privilege';
   end if;
-  insert into public.org_members (org_id, user_id, role, department, location_id)
-  values (found.org_id, auth.uid(), found.role, found.department, found.location_id)
+  insert into public.org_members (org_id, user_id, role, email, department, location_id)
+  values (found.org_id, auth.uid(), found.role, found.email, found.department, found.location_id)
   on conflict (org_id, user_id) do nothing;
   update public.org_invites set accepted_at = now() where id = found.id;
   return found.org_id;
 end;
+$$;
+
+-- The caller's open invitations with the company name, which they cannot read
+-- from organizations until they join.
+create function public.my_invites()
+returns table (id uuid, org_id uuid, org_name text, role public.org_role, expires_at timestamptz)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select i.id, i.org_id, o.name, i.role, i.expires_at
+  from public.org_invites i
+  join public.organizations o on o.id = i.org_id
+  where i.email = lower((select auth.jwt()) ->> 'email')
+    and i.accepted_at is null
+    and i.expires_at > now()
+  order by i.created_at desc;
 $$;
 
 -- Opens an alarm, or returns the one already open for the same place in the last 10 minutes,
@@ -371,8 +392,10 @@ grant select, insert on public.alarm_acks to authenticated;
 grant update (status, acked_at) on public.alarm_acks to authenticated;
 
 revoke execute on function public.is_org_member(uuid), public.is_org_admin(uuid),
-  public.create_organization(text), public.accept_invite(uuid), public.report_alarm(uuid, uuid, text)
+  public.create_organization(text), public.accept_invite(uuid), public.my_invites(),
+  public.report_alarm(uuid, uuid, text)
   from public, anon;
 grant execute on function public.is_org_member(uuid), public.is_org_admin(uuid),
-  public.create_organization(text), public.accept_invite(uuid), public.report_alarm(uuid, uuid, text)
+  public.create_organization(text), public.accept_invite(uuid), public.my_invites(),
+  public.report_alarm(uuid, uuid, text)
   to authenticated;

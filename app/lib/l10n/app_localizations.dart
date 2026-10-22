@@ -1381,6 +1381,390 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Transcrierea se salvează în contul tău'**
   String get meetingSaving;
+
+  /// No description provided for @locSoundsTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetele locației'**
+  String get locSoundsTitle;
+
+  /// No description provided for @locSoundsHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Învață sunetele care contează aici: alarma halei, soneria biroului. Se păstrează doar amprenta sunetului, nu înregistrarea.'**
+  String get locSoundsHint;
+
+  /// No description provided for @locSoundsEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Niciun sunet învățat încă.'**
+  String get locSoundsEmpty;
+
+  /// No description provided for @locSoundsLearn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Învață un sunet'**
+  String get locSoundsLearn;
+
+  /// No description provided for @locSoundsFromCompany.
+  ///
+  /// In ro, this message translates to:
+  /// **'De la companie'**
+  String get locSoundsFromCompany;
+
+  /// No description provided for @locSoundsShare.
+  ///
+  /// In ro, this message translates to:
+  /// **'Împarte cu compania'**
+  String get locSoundsShare;
+
+  /// No description provided for @locSoundsShared.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul a fost trimis companiei.'**
+  String get locSoundsShared;
+
+  /// No description provided for @locSoundsDelete.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge sunetul'**
+  String get locSoundsDelete;
+
+  /// No description provided for @learnName.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele sunetului'**
+  String get learnName;
+
+  /// No description provided for @learnNameHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'De exemplu: Alarma halei 2'**
+  String get learnNameHint;
+
+  /// No description provided for @learnLevel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cât de important e'**
+  String get learnLevel;
+
+  /// No description provided for @levelCritical.
+  ///
+  /// In ro, this message translates to:
+  /// **'Critic: ecran roșu până confirmi'**
+  String get levelCritical;
+
+  /// No description provided for @levelWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Atenție: ecran galben'**
+  String get levelWarning;
+
+  /// No description provided for @levelInfo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Informativ: notificare discretă'**
+  String get levelInfo;
+
+  /// No description provided for @learnRecord.
+  ///
+  /// In ro, this message translates to:
+  /// **'Înregistrează o mostră (3 secunde)'**
+  String get learnRecord;
+
+  /// No description provided for @learnRecording.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ascult… redă sunetul acum.'**
+  String get learnRecording;
+
+  /// No description provided for @learnSamples.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mostre: {count} din 3'**
+  String learnSamples(int count);
+
+  /// No description provided for @learnNothingHeard.
+  ///
+  /// In ro, this message translates to:
+  /// **'N-am auzit nimic. Apropie telefonul de sunet și încearcă din nou.'**
+  String get learnNothingHeard;
+
+  /// No description provided for @learnSave.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvează sunetul'**
+  String get learnSave;
+
+  /// No description provided for @orgError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu s-a putut. Verifică internetul și încearcă din nou.'**
+  String get orgError;
+
+  /// No description provided for @orgTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Compania mea'**
+  String get orgTitle;
+
+  /// No description provided for @orgNone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu faci parte din nicio companie.'**
+  String get orgNone;
+
+  /// No description provided for @orgInvitesTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Invitații primite'**
+  String get orgInvitesTitle;
+
+  /// No description provided for @orgInviteFrom.
+  ///
+  /// In ro, this message translates to:
+  /// **'{org} te invită să te alături'**
+  String orgInviteFrom(String org);
+
+  /// No description provided for @orgAccept.
+  ///
+  /// In ro, this message translates to:
+  /// **'Acceptă'**
+  String get orgAccept;
+
+  /// No description provided for @orgCreateTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Creează o companie'**
+  String get orgCreateTitle;
+
+  /// No description provided for @orgCreateHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pentru angajator: invită angajații, împarte sunetele locației și vezi cine e în siguranță la o alarmă.'**
+  String get orgCreateHint;
+
+  /// No description provided for @orgName.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele companiei'**
+  String get orgName;
+
+  /// No description provided for @orgCreate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Creează'**
+  String get orgCreate;
+
+  /// No description provided for @orgRoleAdmin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Administrator'**
+  String get orgRoleAdmin;
+
+  /// No description provided for @orgRoleEmployee.
+  ///
+  /// In ro, this message translates to:
+  /// **'Angajat'**
+  String get orgRoleEmployee;
+
+  /// No description provided for @orgMyNeeds.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nevoile mele'**
+  String get orgMyNeeds;
+
+  /// No description provided for @orgMyNeedsHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Compania vede doar ce bifezi aici. Fără detalii medicale.'**
+  String get orgMyNeedsHint;
+
+  /// No description provided for @needCaptions.
+  ///
+  /// In ro, this message translates to:
+  /// **'Subtitrare la meetinguri'**
+  String get needCaptions;
+
+  /// No description provided for @needVisualAlerts.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alerte vizuale pentru sunete'**
+  String get needVisualAlerts;
+
+  /// No description provided for @needWatchAlerts.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alerte pe ceas'**
+  String get needWatchAlerts;
+
+  /// No description provided for @needLargeText.
+  ///
+  /// In ro, this message translates to:
+  /// **'Text mare'**
+  String get needLargeText;
+
+  /// No description provided for @orgSave.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvează'**
+  String get orgSave;
+
+  /// No description provided for @orgSaved.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvat.'**
+  String get orgSaved;
+
+  /// No description provided for @orgLeave.
+  ///
+  /// In ro, this message translates to:
+  /// **'Părăsește compania'**
+  String get orgLeave;
+
+  /// No description provided for @orgLeaveTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Părăsești {org}?'**
+  String orgLeaveTitle(String org);
+
+  /// No description provided for @orgLeaveBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Compania nu va mai vedea nevoile tale și nici răspunsurile tale la alarme.'**
+  String get orgLeaveBody;
+
+  /// No description provided for @orgMembers.
+  ///
+  /// In ro, this message translates to:
+  /// **'Angajați'**
+  String get orgMembers;
+
+  /// No description provided for @orgMakeAdmin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fă administrator'**
+  String get orgMakeAdmin;
+
+  /// No description provided for @orgMakeEmployee.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fă angajat'**
+  String get orgMakeEmployee;
+
+  /// No description provided for @orgRemove.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scoate din companie'**
+  String get orgRemove;
+
+  /// No description provided for @orgNeedsNotShared.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nevoile nu sunt completate'**
+  String get orgNeedsNotShared;
+
+  /// No description provided for @orgInvite.
+  ///
+  /// In ro, this message translates to:
+  /// **'Invită un angajat'**
+  String get orgInvite;
+
+  /// No description provided for @orgEmail.
+  ///
+  /// In ro, this message translates to:
+  /// **'Emailul angajatului'**
+  String get orgEmail;
+
+  /// No description provided for @orgDepartment.
+  ///
+  /// In ro, this message translates to:
+  /// **'Departament (opțional)'**
+  String get orgDepartment;
+
+  /// No description provided for @orgSendInvite.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite invitația'**
+  String get orgSendInvite;
+
+  /// No description provided for @orgInviteSent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Invitația a fost trimisă. Angajatul o vede după ce se autentifică cu acest email.'**
+  String get orgInviteSent;
+
+  /// No description provided for @orgPending.
+  ///
+  /// In ro, this message translates to:
+  /// **'Invitații în așteptare'**
+  String get orgPending;
+
+  /// No description provided for @orgCancelInvite.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulează invitația'**
+  String get orgCancelInvite;
+
+  /// No description provided for @orgAlarms.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarme în desfășurare'**
+  String get orgAlarms;
+
+  /// No description provided for @orgNoAlarms.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nicio alarmă acum.'**
+  String get orgNoAlarms;
+
+  /// No description provided for @orgAlarmSafe.
+  ///
+  /// In ro, this message translates to:
+  /// **'În siguranță: {count}'**
+  String orgAlarmSafe(int count);
+
+  /// No description provided for @orgAlarmHelp.
+  ///
+  /// In ro, this message translates to:
+  /// **'Au nevoie de ajutor: {count}'**
+  String orgAlarmHelp(int count);
+
+  /// No description provided for @orgAlarmNoAnswer.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fără răspuns: {count}'**
+  String orgAlarmNoAnswer(int count);
+
+  /// No description provided for @orgCloseAlarm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Închide alarma'**
+  String get orgCloseAlarm;
+
+  /// No description provided for @orgRollCallNote.
+  ///
+  /// In ro, this message translates to:
+  /// **'Lista nu înlocuiește procedura de evacuare.'**
+  String get orgRollCallNote;
+
+  /// No description provided for @alertSafe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunt în siguranță'**
+  String get alertSafe;
+
+  /// No description provided for @alertNeedHelp.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am nevoie de ajutor'**
+  String get alertNeedHelp;
+
+  /// No description provided for @alertAnswerSent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Răspunsul a fost trimis companiei.'**
+  String get alertAnswerSent;
 }
 
 class _AppLocalizationsDelegate

@@ -1,6 +1,6 @@
 # Organizații: compania își gestionează angajații, sunetele locației și prezența la alarmă
 
-**Data:** 2026-10-22 · **Stare:** aprobat; etapa 1 (schema) gata · **Pornește de la:** `2026-10-22-conturi-si-baza-de-date-design.md` (roadmap: „panou HR / organizații”)
+**Data:** 2026-10-22 · **Stare:** aprobat; etapele 1–3 gata (schema, aplicația, ghidul de instalare); netestat cu un Supabase real · **Pornește de la:** `2026-10-22-conturi-si-baza-de-date-design.md` (roadmap: „panou HR / organizații”)
 
 ## 1. Intenție
 
@@ -36,6 +36,21 @@ O companie care cumpără Echo își face spațiul ei: invită angajații cu def
 1. **Acum (înainte să fie folosită baza de date):** migrația, RLS și testele în `server/tests/test_database.py`. Nimic nu se schimbă în aplicație sau pe server; demo-ul de mâine nu e atins.
 2. **După demo:** în aplicație: crearea companiei, invitații, acceptarea invitației, ecranul cu nevoile angajatului, sincronizarea sunetelor locației cu `LocationSoundStore`, butoanele „Sunt în siguranță / Am nevoie de ajutor” pe ecranul roșu și lista de prezență pentru admin. Fiecare cu designul ei mic.
 3. **Instalare la companie:** ghid în README (Supabase self-hosted în Docker + `supabase db push`).
+
+## 4b. Etapa 2 în aplicație (detaliu)
+
+Totul apare doar cu conturi activate (Supabase configurat) și cu utilizatorul autentificat; altfel aplicația e neschimbată (demo-ul nu e atins).
+
+| Piesă | Ce face |
+|---|---|
+| `core/org/org_store.dart` | `OrgStore` (abstract + Supabase): companiile mele, invitațiile mele (`my_invites()`, cu numele companiei, pe care invitatul încă nu îl poate citi), creare, acceptare, membri + nevoi, invitații, roluri, plecare, sunete comune, alarme |
+| `core/org/organizations.dart` | `Organizations` (`ChangeNotifier`): companiile utilizatorului, reîncărcate la login / logout; aduce sunetele comune pentru modelul acestui dispozitiv (`tflite` pe telefon, `tfjs` în browser) în `LocationSoundStore` |
+| `LocationSoundStore` | pe lângă sunetele învățate aici, ține sunetele primite de la companie (separat, înlocuite la fiecare sincronizare) |
+| Ecranul „Sunetul vizibil” | **Sunetele locației**: învață un sunet din 3 mostre (nume + nivel), listă, ștergere; adminul îl poate **împărți cu compania**. Interfața de învățare lipsea până acum (exista doar logica) |
+| Cont → „Compania mea” | fără companie: invitațiile primite (Acceptă) și „Creează o companie”. Angajat: nevoile mele (comutatoare), plecarea din companie. Admin: angajații (rol, departament, nevoile ca iconițe + text), invită pe email, invitațiile în așteptare, alarmele cu lista de prezență (se reîmprospătează la 5 s), închiderea alarmei |
+| Ecranul roșu | pentru membrii unei companii: „Sunt în siguranță” / „Am nevoie de ajutor” (raportează alarma și trimite răspunsul); mesaj că lista nu înlocuiește procedura de evacuare |
+
+Teste de widget cu un `OrgStore` fals pentru fiecare flux; testul de bază de date pentru `my_invites()`.
 
 ## 5. Teste (Postgres real, ca până acum)
 

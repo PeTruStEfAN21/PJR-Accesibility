@@ -25,25 +25,49 @@ class LocationSound {
       );
 }
 
-/// Learned sounds, saved only on this device.
+/// Sounds learned on this device, plus the ones the user's company shared
+/// (kept apart and replaced at each sync). Both are saved on the device, so
+/// they keep working offline.
 class LocationSoundStore extends ChangeNotifier {
   LocationSoundStore(this._prefs) {
-    try {
-      final saved = _prefs.getString(_key);
-      if (saved != null) {
-        _sounds.addAll([for (final s in jsonDecode(saved) as List) LocationSound.fromJson(s as Map<String, dynamic>)]);
-      }
-    } catch (_) {
-      // A corrupt list is dropped rather than blocking the app.
-      _sounds.clear();
-    }
+    _load(_key, _sounds);
+    _load(_sharedKey, _shared);
   }
 
   static const _key = 'locationSounds';
+  static const _sharedKey = 'sharedLocationSounds';
   final SharedPreferences _prefs;
   final _sounds = <LocationSound>[];
+  final _shared = <LocationSound>[];
 
-  List<LocationSound> get sounds => List.unmodifiable(_sounds);
+  /// Everything the detector listens for.
+  List<LocationSound> get sounds => List.unmodifiable([..._sounds, ..._shared]);
+
+  /// Learned on this device (the user can delete these).
+  List<LocationSound> get learned => List.unmodifiable(_sounds);
+
+  /// From the company.
+  List<LocationSound> get shared => List.unmodifiable(_shared);
+
+  void _load(String key, List<LocationSound> into) {
+    try {
+      final saved = _prefs.getString(key);
+      if (saved != null) {
+        into.addAll([for (final s in jsonDecode(saved) as List) LocationSound.fromJson(s as Map<String, dynamic>)]);
+      }
+    } catch (_) {
+      // A corrupt list is dropped rather than blocking the app.
+      into.clear();
+    }
+  }
+
+  Future<void> replaceShared(List<LocationSound> sounds) async {
+    _shared
+      ..clear()
+      ..addAll(sounds);
+    await _prefs.setString(_sharedKey, jsonEncode([for (final s in _shared) s.toJson()]));
+    notifyListeners();
+  }
 
   Future<void> add(String label, AlertLevel level, Float32List print) async {
     final id = DateTime.now().microsecondsSinceEpoch.toRadixString(36);

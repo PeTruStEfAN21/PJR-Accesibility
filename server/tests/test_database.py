@@ -221,9 +221,12 @@ def answer(db, user, org, event, status="safe"):
 def test_creating_an_organization_makes_the_caller_its_admin(db):
     admin = new_user(db)
     new_org(db, admin)
+    email = email_of(db, admin)
     with as_user(db, admin):
         assert db.execute("select name from public.organizations").fetchall() == [("Fabrica de pâine",)]
-        assert db.execute("select user_id, role from public.org_members").fetchall() == [(admin, "admin")]
+        assert db.execute("select user_id, role, email from public.org_members").fetchall() == [
+            (admin, "admin", email)
+        ]
 
 
 def test_an_accepted_invite_brings_its_role_department_and_location(db):
@@ -240,9 +243,10 @@ def test_an_accepted_invite_brings_its_role_department_and_location(db):
         # The invited person sees the invitation before accepting it.
         assert db.execute("select id from public.org_invites").fetchall() == [(invite_id,)]
     assert run(db, worker, "select public.accept_invite(%s)", (invite_id,))[0] == org
+    email = email_of(db, worker)
     with as_user(db, worker):
-        row = db.execute("select role, department, location_id from public.org_members").fetchone()
-        assert row == ("employee", "Producție", hall)
+        row = db.execute("select role, department, location_id, email from public.org_members").fetchone()
+        assert row == ("employee", "Producție", hall, email)
 
 
 def test_organizations_cannot_see_each_other(db):
@@ -435,3 +439,29 @@ def test_signed_out_requests_see_no_organization_data(db):
     for table in ("organizations", "org_members", "member_needs", "alarm_events"):
         with as_user(db, None), pytest.raises(psycopg.errors.InsufficientPrivilege):
             db.execute(f"select * from public.{table}")
+
+
+def test_the_invited_person_sees_the_company_name_before_joining(db):
+    org, admin, _ = company(db)
+    invited, stranger = new_user(db), new_user(db)
+    invite_id = invite(db, admin, org, invited)
+    with as_user(db, invited):
+        rows = db.execute("select id, org_id, org_name, role from public.my_invites()").fetchall()
+        assert rows == [(invite_id, org, "Fabrica de pâine", "employee")]
+    with as_user(db, stranger):
+        assert db.execute("select count(*) from public.my_invites()").fetchone()[0] == 0
+    run(db, invited, "select public.accept_invite(%s)", (invite_id,))
+    with as_user(db, invited):
+        assert db.execute("select count(*) from public.my_invites()").fetchone()[0] == 0
+
+
+def test_an_employee_can_change_their_answer(db):
+    org, _, worker = company(db)
+    event = report(db, worker, org)
+    answer(db, worker, org, event, "safe")
+    with as_user(db, worker):
+        changed = db.execute(
+            "update public.alarm_acks set status = 'need_help', acked_at = now() where event_id = %s and user_id = %s",
+            (event, worker),
+        ).rowcount
+        assert changed == 1
