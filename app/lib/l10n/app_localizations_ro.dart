@@ -265,6 +265,14 @@ class AppLocalizationsRo extends AppLocalizations {
   String get aiError => 'AI-ul nu a putut răspunde. Încearcă din nou.';
 
   @override
+  String get aiErrorLimit =>
+      'AI-ul a primit prea multe cereri în ultima oră. Încearcă din nou mai târziu.';
+
+  @override
+  String get aiErrorOff =>
+      'AI-ul nu e pornit pe server. Subtitrările merg în continuare.';
+
+  @override
   String get simplify => 'Simplifică';
 
   @override

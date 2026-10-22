@@ -265,6 +265,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiError => 'The AI could not answer. Please try again.';
 
   @override
+  String get aiErrorLimit =>
+      'The AI has had too many requests this hour. Please try again later.';
+
+  @override
+  String get aiErrorOff =>
+      'The AI is not set up on the server. Captions still work.';
+
+  @override
   String get simplify => 'Simplify';
 
   @override

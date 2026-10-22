@@ -90,6 +90,8 @@
   "askThinking": "Caut în transcriere…",
   "transcriptEmpty": "Nu există încă replici în transcriere.",
   "aiError": "AI-ul nu a putut răspunde. Încearcă din nou.",
+  "aiErrorLimit": "AI-ul a primit prea multe cereri în ultima oră. Încearcă din nou mai târziu.",
+  "aiErrorOff": "AI-ul nu e pornit pe server. Subtitrările merg în continuare.",
   "simplify": "Simplifică",
 
   "presenterTitle": "Mod prezentator",

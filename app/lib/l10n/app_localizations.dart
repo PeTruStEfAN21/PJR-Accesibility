@@ -572,6 +572,18 @@ abstract class AppLocalizations {
   /// **'AI-ul nu a putut răspunde. Încearcă din nou.'**
   String get aiError;
 
+  /// No description provided for @aiErrorLimit.
+  ///
+  /// In ro, this message translates to:
+  /// **'AI-ul a primit prea multe cereri în ultima oră. Încearcă din nou mai târziu.'**
+  String get aiErrorLimit;
+
+  /// No description provided for @aiErrorOff.
+  ///
+  /// In ro, this message translates to:
+  /// **'AI-ul nu e pornit pe server. Subtitrările merg în continuare.'**
+  String get aiErrorOff;
+
   /// No description provided for @simplify.
   ///
   /// In ro, this message translates to:

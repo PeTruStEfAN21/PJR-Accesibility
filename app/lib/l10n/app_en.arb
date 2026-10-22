@@ -90,6 +90,8 @@
   "askThinking": "Searching the transcript…",
   "transcriptEmpty": "There are no lines in the transcript yet.",
   "aiError": "The AI could not answer. Please try again.",
+  "aiErrorLimit": "The AI has had too many requests this hour. Please try again later.",
+  "aiErrorOff": "The AI is not set up on the server. Captions still work.",
   "simplify": "Simplify",
 
   "presenterTitle": "Presenter mode",
