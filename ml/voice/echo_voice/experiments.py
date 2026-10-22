@@ -38,7 +38,7 @@ def _normalize(v: np.ndarray) -> np.ndarray:
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--speakers", type=Path, default=ROOT / "data" / "speakers")
-    parser.add_argument("--run", type=Path, default=ROOT / "runs" / "vp-ro-1" / "best.pt")
+    parser.add_argument("--runs", type=Path, nargs="*", default=sorted((ROOT / "runs").glob("*/best.pt")))
     parser.add_argument("--trials", type=int, default=2000)
     args = parser.parse_args(argv)
 
@@ -50,8 +50,8 @@ def main(argv: list[str] | None = None) -> None:
     cohort_speakers = [s for s in train if not s.startswith("meeting-")][:60]
 
     models = {"base": load_base().to(device)}
-    if args.run.exists():
-        models["fine-tuned"] = load_candidate(str(args.run)).to(device)
+    for run in args.runs:
+        models[run.parent.name] = load_candidate(str(run)).to(device)
 
     # Enrollment: ~20 s of one speaker's clips, never the test clip; trials: a test clip of the same or
     # another held-out speaker, at several lengths, clean or heard across a simulated room.
@@ -111,14 +111,7 @@ def main(argv: list[str] | None = None) -> None:
                     labels.append(same)
                 key = (name, condition, seconds)
                 results[key] = (eer(np.array(plain), np.array(labels)), eer(np.array(normed), np.array(labels)), np.array(plain), np.array(labels))
-                print(f"{name:11s} {condition:14s} {seconds:4.1f} s   EER {100 * results[key][0]:5.2f}%   cu AS-norm {100 * results[key][1]:5.2f}%", flush=True)
-
-    if "fine-tuned" in models:
-        for condition in ("curat", "sală 5-10 m"):
-            for seconds in (1.5, 3.0, 8.0):
-                b, f = results[("base", condition, seconds)], results[("fine-tuned", condition, seconds)]
-                fused = eer((b[2] + f[2]) / 2, b[3])
-                print(f"fuziune     {condition:14s} {seconds:4.1f} s   EER {100 * fused:5.2f}%", flush=True)
+                print(f"{name:13s} {condition:14s} {seconds:4.1f} s   EER {100 * results[key][0]:5.2f}%   cu AS-norm {100 * results[key][1]:5.2f}%", flush=True)
 
 
 if __name__ == "__main__":
