@@ -1,4 +1,5 @@
 import json
+from contextlib import contextmanager
 
 import pytest
 from fastapi.testclient import TestClient
@@ -133,3 +134,44 @@ def test_oversized_message_returns_error(client):
         ws.receive_json()
         ws.send_text(json.dumps(caption("a" * 5000)))
         assert ws.receive_json()["type"] == "error"
+
+
+@contextmanager
+def connected_pair(client: TestClient):
+    """Presenter + participant on a new session, with the join events drained."""
+    code = new_code(client)
+    with client.websocket_connect(f"/ws/{code}?role=presenter") as presenter:
+        presenter.receive_json()
+        with client.websocket_connect(f"/ws/{code}?role=participant") as participant:
+            participant.receive_json()
+            presenter.receive_json()
+            yield presenter, participant
+
+
+def test_presenter_can_send_read(client):
+    with connected_pair(client) as (presenter, participant):
+        presenter.send_json({"type": "read", "id": "q1", "by": "voice"})
+        assert participant.receive_json() == {"type": "read", "id": "q1", "by": "voice"}
+
+
+def test_participant_cannot_send_read(client):
+    code = new_code(client)
+    with client.websocket_connect(f"/ws/{code}?role=participant") as participant:
+        participant.receive_json()
+        participant.send_json({"type": "read", "id": "q1", "by": "voice"})
+        assert participant.receive_json() == {"type": "error", "message": "participant cannot send read"}
+
+
+def test_read_by_must_be_voice_or_speaker(client):
+    code = new_code(client)
+    with client.websocket_connect(f"/ws/{code}?role=presenter") as presenter:
+        presenter.receive_json()
+        presenter.send_json({"type": "read", "id": "q1", "by": "robot"})
+        assert presenter.receive_json() == {"type": "error", "message": "invalid message"}
+
+
+def test_hand_notify_with_empty_text_is_relayed(client):
+    with connected_pair(client) as (presenter, participant):
+        hand = {"type": "notify", "id": "h1", "kind": "hand", "text": "", "ts": 3}
+        participant.send_json(hand)
+        assert presenter.receive_json() == hand

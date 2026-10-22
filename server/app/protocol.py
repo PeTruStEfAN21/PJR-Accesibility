@@ -25,7 +25,7 @@ class Caption(_Message):
 class Notify(_Message):
     type: Literal["notify"]
     id: str = Field(max_length=64)
-    kind: Literal["question", "repeat", "slower", "custom"]
+    kind: Literal["question", "repeat", "slower", "custom", "hand"]
     text: str = Field(max_length=500)
     ts: int
 
@@ -35,10 +35,18 @@ class Seen(_Message):
     id: str = Field(max_length=64)
 
 
-ClientMessage = Annotated[Caption | Notify | Seen, Field(discriminator="type")]
+class Read(_Message):
+    """The presenter read the participant's question out loud (by voice synthesis or themselves)."""
+
+    type: Literal["read"]
+    id: str = Field(max_length=64)
+    by: Literal["voice", "speaker"]
+
+
+ClientMessage = Annotated[Caption | Notify | Seen | Read, Field(discriminator="type")]
 client_message = TypeAdapter(ClientMessage)
 
 ALLOWED = {
-    "presenter": {"caption", "seen"},
+    "presenter": {"caption", "seen", "read"},
     "participant": {"caption", "notify"},
 }

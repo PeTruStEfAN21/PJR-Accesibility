@@ -47,3 +47,24 @@ class AskRequest(BaseModel):
 class AskResponse(BaseModel):
     answer: str
     citations: list[int]
+
+
+class AnswerCheckRequest(BaseModel):
+    lang: str = Lang
+    question: str = Field(min_length=1, max_length=500)
+    lines: list[Line] = Field(min_length=1, max_length=200)
+
+
+class AnswerCheckResponse(BaseModel):
+    answered: bool
+    answer: str
+    line_ids: list[int]
+
+
+class QuestionsRequest(BaseModel):
+    lang: str = Lang
+    lines: list[Line] = Field(min_length=1, max_length=20)
+
+
+class QuestionsResponse(BaseModel):
+    question_ids: list[int]
