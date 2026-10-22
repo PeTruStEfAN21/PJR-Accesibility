@@ -76,6 +76,9 @@ cd app && flutter analyze
 cd app && flutter run -d chrome    # pagina prezentatorului, pentru dezvoltare
 cd app && flutter build web        # build servit de server la http://localhost:8000
 cd app && flutter run -d <iphone>  # doar de pe Mac
+cd ml/voice && .venv/Scripts/python -m pytest -q                       # teste recunoașterea vocii (instalare: ml/voice/README.md)
+cd ml/voice && .venv/Scripts/python -m echo_voice.train --data data/speakers --out runs/<nume> --batch 6
+cd ml/voice && .venv/Scripts/python -m echo_voice.ship                 # alege și exportă modelul de voce în app/web/voice/
 ```
 
 ## Mod de lucru
