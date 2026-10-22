@@ -1,0 +1,9 @@
+{
+  "model": "redimnet2-b6-vb2+vox2_v0-lm",
+  "scale": 20.0,
+  "bias": -7.0,
+  "threshold": 0.5,
+  "min_voiced_ms": 1000,
+  "enroll_min_voiced_ms": 10000,
+  "window_ms": 3000
+}
