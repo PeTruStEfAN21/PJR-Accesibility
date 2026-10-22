@@ -6,6 +6,7 @@ import '../features/alerts/alert_signals.dart';
 import '../features/alerts/location_sounds.dart';
 import '../features/alerts/sound_alert.dart';
 import '../features/alerts/sound_listening.dart';
+import '../features/emergency/position_source.dart';
 import '../settings/app_settings.dart';
 import 'account/account_service.dart';
 import 'history/meeting_store.dart';
@@ -29,6 +30,7 @@ class AppServices {
     this.channelFactory,
     this.account,
     this.meetings,
+    this.positions = const GeolocatorPositionSource(),
   })  : tts = tts ?? createTtsService(),
         voice = voice ?? createVoiceEngine(),
         soundListening = soundListening ?? SoundListening(sounds);
@@ -56,6 +58,9 @@ class AppServices {
   /// Null when accounts are off (no Supabase configured): no sign-in, nothing saved.
   final AccountService? account;
   final MeetingStore? meetings;
+
+  /// Where this phone is, for colleague alarms. Constructing the default touches no plugin.
+  final PositionSource positions;
 
   /// The meeting store, only while someone is signed in.
   MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
