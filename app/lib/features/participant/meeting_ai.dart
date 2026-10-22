@@ -65,11 +65,7 @@ void showSummarySheet(BuildContext context, ServerApi api, Transcript transcript
 /// cited transcript lines shown under each answer.
 void openAskScreen(BuildContext context, ServerApi api, Transcript transcript) {
   if (transcript.finalLines().isEmpty) return _showEmpty(context);
-  Navigator.of(context).push(
-    MaterialPageRoute(
-      builder: (_) => _AskScreen(api: api, transcript: transcript),
-    ),
-  );
+  Navigator.of(context).push(MaterialPageRoute(builder: (_) => _AskScreen(api: api, transcript: transcript)));
 }
 
 class _AskScreen extends StatefulWidget {
@@ -141,10 +137,7 @@ class _AskScreenState extends State<_AskScreen> {
                   if (exchange.failed)
                     _AiError(message: l10n.aiError)
                   else if (exchange.answer == null)
-                    Semantics(
-                      liveRegion: true,
-                      child: Padding(padding: const EdgeInsets.all(12), child: Text(l10n.askThinking)),
-                    )
+                    Semantics(liveRegion: true, child: Padding(padding: const EdgeInsets.all(12), child: Text(l10n.askThinking)))
                   else
                     Semantics(
                       liveRegion: true,
