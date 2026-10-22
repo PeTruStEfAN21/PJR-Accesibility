@@ -9,6 +9,8 @@ import '../fakes.dart';
 
 Future<void> joinMeeting(WidgetTester tester, TestHarness h) async {
   await tester.pumpWidget(h.app());
+  await tester.ensureVisible(find.text('Conectează-te la speaker'));
+  await tester.pumpAndSettle();
   await tester.tap(find.text('Conectează-te la speaker'));
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextFormField).first, 'abc234');

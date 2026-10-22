@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../settings/app_settings.dart';
 
-/// Echo's screen colours ("editorial-greeting" tokens), with a high-contrast variant. Used by the redesigned screens; the shared Material theme stays as it is.
+/// Echo's colours, with a high-contrast variant: the one source for both Echo's own widgets and the
+/// Material theme (`buildTheme`), so every screen looks the same.
 class EchoPalette {
   const EchoPalette({
     required this.ground,
@@ -35,31 +36,49 @@ class EchoPalette {
   final Color muted;
   final Color accent;
 
-  /// The logo's cyan, flat: for the few icons that carry the brand (main action, settings).
+  /// Icons that carry the brand (main actions, settings): a deeper shade of the logo's cyan, 3:1 or more.
   final Color brand;
 
   /// The main action's panel: a pale tint of the accent.
   final Color accentTint;
 
-  /// The one filled button: near-black, not the accent.
+  /// The filled button: the deep cyan, with white text.
   final Color primary;
   final Color onPrimary;
 
-  static EchoPalette of(BuildContext context) {
-    if (SettingsScope.of(context).highContrast) {
-      const ink = Colors.black;
-      const paper = Colors.white;
-      return EchoPalette(
-        ground: paper, surface: paper, raised: paper, border: ink, control: ink, text: ink, muted: ink,
-        accent: ink, brand: ink, accentTint: paper, primary: ink, onPrimary: paper,
-      );
-    }
-    return const EchoPalette(
-      ground: Color(0xFFFFFFFF), surface: Color(0xFFF9F9F9), raised: Color(0xFFFFFFFF), border: Color(0xFFEAEAEA),
-      control: Color(0xFFB9BAB6), text: Color(0xFF1F201D), muted: Color(0xFF636361), accent: Color(0xFF1B6E66), brand: Color(0xFF007D90),
-      accentTint: Color(0xFFE6F1EF), primary: Color(0xFF1F201D), onPrimary: Color(0xFFFFFFFF),
-    );
-  }
+  /// Calm, built around the logo's cyan: the cyan itself only in the logo, a deeper cyan from the same
+  /// family for actions (7:1 on white), near-black text, a very light cyan tint for panels.
+  static const standard = EchoPalette(
+    ground: Color(0xFFFFFFFF),
+    surface: Color(0xFFF3F9FB),
+    raised: Color(0xFFFFFFFF),
+    border: Color(0xFFD3E6EB),
+    control: Color(0xFF5F7A83),
+    text: Color(0xFF0B1A20),
+    muted: Color(0xFF34494F),
+    accent: Color(0xFF005C70),
+    brand: Color(0xFF00788F),
+    accentTint: Color(0xFFE2F4F8),
+    primary: Color(0xFF005C70),
+    onPrimary: Color(0xFFFFFFFF),
+  );
+
+  static const highContrast = EchoPalette(
+    ground: Colors.white,
+    surface: Colors.white,
+    raised: Colors.white,
+    border: Colors.black,
+    control: Colors.black,
+    text: Colors.black,
+    muted: Colors.black,
+    accent: Colors.black,
+    brand: Colors.black,
+    accentTint: Colors.white,
+    primary: Colors.black,
+    onPrimary: Colors.white,
+  );
+
+  static EchoPalette of(BuildContext context) => SettingsScope.of(context).highContrast ? highContrast : standard;
 }
 
 /// The only two button styles on Echo's redesigned screens. Neither spreads a ripple: the filled
