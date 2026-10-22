@@ -4,7 +4,13 @@ import 'dart:typed_data';
 /// One 30 ms slice of the microphone: how loud it was, whether it is voice, and whether a syllable
 /// was confirmed at this frame.
 class VoiceFrame {
-  const VoiceFrame({required this.time, required this.db, required this.voiced, required this.syllable});
+  const VoiceFrame({
+    required this.time,
+    required this.db,
+    required this.voiced,
+    required this.syllable,
+    this.noiseDb = -60,
+  });
 
   /// Seconds since the analyzer started.
   final double time;
@@ -15,6 +21,9 @@ class VoiceFrame {
 
   /// A syllable nucleus was confirmed here (it peaked a few frames earlier).
   final bool syllable;
+
+  /// The room's level (the noise floor) when this frame was heard, in dBFS.
+  final double noiseDb;
 }
 
 /// Turns microphone samples (16 kHz mono) into [VoiceFrame]s, without a transcript and in any language.
@@ -68,11 +77,15 @@ class FrameAnalyzer {
     final time = _index++ * frameMs / 1000;
     _energies.add(energy);
     if (_energies.length > _historyFrames) _energies.removeAt(0);
-    final voiced = energy >= _floor();
-    final db = 10 * log(max(energy, 1e-12)) / ln10;
+    final floor = _floor();
+    final voiced = energy >= floor;
+    final db = _db(energy);
     final syllable = _syllable(time, db, voiced);
-    return VoiceFrame(time: time, db: db, voiced: voiced, syllable: syllable);
+    // The floor is 12 dB above the room: the room itself is 12 dB below it.
+    return VoiceFrame(time: time, db: db, voiced: voiced, syllable: syllable, noiseDb: _db(floor) - 12);
   }
+
+  static double _db(double energy) => 10 * log(max(energy, 1e-12)) / ln10;
 
   double _floor() {
     // Until a second of sound is in, there is no room to measure: a fixed -50 dBFS floor.
