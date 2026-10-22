@@ -10,7 +10,10 @@ import '../../widgets/pressable.dart';
 import 'participant_screen.dart';
 
 class JoinScreen extends StatefulWidget {
-  const JoinScreen({super.key, this.replaceOnJoin = true});
+  const JoinScreen({super.key, this.replaceOnJoin = true, this.embedded = false});
+
+  /// Inside the phone's Meeting tab, which has its own title: no top bar here.
+  final bool embedded;
 
   /// Opened from the home screen, joining replaces this screen; as the phone frame's Meeting tab it opens
   /// the meeting on top, and back returns to the tab.
@@ -95,8 +98,8 @@ class _JoinScreenState extends State<JoinScreen> {
     final label = theme.textTheme.titleSmall?.copyWith(color: palette.text, fontWeight: FontWeight.w600);
 
     return Scaffold(
-      backgroundColor: palette.ground,
-      appBar: AppBar(
+      backgroundColor: widget.embedded ? Colors.transparent : palette.ground,
+      appBar: widget.embedded ? null : AppBar(
         backgroundColor: palette.ground,
         foregroundColor: palette.text,
         surfaceTintColor: Colors.transparent,
@@ -105,6 +108,7 @@ class _JoinScreenState extends State<JoinScreen> {
         title: Text(l10n.joinTitle, style: theme.textTheme.titleLarge?.copyWith(color: palette.text, fontWeight: FontWeight.w600)),
       ),
       body: SafeArea(
+        bottom: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
@@ -112,7 +116,7 @@ class _JoinScreenState extends State<JoinScreen> {
             child: Form(
               key: _form,
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                padding: EdgeInsets.fromLTRB(20, 8, 20, 32 + MediaQuery.paddingOf(context).bottom),
                 children: [
                   Text(l10n.joinIntro, style: theme.textTheme.bodyLarge?.copyWith(color: palette.text)),
                   const SizedBox(height: 24),

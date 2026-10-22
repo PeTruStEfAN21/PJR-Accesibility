@@ -1513,4 +1513,38 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get alarmAccountsOff =>
       'Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.';
+
+  @override
+  String get meetingTitle => 'Meeting';
+
+  @override
+  String get meetingModeLabel => 'Cum iei parte la meeting?';
+
+  @override
+  String get meetingModeJoin => 'Particip';
+
+  @override
+  String get meetingModePresent => 'Prezint';
+
+  @override
+  String get presentIntroTitle => 'Tu ții meetingul';
+
+  @override
+  String get presentIntroBody =>
+      'Echo ascultă sala de pe acest dispozitiv și face subtitrarea în timp ce vorbești.';
+
+  @override
+  String get presentPointCode =>
+      'Participanții intră cu codul sau cu QR-ul de pe ecran';
+
+  @override
+  String get presentPointQuestions =>
+      'Întrebările lor îți apar în liniște, iar Echo le poate citi cu voce tare';
+
+  @override
+  String get presentPointVoice =>
+      'Pe laptop, Echo îți învață vocea și știe când vorbești tu';
+
+  @override
+  String get presentStart => 'Pornește meetingul';
 }

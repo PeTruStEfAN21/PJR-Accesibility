@@ -492,5 +492,15 @@
   "navAlarm": "Alarmă",
   "navSettings": "Setări",
   "alarmNeedsAccount": "Alarma de urgență cere un cont: numele tău pleacă împreună cu alarma, ca colegii să știe cine a dat-o.",
-  "alarmAccountsOff": "Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici."
+  "alarmAccountsOff": "Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.",
+  "meetingTitle": "Meeting",
+  "meetingModeLabel": "Cum iei parte la meeting?",
+  "meetingModeJoin": "Particip",
+  "meetingModePresent": "Prezint",
+  "presentIntroTitle": "Tu ții meetingul",
+  "presentIntroBody": "Echo ascultă sala de pe acest dispozitiv și face subtitrarea în timp ce vorbești.",
+  "presentPointCode": "Participanții intră cu codul sau cu QR-ul de pe ecran",
+  "presentPointQuestions": "Întrebările lor îți apar în liniște, iar Echo le poate citi cu voce tare",
+  "presentPointVoice": "Pe laptop, Echo îți învață vocea și știe când vorbești tu",
+  "presentStart": "Pornește meetingul"
 }

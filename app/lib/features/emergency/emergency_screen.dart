@@ -147,12 +147,13 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         title: Text(l10n.emergencyTitle, style: theme.textTheme.titleLarge?.copyWith(color: palette.text, fontWeight: FontWeight.w600)),
       ),
       body: SafeArea(
+        bottom: false,
         child: Align(
           alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+              padding: EdgeInsets.fromLTRB(20, 8, 20, 32 + MediaQuery.paddingOf(context).bottom),
               children: [
                 Text(l10n.emergencyIntro, style: theme.textTheme.bodyLarge?.copyWith(color: palette.text)),
                 const SizedBox(height: 8),

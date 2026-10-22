@@ -61,7 +61,9 @@ void main() {
     expect(find.text('Conectează-te la speaker'), findsOneWidget);
     expect(find.text('Sunete'), findsOneWidget);
     expect(find.text('Vorbesc cu cineva'), findsOneWidget);
-    expect(find.text('Sunt coleg într-un meeting online'), findsOneWidget);
+    // The clarity coach stays in the app but is hidden from the home page for now.
+    expect(find.text('Sunt coleg într-un meeting online'), findsNothing);
+    expect(find.text('Meeting online'), findsNothing);
     // Joining has its own card now, so the small link is not repeated.
     expect(find.text('Participi la meeting? Intră de aici'), findsNothing);
   });

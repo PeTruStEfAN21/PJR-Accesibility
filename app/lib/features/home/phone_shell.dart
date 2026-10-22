@@ -4,14 +4,15 @@ import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../theme/echo_style.dart';
+import '../../widgets/glass.dart';
 import '../account/sign_in_screen.dart';
 import '../emergency/alarm_api.dart';
 import '../emergency/alarm_scope.dart';
 import '../emergency/emergency_screen.dart';
-import '../participant/join_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sounds/sounds_screen.dart';
 import 'home_screen.dart';
+import 'meeting_tab.dart';
 
 /// The phone's five main screens, in the bar's order.
 enum EchoTab { home, meeting, sounds, alarm, settings }
@@ -43,7 +44,7 @@ class _PhoneShellState extends State<PhoneShell> {
 
   Widget _screen(EchoTab tab) => switch (tab) {
     EchoTab.home => const HomeScreen(presenterFirst: false),
-    EchoTab.meeting => const JoinScreen(replaceOnJoin: false),
+    EchoTab.meeting => const MeetingTab(),
     EchoTab.sounds => const SoundsScreen(),
     EchoTab.alarm => const _AlarmTab(),
     EchoTab.settings => const SettingsScreen(),
@@ -55,8 +56,9 @@ class _PhoneShellState extends State<PhoneShell> {
       tab: _tab,
       select: _select,
       child: Scaffold(
-        // The screens end above the floating bar, so the last thing on every screen stays reachable,
-        // whatever padding the screen itself uses.
+        // Content scrolls under the glass bar; each main screen puts the bar's height inside its list
+        // (MediaQuery bottom padding), so its last item still ends above the bar.
+        extendBody: true,
         body: IndexedStack(
           index: _tab.index,
           children: [for (final tab in EchoTab.values) _visited.contains(tab) ? _screen(tab) : const SizedBox.shrink()],
@@ -89,8 +91,6 @@ class _FloatingBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final palette = EchoPalette.of(context);
-    final highContrast = SettingsScope.of(context).highContrast;
     final items = [
       (EchoTab.home, Icons.home_outlined, Icons.home, l10n.navHome),
       (EchoTab.meeting, Icons.closed_caption_outlined, Icons.closed_caption, l10n.navMeeting),
@@ -107,59 +107,63 @@ class _FloatingBar extends StatelessWidget {
         child: Semantics(
           container: true,
           label: l10n.navLabel,
-          child: DecoratedBox(
+          child: GlassSurface(
             key: PhoneShell.barKey,
-            decoration: BoxDecoration(
-              color: palette.raised,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(color: highContrast ? palette.border : palette.border, width: highContrast ? 2 : 1),
-              boxShadow: highContrast
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: palette.text.withValues(alpha: 0.10),
-                        blurRadius: 24,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(6),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  // One size for all five labels: the largest at which the longest one fits its slot.
-                  final style = _labelStyle(context, selected: true);
-                  final scaler = MediaQuery.textScalerOf(context);
-                  final slot = constraints.maxWidth / items.length - 4;
-                  var widest = 0.0;
-                  for (final (_, _, _, label) in items) {
-                    final painter = TextPainter(
-                      text: TextSpan(text: label, style: style),
-                      textScaler: scaler,
-                      textDirection: Directionality.of(context),
-                      maxLines: 1,
-                    )..layout();
-                    if (painter.width > widest) widest = painter.width;
-                    painter.dispose();
-                  }
-                  final fit = widest > slot ? slot / widest : 1.0;
-                  final labelScaler = TextScaler.linear(scaler.scale(1) * fit);
-                  return Row(
-                    children: [
-                      for (final (tab, icon, selectedIcon, label) in items)
-                        Expanded(
-                          child: _BarItem(
-                            icon: tab == current ? selectedIcon : icon,
-                            label: label,
-                            labelScaler: labelScaler,
-                            selected: tab == current,
-                            onTap: () => onSelect(tab),
-                          ),
+            radius: 32,
+            padding: const EdgeInsets.all(6),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                // One size for all five labels: the largest at which the longest one fits its slot.
+                final style = _labelStyle(context, selected: true);
+                final scaler = MediaQuery.textScalerOf(context);
+                final slot = constraints.maxWidth / items.length - 4;
+                var widest = 0.0;
+                for (final (_, _, _, label) in items) {
+                  final painter = TextPainter(
+                    text: TextSpan(text: label, style: style),
+                    textScaler: scaler,
+                    textDirection: Directionality.of(context),
+                    maxLines: 1,
+                  )..layout();
+                  if (painter.width > widest) widest = painter.width;
+                  painter.dispose();
+                }
+                final fit = widest > slot ? slot / widest : 1.0;
+                final labelScaler = TextScaler.linear(scaler.scale(1) * fit);
+                return Stack(
+                  children: [
+                    // The selection pill glides to the chosen entry (instantly with reduced motion).
+                    Positioned.fill(
+                      child: LayoutBuilder(
+                        builder: (context, box) => Stack(
+                          children: [
+                            GlassPill(
+                              index: current.index,
+                              count: items.length,
+                              height: box.maxHeight,
+                              width: box.maxWidth,
+                            ),
+                          ],
                         ),
-                    ],
-                  );
-                },
-              ),
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        for (final (tab, icon, selectedIcon, label) in items)
+                          Expanded(
+                            child: _BarItem(
+                              icon: tab == current ? selectedIcon : icon,
+                              label: label,
+                              labelScaler: labelScaler,
+                              selected: tab == current,
+                              onTap: () => onSelect(tab),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -211,14 +215,8 @@ class _BarItem extends StatelessWidget {
           curve: Curves.easeOut,
           constraints: const BoxConstraints(minHeight: 56),
           padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
-          decoration: BoxDecoration(
-            // Selection shows by more than colour: filled icon, bold label and the pill behind them.
-            color: selected ? palette.accentTint : Colors.transparent,
-            borderRadius: BorderRadius.circular(22),
-            border: selected && SettingsScope.of(context).highContrast
-                ? Border.all(color: palette.border, width: 2)
-                : null,
-          ),
+          // Selection shows by more than colour: filled icon, bold label and the pill gliding behind them.
+          decoration: const BoxDecoration(),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
@@ -284,8 +282,9 @@ class _AlarmUnavailable extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(l10n.emergencyTitle)),
       body: SafeArea(
+        bottom: false,
         child: ListView(
-          padding: const EdgeInsets.all(24),
+          padding: EdgeInsets.fromLTRB(24, 24, 24, 24 + MediaQuery.paddingOf(context).bottom),
           children: [
             Align(
               alignment: AlignmentDirectional.centerStart,

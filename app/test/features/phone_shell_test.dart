@@ -5,6 +5,7 @@ import 'package:pjr_accesibilitate/features/conversation/conversation_screen.dar
 import 'package:pjr_accesibilitate/features/home/echo_home.dart';
 import 'package:pjr_accesibilitate/features/home/phone_shell.dart';
 import 'package:pjr_accesibilitate/features/participant/join_screen.dart';
+import 'package:pjr_accesibilitate/features/presenter/presenter_screen.dart';
 import 'package:pjr_accesibilitate/features/settings/settings_screen.dart';
 import 'package:pjr_accesibilitate/features/sounds/sounds_screen.dart';
 import 'package:pjr_accesibilitate/l10n/app_localizations.dart';
@@ -150,5 +151,30 @@ void main() {
     final heights = {for (final label in ['Acasă', 'Meeting', 'Sunete', 'Alarmă', 'Setări']) tester.getRect(bar(label)).height.round()};
     expect(heights, hasLength(1));
     expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Meeting: choose between joining and presenting', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Meeting'));
+    await tester.pumpAndSettle();
+
+    // Joining is the default: the code field is there.
+    expect(tester.getSemantics(find.text('Particip')), isSemantics(isSelected: true, isButton: true));
+    expect(find.text('Codul de pe laptopul speakerului'), findsOneWidget);
+
+    await tester.tap(find.text('Prezint'));
+    await tester.pumpAndSettle();
+    expect(tester.getSemantics(find.text('Prezint')), isSemantics(isSelected: true, isButton: true));
+    expect(find.text('Codul de pe laptopul speakerului'), findsNothing);
+    final start = find.text('Pornește meetingul');
+    await tester.scrollUntilVisible(start, 200, scrollable: find.byType(Scrollable).last);
+    await Scrollable.ensureVisible(tester.element(start), alignment: 0.5);
+    await tester.pumpAndSettle();
+    await tester.tap(start);
+    await tester.pumpAndSettle();
+    expect(find.byType(PresenterScreen), findsOneWidget);
+    expect(find.byKey(PhoneShell.barKey), findsNothing);
   });
 }

@@ -76,12 +76,11 @@ Future<void> learnVoice(WidgetTester tester, String button) async {
 const overlap = 'Vorbești în același timp cu altcineva';
 
 void main() {
-  testWidgets('laptop home: the colleague in an online meeting opens the clarity coach', (tester) async {
+  testWidgets('the clarity coach is hidden from the laptop home for now', (tester) async {
     final h = await harness(tester);
     await tester.pumpWidget(coachApp(h, home: const HomeScreen(presenterFirst: true)));
-    await tester.tap(find.text('Sunt coleg într-un meeting online'));
     await tester.pumpAndSettle();
-    expect(find.text('Antrenorul de claritate'), findsOneWidget);
+    expect(find.text('Sunt coleg într-un meeting online'), findsNothing);
   });
 
   testWidgets('fast talk shows "too fast" with its icon, announced to screen readers', (tester) async {
