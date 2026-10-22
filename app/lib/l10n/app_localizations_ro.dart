@@ -311,6 +311,40 @@ class AppLocalizationsRo extends AppLocalizations {
       'Tot ce se aude apare ca spus de tine';
 
   @override
+  String get enrollTitle => 'Învață vocea ta';
+
+  @override
+  String get enrollIntro =>
+      'Citește textul de mai jos cu voce normală, cam 20 de secunde. Așa Echo îți recunoaște vocea și știe când vorbești tu și când vorbește cineva din sală. Sunetul rămâne pe acest laptop.';
+
+  @override
+  String get enrollText =>
+      'Bună ziua tuturor. Astăzi vorbim despre planurile echipei pentru luna următoare. Trecem prin bugetul proiectului, prin termenele importante și prin sarcinile fiecăruia. Dacă aveți întrebări, le puteți pune oricând. Vă mulțumesc că sunteți aici și sper să avem o discuție utilă, clară și scurtă. Să începem cu subiectele cele mai urgente.';
+
+  @override
+  String get enrollStart => 'Începe';
+
+  @override
+  String get enrollListening => 'Te ascult… citește textul';
+
+  @override
+  String get enrollDone => 'Vocea ta e învățată';
+
+  @override
+  String get enrollTooShort =>
+      'Am auzit prea puțin. Citește din nou textul, cu voce normală.';
+
+  @override
+  String get enrollFailed => 'Nu am putut învăța vocea. Încearcă din nou.';
+
+  @override
+  String get voiceUnavailable =>
+      'Recunoașterea vocii nu merge în acest browser; toate replicile sunt „Speaker”';
+
+  @override
+  String get relearnVoice => 'Reînvață vocea';
+
+  @override
   String get presenterCreateError =>
       'Nu pot crea meetingul. Verifică dacă serverul rulează.';
 

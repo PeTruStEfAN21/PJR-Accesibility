@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -17,6 +19,7 @@ Widget presenterApp(TestHarness h) => EchoApp(
         speech: h.speech,
         sounds: h.sounds,
         tts: h.tts,
+        voice: h.voice,
         channelFactory: (uri) => h.channel..uri = uri,
         httpClient: MockClient((request) async => switch (request.url.path) {
               '/api/sessions' => http.Response(jsonEncode({'code': 'ABC234'}), 201),
@@ -35,12 +38,14 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.pumpAndSettle();
 }
 
-/// Opens the presenter page on a wide window, connected to the session.
-Future<TestHarness> openPresenter(WidgetTester tester) async {
+/// Opens the presenter page on a wide window, connected to the session. With [voice] the laptop can
+/// recognise voices and the page starts by learning the speaker's.
+Future<TestHarness> openPresenter(WidgetTester tester, {bool voice = false, Map<String, Object> prefs = const {}}) async {
   tester.view.physicalSize = const Size(1400, 1000);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000'});
+  final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000', ...prefs});
+  h.voice.available = voice;
   await tester.pumpWidget(presenterApp(h));
   await tester.tap(find.text('Prezint'));
   await tester.pumpAndSettle();
@@ -57,6 +62,27 @@ Future<void> receiveQuestion(WidgetTester tester, TestHarness h, String text) as
 }
 
 Iterable<Map<String, dynamic>> readMessages(TestHarness h) => h.channel.sink.sent.where((m) => m['type'] == 'read');
+
+Float32List voiceAudio(double voiced, {double silent = 0}) => Float32List.fromList([
+      for (var i = 0; i < (voiced * 16000).round(); i++) 0.3 * sin(2 * pi * 220 * i / 16000),
+      for (var i = 0; i < (silent * 16000).round(); i++) 0.0,
+    ]);
+
+/// A unit vector along axis [i]: the fake speaker model's "voice".
+Float32List voiceVector(int i) => Float32List.fromList([for (var j = 0; j < 3; j++) j == i ? 1.0 : 0.0]);
+
+/// Reads the enrollment text for 20 s with [audio] in the microphone.
+Future<void> enroll(WidgetTester tester, TestHarness h, Float32List audio) async {
+  h.voice
+    ..audio = audio
+    ..vectorFor = (_) => voiceVector(0);
+  await tester.tap(find.text('Începe'));
+  await tester.pump();
+  // The 20 s recording ends on the first frame after the 20th second.
+  await tester.pump(const Duration(seconds: 21));
+  await tester.pump();
+  await tester.pump();
+}
 
 void main() {
   testWidgets('presenter shows the code, captions speech and marks messages as seen', (tester) async {
@@ -186,5 +212,83 @@ void main() {
     await tester.tap(find.text('Vorbesc eu'));
     await tester.pump();
     expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isTrue);
+  });
+
+  testWidgets('the presenter page starts by learning the speaker\'s voice', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+
+    expect(find.text('Învață vocea ta'), findsOneWidget);
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(find.text('A B C 2 3 4'), findsNothing);
+
+    h.voice.audio = voiceAudio(20);
+    await tester.tap(find.text('Începe'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 10));
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    await tester.pump(const Duration(seconds: 11));
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Vocea ta e învățată'), findsOneWidget);
+    expect(find.text('A B C 2 3 4'), findsOneWidget);
+    expect(h.settings.voiceprint, isNotNull);
+  });
+
+  testWidgets('too little speech asks the speaker to read again', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+    await enroll(tester, h, voiceAudio(5, silent: 15));
+
+    expect(find.text('Am auzit prea puțin. Citește din nou textul, cu voce normală.'), findsOneWidget);
+    expect(find.text('Începe'), findsOneWidget);
+    expect(find.text('A B C 2 3 4'), findsNothing);
+  });
+
+  testWidgets('final captions carry the label decided by the voice', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+    await enroll(tester, h, voiceAudio(20));
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    List<Map<String, dynamic>> captions() => h.channel.sink.sent.where((m) => m['type'] == 'caption').toList();
+
+    h.voice.vectorFor = (_) => voiceVector(1); // someone else
+    h.speech.say('r1', 'Când e termenul', isFinal: false);
+    await tester.pump();
+    h.speech.say('r1', 'Când e termenul pentru raport');
+    await tester.pump();
+    await tester.pump();
+    expect(captions().last['speaker'], 'public');
+
+    h.voice.vectorFor = (_) => voiceVector(0); // the speaker again
+    h.speech.say('s1', 'Termenul e vineri', isFinal: false);
+    await tester.pump();
+    expect(captions().last['speaker'], 'public'); // a partial line keeps the last decided label
+    h.speech.say('s1', 'Termenul e vineri la prânz');
+    await tester.pump();
+    await tester.pump();
+    expect(captions().last['speaker'], 'coordinator');
+  });
+
+  testWidgets('a learned voice is remembered, and can be learned again', (tester) async {
+    final h = await openPresenter(tester, voice: true, prefs: {'voiceEnrollment': '[1.0, 0.0, 0.0]'});
+    expect(find.text('A B C 2 3 4'), findsOneWidget);
+
+    await tester.tap(find.text('Reînvață vocea'));
+    await tester.pump();
+    expect(find.text('Învață vocea ta'), findsOneWidget);
+    expect(h.settings.voiceprint, isNull);
+  });
+
+  testWidgets('without voice recognition every line is the speaker\'s and the page goes on', (tester) async {
+    final h = await openPresenter(tester);
+
+    expect(find.text('Recunoașterea vocii nu merge în acest browser; toate replicile sunt „Speaker”'), findsOneWidget);
+    expect(find.text('A B C 2 3 4'), findsOneWidget);
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.speech.say('s1', 'Bun venit');
+    await tester.pump();
+    await tester.pump();
+    expect(h.channel.sink.sent.lastWhere((m) => m['type'] == 'caption')['speaker'], 'coordinator');
   });
 }
