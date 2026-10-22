@@ -92,7 +92,7 @@ REST:
 - `POST /api/ai/ask` `{lang, lines, question}` → `{answer, citations: [id]}`
 - `GET /health`
 
-`lines` = `[{id, speaker, text}]`. Transcrierea stă pe telefon; serverul nu o păstrează.
+`lines` = `[{id, speaker, text}]`. Transcrierea stă pe telefon; serverul nu o păstrează. (După demo: participantul autentificat își poate salva meetingurile în cont; vezi `2026-10-22-conturi-si-baza-de-date-design.md`.)
 
 ## 6. Aplicația Flutter (`app/`)
 

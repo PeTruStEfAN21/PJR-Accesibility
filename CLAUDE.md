@@ -35,7 +35,19 @@
 | `speech_to_text` | `app/` | Recunoașterea vorbirii prin motorul platformei (iOS / Chrome) pentru demo |
 | YAMNet (TFLite), ML Kit Face Detection | `app/` | Sunete și fețe, local pe telefon |
 | Python + FastAPI | `server/` | Sesiuni și legătura WebSocket telefon–laptop; AI pe text prin API-ul Claude; agentul „Întreabă meetingul” |
-| Docker + Compose | `docker-compose.yml` | Pornește serverul (și pagina prezentatorului) cu o comandă |
+| Docker + Compose | `docker-compose.yml` | Pornește serverul (și pagina prezentatorului) + Redis cu o comandă |
+| Supabase (Postgres + Auth) | `supabase/` | Conturi (cod pe email, Google) și meetingurile salvate ale fiecărui utilizator |
+| Redis | `docker-compose.yml` | Sesiunile live și limitele AI, comune tuturor instanțelor de server |
+
+## Conturi și date (`supabase/`, `server/app/auth.py`, `hub.py`, `limits.py`)
+
+- **Contul e opțional.** Fără `SUPABASE_URL` / `SUPABASE_ANON_KEY` aplicația și serverul merg exact ca înainte, anonim. Prezentatorul nu are niciodată cont.
+- **Login fără parolă**: cod de 6 cifre pe email și Google. Fără Apple deocamdată (decizie de echipă). Fără CAPTCHA și fără coduri dictate prin apel (utilizatori surzi).
+- **Ce se salvează**: doar replicile finale (text), rezumatul și setările, în contul participantului. Niciodată audio sau video.
+- **Row Level Security pe fiecare tabel**: fiecare utilizator vede doar rândurile lui. Aplicația vorbește direct cu Supabase cu cheia `anon` (publică) + tokenul utilizatorului. Serverul doar verifică tokenul (JWKS sau `SUPABASE_JWT_SECRET`) și **nu folosește cheia `service_role`**.
+- **Schema se schimbă doar prin migrații noi** în `supabase/migrations/` (niciodată editând una deja aplicată), cu test în `server/tests/test_database.py`.
+- **Sesiunile live nu se salvează în Postgres**: stau în Redis (`REDIS_URL`) sau în memorie dacă lipsește. Codul expiră după 12 h fără activitate.
+- **Limite AI** pe oră: `AI_REQUESTS_PER_HOUR` (cont) și `AI_ANONYMOUS_REQUESTS_PER_HOUR` (după IP); peste limită serverul răspunde 429.
 
 ## AI (server/)
 
@@ -53,9 +65,12 @@ app/            Flutter (Dart): iOS + web (prezentator)
   lib/core/       protocol, client WebSocket, API, recunoaștere vorbire, transcriere
   lib/settings/   setări de accesibilitate (persistente)
   lib/theme/      palete daltonism, mod dislexie, contrast
-  lib/features/   home, participant, presenter, alerts, conversation, settings
+  lib/core/account/  login (Supabase Auth)
+  lib/core/history/  meetingurile salvate și înregistrarea lor în timpul meetingului
+  lib/features/   home, participant, presenter, alerts, conversation, settings, account, history
   lib/l10n/       traduceri RO / EN (ARB)
-server/         Python (FastAPI): app/ (sesiuni, ws, ai, agent), tests/
+server/         Python (FastAPI): app/ (hub sesiuni, ws, auth, limite, ai, agent), tests/
+supabase/       config.toml, migrations/ (schema + RLS), templates/ (emailul cu codul)
 docs/           prezentare (LaTeX), specificații și planuri superpowers
 docker-compose.yml
 ```
@@ -66,6 +81,11 @@ docker-compose.yml
 docker compose up --build          # serverul pe :8000 (.env opțional; fără cheie, AI-ul răspunde 503)
 cd server && python -m venv .venv && .venv/Scripts/pip install -r requirements-dev.txt   # o dată (pe Mac: .venv/bin/)
 cd server && .venv/Scripts/python -m pytest                                              # teste server
+TEST_DATABASE_URL=postgresql://postgres@localhost:5432/postgres .venv/Scripts/python -m pytest tests/test_database.py   # schema + RLS pe un Postgres real
+npx supabase start                 # Supabase local în Docker (Postgres, Auth, emailuri în Mailpit pe :54324)
+npx supabase db reset              # reaplică migrațiile local
+npx supabase link --project-ref <ref> && npx supabase db push   # trimite migrațiile în proiectul găzduit
+cd app && flutter run --dart-define=SUPABASE_URL=<url> --dart-define=SUPABASE_ANON_KEY=<cheie anon>   # cu conturi
 cd app && flutter test             # teste aplicație
 cd app && flutter analyze
 cd app && flutter run -d chrome    # pagina prezentatorului, pentru dezvoltare
