@@ -731,7 +731,7 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get accountDeleteBody =>
-      'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.';
+      'Se șterg definitiv contul, meetingurile salvate, transcrierile, rezumatele și istoricul lor. Rămân 12 luni, cu emailul tău dar fără legătură cu contul: alarmele date de tine, răspunsurile tale la alarme și, dacă ești administrator, ce meetinguri ale angajaților ai citit (pentru anchete despre alarme și ca angajații să știe cine le-a citit meetingurile). Nu se poate anula.';
 
   @override
   String get accountDeleteConfirm => 'Șterge definitiv';
@@ -855,6 +855,10 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get orgError =>
       'Nu s-a putut. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get orgLastAdmin =>
+      'Ești singurul administrator al companiei și mai sunt colegi în ea. Fă pe altcineva administrator, apoi încearcă din nou.';
 
   @override
   String get orgTitle => 'Compania mea';
@@ -1030,7 +1034,8 @@ class AppLocalizationsRo extends AppLocalizations {
       'Alarma ajunge la colegii aflați la cel mult 500 m.';
 
   @override
-  String get emergencyAccountable => 'Numele tău se păstrează odată cu alarma.';
+  String get emergencyAccountable =>
+      'Alarma se salvează cu contul tău, ora, locul și adresa IP.';
 
   @override
   String get alarmLevelCritical => 'Critic';
@@ -1095,4 +1100,195 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get emergencyErrorNotConfigured =>
       'Serverul nu are conturi pornite. Anunță administratorul.';
+
+  @override
+  String get activityTitle => 'Istoricul meu';
+
+  @override
+  String get activityHint =>
+      'Alarmele tale, meetingurile salvate și cine le-a citit';
+
+  @override
+  String get activityEmpty =>
+      'Nu e nimic în istoric încă. Aici apar alarmele tale, meetingurile salvate și cine le-a citit.';
+
+  @override
+  String get activityCompanyEmpty => 'Nu e nimic în istoricul companiei încă.';
+
+  @override
+  String get activityLoadError =>
+      'Nu am putut încărca istoricul. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get activityOlder => 'Mai vechi';
+
+  @override
+  String get activitySomeone => 'Cineva';
+
+  @override
+  String get activityNoTitle => 'fără titlu';
+
+  @override
+  String activityQuoted(String title) {
+    return '„$title”';
+  }
+
+  @override
+  String get activityStatusSafe => 'în siguranță';
+
+  @override
+  String get activityStatusNeedHelp => 'am nevoie de ajutor';
+
+  @override
+  String activityPlace(String lat, String lon, String accuracy) {
+    return 'Locul: $lat, $lon (±$accuracy m)';
+  }
+
+  @override
+  String activityAlarmRaisedMe(String kind) {
+    return 'Ai dat o alarmă: $kind';
+  }
+
+  @override
+  String activityAlarmRaised(String who, String kind) {
+    return '$who a dat o alarmă: $kind';
+  }
+
+  @override
+  String activityAlarmCancelledMe(String kind) {
+    return 'Ai anulat alarma: $kind';
+  }
+
+  @override
+  String activityAlarmCancelled(String who, String kind) {
+    return '$who a anulat alarma: $kind';
+  }
+
+  @override
+  String activityAlarmReportedMe(String kind) {
+    return 'Ai semnalat companiei alarma: $kind';
+  }
+
+  @override
+  String activityAlarmReported(String who, String kind) {
+    return '$who a semnalat companiei alarma: $kind';
+  }
+
+  @override
+  String activityAlarmAnsweredMe(String status, String kind) {
+    return 'Ai răspuns „$status” la alarma: $kind';
+  }
+
+  @override
+  String activityAlarmAnswered(String who, String status, String kind) {
+    return '$who a răspuns „$status” la alarma: $kind';
+  }
+
+  @override
+  String activityAlarmClosedMe(String kind) {
+    return 'Ai închis alarma: $kind';
+  }
+
+  @override
+  String activityAlarmClosed(String who, String kind) {
+    return '$who a închis alarma: $kind';
+  }
+
+  @override
+  String activityMeetingStartedMe(String meeting) {
+    return 'Ai început meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingStarted(String who, String meeting) {
+    return '$who a început meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingEndedMe(String meeting) {
+    return 'Ai încheiat meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingEnded(String who, String meeting) {
+    return '$who a încheiat meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingDeletedMe(String meeting) {
+    return 'Ai șters meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingDeleted(String who, String meeting) {
+    return '$who a șters meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingReadMine(String who, String meeting) {
+    return '$who (administrator) a citit meetingul tău $meeting';
+  }
+
+  @override
+  String activityMeetingReadByMe(String meeting, String owner) {
+    return 'Ai citit meetingul $meeting, salvat de $owner';
+  }
+
+  @override
+  String activityMeetingRead(String who, String meeting, String owner) {
+    return '$who (administrator) a citit meetingul $meeting, salvat de $owner';
+  }
+
+  @override
+  String get orgHistory => 'Istoricul companiei';
+
+  @override
+  String get orgHistoryHint => 'Alarmele și meetingurile din companie, cu cine';
+
+  @override
+  String get orgMeetings => 'Meetingurile companiei';
+
+  @override
+  String get orgMeetingsHint =>
+      'Meetingurile salvate de angajați cât sunt în companie';
+
+  @override
+  String get orgMeetingsNotice =>
+      'Când deschizi un meeting, angajatul vede în istoricul lui că l-ai citit.';
+
+  @override
+  String get orgMeetingsEmpty =>
+      'Niciun meeting salvat pentru companie încă. Aici apar meetingurile salvate de angajați cât sunt în companie.';
+
+  @override
+  String get orgMeetingsLoadError =>
+      'Nu am putut încărca meetingurile companiei. Verifică internetul și încearcă din nou.';
+
+  @override
+  String orgMeetingReadNotice(String owner) {
+    return '$owner vede în istoricul lui că ai citit acest meeting.';
+  }
+
+  @override
+  String get orgMeetingOwnerUnknown => 'Angajatul';
+
+  @override
+  String get orgMeetingLoadError =>
+      'Nu am putut deschide meetingul. Poate nu mai e al companiei; încearcă din nou.';
+
+  @override
+  String get orgInviteNotice =>
+      'Dacă accepți, administratorii companiei pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei.';
+
+  @override
+  String get orgEmployeeNotice =>
+      'Administratorii pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei. Când un administrator îți citește un meeting, vezi asta în Istoricul meu.';
+
+  @override
+  String meetingSavingForOrg(String org) {
+    return 'Meetingul se salvează pentru $org. Administratorii îl pot citi.';
+  }
+
+  @override
+  String get meetingPickOrg => 'Alege compania';
 }

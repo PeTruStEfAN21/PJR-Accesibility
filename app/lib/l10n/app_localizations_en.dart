@@ -728,7 +728,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleteBody =>
-      'Your account and all saved meetings, transcripts and summaries are deleted for good. This cannot be undone.';
+      'Your account, saved meetings, transcripts, summaries and their history are deleted for good. Kept for 12 months, with your email but no longer linked to the account: the alarms you raised, your answers to alarms and, if you are an admin, which employees\' meetings you read (for investigations into alarms, and so employees know who read their meetings). This cannot be undone.';
 
   @override
   String get accountDeleteConfirm => 'Delete for good';
@@ -851,6 +851,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get orgError => 'That didn\'t work. Check the internet and try again.';
+
+  @override
+  String get orgLastAdmin =>
+      'You are the company\'s only admin and others are still in it. Make someone else admin, then try again.';
 
   @override
   String get orgTitle => 'My company';
@@ -1026,7 +1030,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergencyIntro => 'The alarm reaches colleagues within 500 m.';
 
   @override
-  String get emergencyAccountable => 'Your name is kept with the alarm.';
+  String get emergencyAccountable =>
+      'The alarm is saved with your account, the time, the place and your IP address.';
 
   @override
   String get alarmLevelCritical => 'Critical';
@@ -1091,4 +1096,194 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get emergencyErrorNotConfigured =>
       'The server has no accounts set up. Tell the administrator.';
+
+  @override
+  String get activityTitle => 'My history';
+
+  @override
+  String get activityHint => 'Your alarms, saved meetings and who read them';
+
+  @override
+  String get activityEmpty =>
+      'Nothing in your history yet. Your alarms, saved meetings and who read them show up here.';
+
+  @override
+  String get activityCompanyEmpty => 'Nothing in the company history yet.';
+
+  @override
+  String get activityLoadError =>
+      'Could not load the history. Check the internet connection and try again.';
+
+  @override
+  String get activityOlder => 'Older';
+
+  @override
+  String get activitySomeone => 'Someone';
+
+  @override
+  String get activityNoTitle => 'without a title';
+
+  @override
+  String activityQuoted(String title) {
+    return '“$title”';
+  }
+
+  @override
+  String get activityStatusSafe => 'I\'m safe';
+
+  @override
+  String get activityStatusNeedHelp => 'I need help';
+
+  @override
+  String activityPlace(String lat, String lon, String accuracy) {
+    return 'Place: $lat, $lon (±$accuracy m)';
+  }
+
+  @override
+  String activityAlarmRaisedMe(String kind) {
+    return 'You raised an alarm: $kind';
+  }
+
+  @override
+  String activityAlarmRaised(String who, String kind) {
+    return '$who raised an alarm: $kind';
+  }
+
+  @override
+  String activityAlarmCancelledMe(String kind) {
+    return 'You cancelled the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmCancelled(String who, String kind) {
+    return '$who cancelled the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmReportedMe(String kind) {
+    return 'You reported the alarm to the company: $kind';
+  }
+
+  @override
+  String activityAlarmReported(String who, String kind) {
+    return '$who reported the alarm to the company: $kind';
+  }
+
+  @override
+  String activityAlarmAnsweredMe(String status, String kind) {
+    return 'You answered “$status” to the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmAnswered(String who, String status, String kind) {
+    return '$who answered “$status” to the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmClosedMe(String kind) {
+    return 'You closed the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmClosed(String who, String kind) {
+    return '$who closed the alarm: $kind';
+  }
+
+  @override
+  String activityMeetingStartedMe(String meeting) {
+    return 'You started the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingStarted(String who, String meeting) {
+    return '$who started the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingEndedMe(String meeting) {
+    return 'You ended the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingEnded(String who, String meeting) {
+    return '$who ended the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingDeletedMe(String meeting) {
+    return 'You deleted the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingDeleted(String who, String meeting) {
+    return '$who deleted the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingReadMine(String who, String meeting) {
+    return '$who (admin) read your meeting $meeting';
+  }
+
+  @override
+  String activityMeetingReadByMe(String meeting, String owner) {
+    return 'You read the meeting $meeting, saved by $owner';
+  }
+
+  @override
+  String activityMeetingRead(String who, String meeting, String owner) {
+    return '$who (admin) read the meeting $meeting, saved by $owner';
+  }
+
+  @override
+  String get orgHistory => 'Company history';
+
+  @override
+  String get orgHistoryHint => 'Alarms and meetings in the company, and who';
+
+  @override
+  String get orgMeetings => 'Company meetings';
+
+  @override
+  String get orgMeetingsHint =>
+      'Meetings saved by employees while in the company';
+
+  @override
+  String get orgMeetingsNotice =>
+      'When you open a meeting, the employee sees in their history that you read it.';
+
+  @override
+  String get orgMeetingsEmpty =>
+      'No meetings saved for the company yet. Meetings employees save while in the company show up here.';
+
+  @override
+  String get orgMeetingsLoadError =>
+      'Could not load the company meetings. Check the internet connection and try again.';
+
+  @override
+  String orgMeetingReadNotice(String owner) {
+    return '$owner sees in their history that you read this meeting.';
+  }
+
+  @override
+  String get orgMeetingOwnerUnknown => 'The employee';
+
+  @override
+  String get orgMeetingLoadError =>
+      'Could not open the meeting. It may no longer belong to the company; try again.';
+
+  @override
+  String get orgInviteNotice =>
+      'If you accept, the company\'s admins can read the meetings you save while in the company, and your alarms show up in the company history.';
+
+  @override
+  String get orgEmployeeNotice =>
+      'Admins can read the meetings you save while in the company, and your alarms show up in the company history. When an admin reads one of your meetings, you see it in My history.';
+
+  @override
+  String meetingSavingForOrg(String org) {
+    return 'The meeting is being saved for $org. Its admins can read it.';
+  }
+
+  @override
+  String get meetingPickOrg => 'Choose the company';
 }

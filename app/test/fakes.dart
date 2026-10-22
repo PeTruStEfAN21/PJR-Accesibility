@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/account/account_service.dart';
 import 'package:pjr_accesibilitate/core/history/meeting_store.dart';
+import 'package:pjr_accesibilitate/core/org/activity_store.dart';
 import 'package:pjr_accesibilitate/core/org/org_store.dart';
 import 'package:pjr_accesibilitate/core/org/organizations.dart';
 import 'package:pjr_accesibilitate/core/protocol.dart';
@@ -223,6 +224,9 @@ class FakeAccountService extends AccountService {
   final sentCodes = <String>[];
   bool deleted = false;
 
+  /// Makes deleteAccount fail with this error, as the database would.
+  Object? deleteError;
+
   @override
   AccountUser? get user => _user;
 
@@ -254,6 +258,7 @@ class FakeAccountService extends AccountService {
 
   @override
   Future<void> deleteAccount() async {
+    if (deleteError != null) throw deleteError!;
     deleted = true;
     await signOut();
   }
@@ -265,6 +270,12 @@ class FakeMeetingStore implements MeetingStore {
   final lines = <String, List<SavedLine>>{};
   final summaries = <String, MeetingSummary>{};
   final finished = <String>{};
+
+  /// The company each meeting was saved for (null: only the owner's).
+  final orgOf = <String, String?>{};
+
+  /// Companies the user has left meanwhile: saving for them fails, as in the database.
+  final goneOrgs = <String>{};
   int saveCalls = 0;
 
   /// Makes the next saves fail, like a dropped connection.
@@ -282,9 +293,11 @@ class FakeMeetingStore implements MeetingStore {
   }
 
   @override
-  Future<String> createMeeting({String? sessionCode, required String lang, String? title}) async {
+  Future<String> createMeeting({String? sessionCode, required String lang, String? title, String? orgId}) async {
     if (failSaves) throw StateError('offline');
+    if (goneOrgs.contains(orgId)) throw const CompanyGoneException();
     final id = 'm${meetings.length + 1}';
+    orgOf[id] = orgId;
     meetings[id] = SavedMeeting(id: id, title: title, startedAt: DateTime(2026, 10, 22));
     lines[id] = [];
     return id;
@@ -346,7 +359,7 @@ class FakeMeetingStore implements MeetingStore {
 
 class TestHarness {
   TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings,
-      this.locationSounds, this.orgStore, this.organizations);
+      this.locationSounds, this.orgStore, this.organizations, this.activity);
 
   final AppSettings settings;
   final FakeSpeech speech;
@@ -367,6 +380,9 @@ class TestHarness {
   /// With [create]'s accounts: the companies of whoever is signed in.
   final FakeOrgStore? orgStore;
   final Organizations? organizations;
+
+  /// With [create]'s accounts: the activity log and the company meetings.
+  final FakeActivityStore? activity;
 
   /// HTTP calls to the server (AI endpoints); set before [app] to answer them.
   http.Client? httpClient;
@@ -394,6 +410,7 @@ class TestHarness {
       orgStore != null
           ? Organizations(store: orgStore, account: account!, sounds: locationSounds, model: SoundModel.tflite)
           : null,
+      accounts ? FakeActivityStore() : null,
     );
   }
 
@@ -412,6 +429,7 @@ class TestHarness {
           meetings: meetings,
           locationSounds: locationSounds,
           organizations: organizations,
+          activity: activity,
         ),
       );
 }
@@ -537,12 +555,16 @@ class FakeOrgStore implements OrgStore {
   @override
   Future<void> removeMember(String orgId, String userId) async {
     if (userId != _me) _requireAdmin(orgId);
-    final admins = people[orgId]!.values.where((m) => m.role == OrgRole.admin && m.userId != userId);
-    if (people[orgId]![userId]?.role == OrgRole.admin && admins.isEmpty) {
-      throw StateError('an organization needs at least one admin');
+    final others = people[orgId]!.values.where((m) => m.userId != userId);
+    if (people[orgId]![userId]?.role == OrgRole.admin &&
+        others.isNotEmpty &&
+        !others.any((m) => m.role == OrgRole.admin)) {
+      throw const LastAdminException();
     }
     people[orgId]!.remove(userId);
     needs.remove('$orgId/$userId');
+    // The last person leaving takes the company with them.
+    if (people[orgId]!.isEmpty) people.remove(orgId);
   }
 
   @override
@@ -586,5 +608,52 @@ class FakeOrgStore implements OrgStore {
   Future<void> closeAlarm(String eventId) async {
     final a = alarms[eventId]!;
     alarms[eventId] = (orgId: a.orgId, kind: a.kind, startedAt: a.startedAt, open: false);
+  }
+}
+
+/// The activity log and company meetings in memory. [opened] lists the company
+/// meetings read, in order: the database logs each reading in the employee's history.
+class FakeActivityStore implements ActivityStore {
+  final mine = <ActivityEntry>[];
+  final company = <String, List<ActivityEntry>>{};
+  final meetings = <String, List<CompanyMeeting>>{};
+  final contents = <String, CompanyMeetingContent>{};
+  final opened = <String>[];
+  final pageRequests = <int?>[];
+
+  /// Rows sent as events this app version does not know: counted in the page, not shown.
+  final unknownIds = <int>{};
+
+  ActivityPage _page(List<ActivityEntry> rows, int? beforeId, int maxRows) {
+    final page = (List.of(rows)..sort((a, b) => b.id.compareTo(a.id)))
+        .where((e) => beforeId == null || e.id < beforeId)
+        .take(maxRows)
+        .toList();
+    return ActivityPage(
+      entries: [for (final e in page) if (!unknownIds.contains(e.id)) e],
+      rawCount: page.length,
+      lastId: page.isEmpty ? null : page.last.id,
+    );
+  }
+
+  @override
+  Future<ActivityPage> myActivity({int? beforeId, int maxRows = 50}) async {
+    pageRequests.add(beforeId);
+    return _page(mine, beforeId, maxRows);
+  }
+
+  @override
+  Future<ActivityPage> companyActivity(String orgId, {int? beforeId, int maxRows = 50}) async =>
+      _page(company[orgId] ?? const [], beforeId, maxRows);
+
+  @override
+  Future<List<CompanyMeeting>> companyMeetings(String orgId) async => [...?meetings[orgId]];
+
+  @override
+  Future<CompanyMeetingContent> companyMeeting(String meetingId) async {
+    final content = contents[meetingId];
+    if (content == null) throw StateError('not a meeting of your company');
+    opened.add(meetingId);
+    return content;
   }
 }

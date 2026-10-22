@@ -248,4 +248,27 @@ void main() {
     await tester.tap(find.text('Am înțeles'));
     await tester.pumpAndSettle();
   });
+
+  testWidgets('the only admin of a company with colleagues is told why the account was not deleted', (tester) async {
+    final h = await signedIn(tester);
+    h.account!.deleteError = const LastAdminException();
+    await tester.pumpWidget(h.app());
+    await tester.tap(find.byTooltip('Contul meu'));
+    await tester.pumpAndSettle();
+
+    await tapShown(tester, find.text('Șterge contul'));
+    await tapShown(tester, find.widgetWithText(FilledButton, 'Șterge definitiv'));
+
+    expect(find.textContaining('Fă pe altcineva administrator'), findsOneWidget);
+    expect(h.account!.deleted, isFalse);
+    expect(h.account!.isSignedIn, isTrue);
+  });
+
+  testWidgets('the last person in a company can leave it, and the company goes', (tester) async {
+    final h = await signedIn(tester);
+    final org = h.orgStore!.addOrg('Atelier');
+    h.orgStore!.addMember(org, _anaId, role: OrgRole.admin, email: _ana);
+    await h.orgStore!.leave(org, _anaId);
+    expect(h.orgStore!.people.containsKey(org), isFalse);
+  });
 }

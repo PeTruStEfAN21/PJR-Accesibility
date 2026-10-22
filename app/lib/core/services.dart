@@ -10,6 +10,7 @@ import '../features/emergency/position_source.dart';
 import '../settings/app_settings.dart';
 import 'account/account_service.dart';
 import 'history/meeting_store.dart';
+import 'org/activity_store.dart';
 import 'org/organizations.dart';
 import 'server_api.dart';
 import 'session_connection.dart';
@@ -32,6 +33,7 @@ class AppServices {
     this.account,
     this.meetings,
     this.organizations,
+    this.activity,
     this.positions = const GeolocatorPositionSource(),
   })  : tts = tts ?? createTtsService(),
         voice = voice ?? createVoiceEngine(),
@@ -63,6 +65,10 @@ class AppServices {
 
   /// The signed-in user's companies; null when accounts are off.
   final Organizations? organizations;
+
+  /// Everyone's own history and, for admins, the company's history and meetings; null when accounts are off.
+  final ActivityStore? activity;
+
   /// Where this phone is, for colleague alarms. Constructing the default touches no plugin.
   final PositionSource positions;
 

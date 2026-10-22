@@ -12,7 +12,7 @@ Alarma nu e anonimă. Se păstrează cine a dat-o, când și de unde, ca nimeni 
 
 1. Un coleg autentificat dă o alarmă în cel mult 3 atingeri: butonul, tipul, confirmarea.
 2. Cei care au aplicația și sunt la cel mult **500 m** de locul în care s-a dat alarma o primesc în câteva secunde. Cei mai departe (de exemplu cei de acasă) nu o primesc.
-3. Fiecare alarmă și fiecare anulare produc o înregistrare cu contul celui care le-a dat, ora și locul, predată prin `AlarmRecorder`. Salvarea ei în baza de date o face Petru.
+3. Fiecare alarmă și fiecare anulare produc o înregistrare cu contul celui care le-a dat, ora și locul, predată prin `AlarmRecorder`. Salvarea ei în baza de date o face Petru. *(2026-10-23: făcut, în baza de date, nu într-un fișier; vezi `2026-10-23-istoric-activitate-design.md`.)*
 4. Cel care a dat alarma o poate anula dacă a greșit; anularea închide alerta la ceilalți.
 
 ## Non-obiective

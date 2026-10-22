@@ -18,6 +18,21 @@ enum AlarmAnswerStatus {
   static AlarmAnswerStatus fromDb(String value) => values.firstWhere((s) => s.db == value);
 }
 
+/// The change would leave a company with people in it but no admin.
+class LastAdminException implements Exception {
+  const LastAdminException();
+}
+
+/// Turns the database's "this organization needs an admin" error (SQLSTATE EA001) into [LastAdminException].
+Future<T> guardLastAdmin<T>(Future<T> call) async {
+  try {
+    return await call;
+  } on PostgrestException catch (e) {
+    if (e.code == 'EA001') throw const LastAdminException();
+    rethrow;
+  }
+}
+
 /// Which YAMNet made a fingerprint: phone and browser fingerprints do not match each other.
 enum SoundModel { tflite, tfjs }
 
@@ -286,14 +301,13 @@ class SupabaseOrgStore implements OrgStore {
   }
 
   @override
-  Future<void> setRole(String orgId, String userId, OrgRole role) async {
-    await _client.from('org_members').update({'role': role.name}).eq('org_id', orgId).eq('user_id', userId);
-  }
+  Future<void> setRole(String orgId, String userId, OrgRole role) => guardLastAdmin(
+        _client.from('org_members').update({'role': role.name}).eq('org_id', orgId).eq('user_id', userId),
+      );
 
   @override
-  Future<void> removeMember(String orgId, String userId) async {
-    await _client.from('org_members').delete().eq('org_id', orgId).eq('user_id', userId);
-  }
+  Future<void> removeMember(String orgId, String userId) =>
+      guardLastAdmin(_client.from('org_members').delete().eq('org_id', orgId).eq('user_id', userId));
 
   @override
   Future<List<LocationSound>> sharedSounds(String orgId, SoundModel model) async {
@@ -332,7 +346,8 @@ class SupabaseOrgStore implements OrgStore {
 
   @override
   Future<void> answerAlarm(String orgId, String eventId, String userId, AlarmAnswerStatus status) async {
-    final change = {'status': status.db, 'acked_at': DateTime.now().toUtc().toIso8601String()};
+    // The database stamps the time of the answer.
+    final change = {'status': status.db};
     try {
       await _client.from('alarm_acks').insert({'event_id': eventId, 'org_id': orgId, 'user_id': userId, ...change});
     } on PostgrestException catch (e) {
@@ -375,6 +390,7 @@ class SupabaseOrgStore implements OrgStore {
 
   @override
   Future<void> closeAlarm(String eventId) async {
+    // The database replaces this with its own time.
     await _client.from('alarm_events').update({'ended_at': DateTime.now().toUtc().toIso8601String()}).eq('id', eventId);
   }
 }

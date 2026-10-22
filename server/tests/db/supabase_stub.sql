@@ -23,3 +23,9 @@ as $$ select coalesce(nullif(current_setting('request.jwt.claims', true), ''), '
 
 grant usage on schema auth to anon, authenticated;
 grant usage on schema public to anon, authenticated;
+
+-- Supabase gives anon and authenticated every privilege on whatever is created in
+-- public; a migration that wants less must revoke it. Tests start from the same place.
+alter default privileges in schema public grant all on tables to anon, authenticated;
+alter default privileges in schema public grant all on functions to anon, authenticated;
+alter default privileges in schema public grant all on sequences to anon, authenticated;

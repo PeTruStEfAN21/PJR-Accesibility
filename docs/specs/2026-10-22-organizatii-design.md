@@ -63,6 +63,19 @@ Teste de widget cu un `OrgStore` fals pentru fiecare flux; testul de bază de da
 - Alarme: raportarea repetată în 10 minute refolosește evenimentul; angajatul își vede doar confirmarea; adminul le vede pe toate.
 - `anon` nu vede nimic.
 
+## 5b. Reparații după review (`20261023090000_organizations_fixes.sql`)
+
+| Problemă | Reparație |
+|---|---|
+| **Critic:** Supabase dă implicit `authenticated` toate drepturile pe tabelele noi; migrațiile revocau doar de la `anon`, deci drepturile pe coloane nu limitau nimic (un membru își putea muta rândul de admin în altă companie) | Totul se revocă întâi, apoi se dau înapoi doar coloanele alese de om. Stub-ul din teste face acum ca Supabase, ca să nu mai scape așa ceva |
+| O invitație expirată bloca o invitație nouă pe același email | Invitația nouă o înlocuiește pe cea expirată (trigger) |
+| Ultimul admin își ștergea contul și compania rămânea fără admin | `delete_my_account()` refuză cu `EA001` cât timp mai sunt colegi; aplicația spune „Fă pe altcineva administrator”. Ultimul om din companie poate pleca, iar compania goală se șterge cu tot ce are |
+| Aplicația putea trimite cine / când (`invited_by`, `expires_at`, `accepted_at`, `created_by`, `created_at`, `acked_at`) | Drepturi pe coloane: se scriu doar câmpurile alese de om; ora răspunsului la alarmă o pune serverul |
+| Doi admini care se retrogradau reciproc în același timp lăsau compania fără admin | `keep_an_admin` blochează rândul companiei: schimbările de admini trec pe rând |
+| O alarmă închisă putea fi redeschisă; ora închiderii venea din ceasul telefonului | Închiderea e definitivă și se face la ora serverului |
+
+`EA001` = „compania are nevoie de un admin”, recunoscut de aplicație (`LastAdminException`). Ordinea lock-urilor, peste tot: întâi rândurile din `org_members`, apoi rândul companiei; de aceea compania se șterge doar prin `delete_organization(id)`, nu cu `delete` direct. O ștergere de cont făcută de operator direct din Supabase rămâne posibilă; acolo compania poate rămâne fără admin și o repară operatorul.
+
 ## 6. Riscuri
 
 - **Responsabilitatea pentru date**: compania e operatorul de date pentru angajații ei, noi suntem persoana împuternicită (contract DPA) când găzduim noi. La instalarea locală, datele nu ajung la noi deloc.
