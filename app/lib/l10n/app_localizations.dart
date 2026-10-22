@@ -1381,6 +1381,36 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Transcrierea se salvează în contul tău'**
   String get meetingSaving;
+
+  /// No description provided for @alarmFire.
+  ///
+  /// In ro, this message translates to:
+  /// **'Incendiu'**
+  String get alarmFire;
+
+  /// No description provided for @alarmEvacuation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Evacuare'**
+  String get alarmEvacuation;
+
+  /// No description provided for @alarmSiren.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sirenă sau pericol afară'**
+  String get alarmSiren;
+
+  /// No description provided for @alarmMachine.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pericol la un utilaj'**
+  String get alarmMachine;
+
+  /// No description provided for @alarmFromColleague.
+  ///
+  /// In ro, this message translates to:
+  /// **'{name} · semnalat de un coleg'**
+  String alarmFromColleague(String name);
 }
 
 class _AppLocalizationsDelegate

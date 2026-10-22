@@ -723,4 +723,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meetingSaving => 'The transcript is being saved to your account';
+
+  @override
+  String get alarmFire => 'Fire';
+
+  @override
+  String get alarmEvacuation => 'Evacuation';
+
+  @override
+  String get alarmSiren => 'Siren or danger outside';
+
+  @override
+  String get alarmMachine => 'Machine hazard';
+
+  @override
+  String alarmFromColleague(String name) {
+    return '$name · raised by a colleague';
+  }
 }
