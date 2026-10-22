@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
 import 'package:pjr_accesibilitate/core/tts/tts_service.dart';
+import 'package:pjr_accesibilitate/core/voice/voice_engine.dart';
+import 'package:pjr_accesibilitate/core/voice/voice_head.dart';
 import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
@@ -98,6 +101,39 @@ class FakeTts implements TtsService {
   void cancel() {}
 }
 
+/// Microphone + speaker model the test controls: [audio] is what was heard most recently,
+/// [vectorFor] decides the embedding of each clip.
+class FakeVoiceEngine implements VoiceEngine {
+  bool available = true;
+  Float32List audio = Float32List(0);
+  Float32List Function(Float32List samples) vectorFor = (_) => Float32List.fromList([1, 0, 0]);
+  VoiceHead head = VoiceHead.fallback;
+  final recentRequests = <Duration>[];
+  final embedded = <int>[];
+
+  @override
+  Future<bool> start() async => available;
+
+  @override
+  Future<void> stop() async {}
+
+  @override
+  Float32List recent(Duration length) {
+    recentRequests.add(length);
+    final n = length.inMilliseconds * 16;
+    return Float32List.sublistView(audio, max(0, audio.length - n));
+  }
+
+  @override
+  Future<Float32List> embed(Float32List samples) async {
+    embedded.add(samples.length);
+    return vectorFor(samples);
+  }
+
+  @override
+  Future<VoiceHead> loadHead() async => head;
+}
+
 class FakeSounds implements SoundDetector {
   final controller = StreamController<SoundAlert>.broadcast();
 
@@ -123,6 +159,7 @@ class TestHarness {
   final AppSettings settings;
   final FakeSpeech speech;
   final tts = FakeTts();
+  final voice = FakeVoiceEngine();
   final FakeSounds sounds;
   final FakeChannel channel;
   final AlertController alerts;
@@ -148,6 +185,7 @@ class TestHarness {
           speech: speech,
           sounds: sounds,
           tts: tts,
+          voice: voice,
           httpClient: httpClient,
           channelFactory: (uri) => channel..uri = uri,
         ),

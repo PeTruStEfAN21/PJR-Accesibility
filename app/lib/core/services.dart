@@ -8,17 +8,28 @@ import 'server_api.dart';
 import 'session_connection.dart';
 import 'speech/speech_service.dart';
 import 'tts/tts_service.dart';
+import 'voice/voice_engine.dart';
 
 /// App-wide services. Tests swap in fakes through [ServicesScope].
 class AppServices {
-  AppServices({required this.speech, required this.sounds, TtsService? tts, this.httpClient, this.channelFactory})
-      : tts = tts ?? createTtsService();
+  AppServices({
+    required this.speech,
+    required this.sounds,
+    TtsService? tts,
+    VoiceEngine? voice,
+    this.httpClient,
+    this.channelFactory,
+  })  : tts = tts ?? createTtsService(),
+        voice = voice ?? createVoiceEngine();
 
   final SpeechService speech;
   final SoundDetector sounds;
 
   /// Reads the participant's question out loud on the presenter's laptop.
   final TtsService tts;
+
+  /// Microphone and speaker model on the presenter's laptop: who is talking, the speaker or the room.
+  final VoiceEngine voice;
   final http.Client? httpClient;
   final ChannelFactory? channelFactory;
 
