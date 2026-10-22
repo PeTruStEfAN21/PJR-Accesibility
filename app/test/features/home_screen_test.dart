@@ -212,6 +212,8 @@ void main() {
     expect(find.text('Când aplicația nu aude pericolul'), findsOneWidget);
     expect(find.byIcon(Icons.emergency_share), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Alarmă de urgență'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Alarmă de urgență'));
     await tester.pumpAndSettle();
     expect(find.byType(EmergencyScreen), findsOneWidget);
