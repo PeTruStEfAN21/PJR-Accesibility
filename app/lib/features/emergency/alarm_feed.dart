@@ -36,6 +36,7 @@ class AlarmFeed {
 
   final _seen = <String>{};
   final _cancelled = <String>{};
+  final _own = <String>{};
   WebSocketChannel? _channel;
   StreamSubscription? _subscription;
   Timer? _retryTimer;
@@ -61,7 +62,10 @@ class AlarmFeed {
   }
 
   /// An alarm this phone raised: never shown here.
-  void markOwn(String id) => _seen.add(id);
+  void markOwn(String id) {
+    _own.add(id);
+    _seen.add(id);
+  }
 
   void _connect() {
     if (!_running) return;
@@ -106,7 +110,7 @@ class AlarmFeed {
 
   Future<void> _report(Alarm alarm) async {
     final here = await positions.current(timeout: const Duration(seconds: 5)) ?? await positions.lastKnown();
-    if (_running && !_cancelled.contains(alarm.id) && inRange(alarm, here)) onAlarm(alarm);
+    if (_running && !_cancelled.contains(alarm.id) && !_own.contains(alarm.id) && inRange(alarm, here)) onAlarm(alarm);
   }
 
   void _onDone(WebSocketChannel channel) {
