@@ -83,6 +83,12 @@ class FakeSounds implements SoundDetector {
   /// What each learning sample returns, in order; null = nothing heard.
   final samples = <Float32List?>[];
 
+  /// What start() answers (false = microphone refused).
+  bool canStart = true;
+  bool listening = false;
+  int starts = 0;
+  int stops = 0;
+
   @override
   bool get isAvailable => true;
 
@@ -90,10 +96,17 @@ class FakeSounds implements SoundDetector {
   Stream<SoundAlert> get alerts => controller.stream;
 
   @override
-  Future<bool> start() async => true;
+  Future<bool> start() async {
+    starts++;
+    listening = canStart;
+    return canStart;
+  }
 
   @override
-  Future<void> stop() async {}
+  Future<void> stop() async {
+    stops++;
+    listening = false;
+  }
 
   @override
   Future<Float32List?> recordSample(Duration duration) async => samples.isEmpty ? null : samples.removeAt(0);

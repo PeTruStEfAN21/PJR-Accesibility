@@ -28,16 +28,19 @@ class EchoApp extends StatefulWidget {
 class _EchoAppState extends State<EchoApp> {
   late final AlertController _alerts = widget.alerts ?? AlertController(haptic: widget.services.alertSignals.vibrate);
   StreamSubscription<SoundAlert>? _sounds;
+  late final AppLifecycleListener _lifecycle;
 
   @override
   void initState() {
     super.initState();
     // Detected sounds reach the overlay whatever screen is open.
     _sounds = widget.services.sounds.alerts.listen(_alerts.show);
+    _lifecycle = AppLifecycleListener(onResume: widget.services.soundListening.resumed);
   }
 
   @override
   void dispose() {
+    _lifecycle.dispose();
     _sounds?.cancel();
     if (widget.alerts == null) _alerts.dispose();
     super.dispose();
