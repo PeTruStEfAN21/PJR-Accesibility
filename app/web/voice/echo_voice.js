@@ -94,6 +94,21 @@
       return Float32Array.from(output.embedding.data);
     },
 
+    // Plays 16 kHz samples back (reviewing a test meeting).
+    async play(samples) {
+      const player = new AudioContext({ sampleRate: SAMPLE_RATE });
+      const buffer = player.createBuffer(1, samples.length, SAMPLE_RATE);
+      buffer.copyToChannel(Float32Array.from(samples), 0);
+      const source = player.createBufferSource();
+      source.buffer = buffer;
+      source.connect(player.destination);
+      await new Promise((resolve) => {
+        source.onended = resolve;
+        source.start();
+      });
+      await player.close();
+    },
+
     async headJson() {
       const response = await fetch(new URL('voice_head.json', BASE).href, { cache: 'no-cache' });
       if (!response.ok) throw new Error(`voice_head.json: HTTP ${response.status}`);

@@ -698,6 +698,48 @@ abstract class AppLocalizations {
   /// **'Reînvață vocea'**
   String get relearnVoice;
 
+  /// No description provided for @testMeeting.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meeting de test'**
+  String get testMeeting;
+
+  /// No description provided for @testMeetingHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Înregistrează clipurile pe acest laptop, pentru antrenare. Toți cei din sală trebuie să fie de acord.'**
+  String get testMeetingHint;
+
+  /// No description provided for @testReviewTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Verifică meetingul de test'**
+  String get testReviewTitle;
+
+  /// No description provided for @testReviewIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ascultă fiecare replică și corectează cine a vorbit. Apoi descarcă arhiva și copiaz-o în ml/voice/data/meetings.'**
+  String get testReviewIntro;
+
+  /// No description provided for @testPredicted.
+  ///
+  /// In ro, this message translates to:
+  /// **'Echo a ales: {label} · scor {score}'**
+  String testPredicted(String label, String score);
+
+  /// No description provided for @testListen.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ascultă'**
+  String get testListen;
+
+  /// No description provided for @testDownload.
+  ///
+  /// In ro, this message translates to:
+  /// **'Descarcă'**
+  String get testDownload;
+
   /// No description provided for @presenterCreateError.
   ///
   /// In ro, this message translates to:
