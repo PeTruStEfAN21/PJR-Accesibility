@@ -306,6 +306,32 @@ class AppLocalizationsRo extends AppLocalizations {
   String get alertDismiss => 'Am înțeles';
 
   @override
+  String get alertLevelCritical => 'CRITIC';
+
+  @override
+  String get alertLevelWarning => 'ATENȚIE';
+
+  @override
+  String get adviceFireAlarm =>
+      'Ieși din clădire pe cea mai apropiată ieșire. Nu folosi liftul.';
+
+  @override
+  String get adviceSiren =>
+      'Un vehicul de urgență sau o alertă publică. Fă loc și urmărește ce fac cei din jur.';
+
+  @override
+  String get adviceHorn =>
+      'Un vehicul claxonează aproape. Oprește-te și uită-te în jur înainte să mergi mai departe.';
+
+  @override
+  String get adviceGlassBreak =>
+      'S-a spart un geam în apropiere. Ferește-te de cioburi și uită-te în jur.';
+
+  @override
+  String get adviceLineSignal =>
+      'Semnal de la un utilaj. Fii atent la mașinile din jur.';
+
+  @override
   String get soundsTitle => 'Sunetul vizibil';
 
   @override
@@ -324,6 +350,19 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get soundsPaused =>
       'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
+
+  @override
+  String get soundsPill => 'Sunete';
+
+  @override
+  String get soundsPillOn => 'Sunetul vizibil: pornit';
+
+  @override
+  String get soundsPillOff => 'Sunetul vizibil: oprit';
+
+  @override
+  String get soundsPillPaused =>
+      'Sunetul vizibil: în pauză cât merge subtitrarea';
 
   @override
   String get soundsTest => 'Testează alertele';

@@ -14,6 +14,7 @@ import '../history/history_screen.dart';
 import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
 import '../settings/settings_screen.dart';
+import '../sounds/sounds_pill.dart';
 import '../sounds/sounds_screen.dart';
 
 /// `--dart-define=ECHO_PHONE_PREVIEW=true` shows the phone layout in Chrome, for design reviews.
@@ -105,6 +106,8 @@ class HomeScreen extends StatelessWidget {
                     : SignInScreen(account: account),
               ),
             ),
+          // Sound recognition needs the phone's microphone; the presenter's laptop does not show it.
+          if (!presenterFirst) ...[const Center(child: SoundsPill()), const SizedBox(width: 4)],
           IconButton(
             tooltip: l10n.settings,
             icon: Icon(Icons.settings_outlined, color: palette.brand),
