@@ -56,4 +56,43 @@ void main() {
       throwsA(isA<ApiException>().having((e) => e.statusCode, 'statusCode', 503)),
     );
   });
+
+  test('AI calls carry the signed-in user token, so the server applies their own limit', () async {
+    final requests = <http.Request>[];
+    final api = ServerApi(
+      Uri.parse('http://server:8000'),
+      accessToken: () => 'jwt-123',
+      client: MockClient((request) async {
+        requests.add(request);
+        return http.Response(jsonEncode({'question_ids': []}), 200);
+      }),
+    );
+
+    await api.findQuestions('ro', lines);
+
+    expect(requests.single.headers['authorization'], 'Bearer jwt-123');
+  });
+
+  test('without an account no token is sent', () async {
+    final requests = <http.Request>[];
+    await apiReplying(200, {'question_ids': []}, requests).findQuestions('ro', lines);
+    expect(requests.single.headers.containsKey('authorization'), isFalse);
+  });
+
+  test('an expired token falls back to an anonymous call instead of failing', () async {
+    final requests = <http.Request>[];
+    final api = ServerApi(
+      Uri.parse('http://server:8000'),
+      accessToken: () => 'expired',
+      client: MockClient((request) async {
+        requests.add(request);
+        if (request.headers.containsKey('authorization')) return http.Response('{"detail":"expired"}', 401);
+        return http.Response(jsonEncode({'question_ids': [4]}), 200);
+      }),
+    );
+
+    expect(await api.findQuestions('ro', lines), [4]);
+    expect(requests, hasLength(2));
+    expect(requests.last.headers.containsKey('authorization'), isFalse);
+  });
 }
