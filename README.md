@@ -2,13 +2,14 @@
 
 ## Claude Code
 
-Proiectul activează cinci pluginuri prin `.claude/settings.json`:
+Proiectul activează șase pluginuri prin `.claude/settings.json`:
 
 - [Superpowers](https://github.com/obra/superpowers): brainstorming, planuri, TDD, debugging, code review
 - [Taste](https://github.com/Leonxlnx/taste-skill): reguli de gust pentru design frontend (necesită Node 22+ și Chrome, Edge sau Chromium)
 - [Caveman](https://github.com/JuliusBrussee/caveman): răspunsuri scurte, cu mai puține tokenuri
 - [Karpathy Skills](https://github.com/multica-ai/andrej-karpathy-skills): reguli de lucru după observațiile lui Andrej Karpathy (gândește înainte de cod, simplitate, modificări chirurgicale)
 - [Impeccable](https://impeccable.style) ([pbakaus/impeccable](https://github.com/pbakaus/impeccable)): limbaj de design pentru frontend, cu comenzi ca `/impeccable audit`, `/impeccable critique`, `/impeccable polish`
+- [UI UX Pro Max](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill): bază de date de stiluri, palete, combinații de fonturi și reguli UX, cu ghid pentru Flutter (licență MIT)
 
 Pe lângă pluginuri, `.claude/skills/` conține skilluri care se încarcă automat, fără instalare:
 
@@ -30,6 +31,8 @@ Dacă nu apare promptul, instalează manual:
 /plugin install andrej-karpathy-skills@karpathy-skills
 /plugin marketplace add pbakaus/impeccable
 /plugin install impeccable@impeccable
+/plugin marketplace add nextlevelbuilder/ui-ux-pro-max-skill
+/plugin install ui-ux-pro-max@ui-ux-pro-max-skill
 ```
 
 ### Servere MCP

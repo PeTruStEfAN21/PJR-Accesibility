@@ -1,4 +1,15 @@
 {
+  "enabledMcpjsonServers": [
+    "playwright"
+  ],
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "taste-skill@taste-skill": true,
+    "caveman@caveman": true,
+    "andrej-karpathy-skills@karpathy-skills": true,
+    "impeccable@impeccable": true,
+    "ui-ux-pro-max@ui-ux-pro-max-skill": true
+  },
   "extraKnownMarketplaces": {
     "taste-skill": {
       "source": {
@@ -23,16 +34,12 @@
         "source": "github",
         "repo": "pbakaus/impeccable"
       }
+    },
+    "ui-ux-pro-max-skill": {
+      "source": {
+        "source": "github",
+        "repo": "nextlevelbuilder/ui-ux-pro-max-skill"
+      }
     }
-  },
-  "enabledPlugins": {
-    "superpowers@claude-plugins-official": true,
-    "taste-skill@taste-skill": true,
-    "caveman@caveman": true,
-    "andrej-karpathy-skills@karpathy-skills": true,
-    "impeccable@impeccable": true
-  },
-  "enabledMcpjsonServers": [
-    "playwright"
-  ]
+  }
 }
