@@ -6,6 +6,8 @@ import '../features/alerts/alert_signals.dart';
 import '../features/alerts/location_sounds.dart';
 import '../features/alerts/sound_alert.dart';
 import '../features/alerts/sound_listening.dart';
+import '../features/coach/alert_window.dart';
+import '../features/coach/coach_audio.dart';
 import '../settings/app_settings.dart';
 import 'account/account_service.dart';
 import 'history/meeting_store.dart';
@@ -22,6 +24,8 @@ class AppServices {
     required this.sounds,
     TtsService? tts,
     VoiceEngine? voice,
+    CoachAudio? coachAudio,
+    AlertWindow? alertWindow,
     SoundListening? soundListening,
     this.alertSignals = const BasicAlertSignals(),
     this.locationSounds,
@@ -31,6 +35,8 @@ class AppServices {
     this.meetings,
   })  : tts = tts ?? createTtsService(),
         voice = voice ?? createVoiceEngine(),
+        coachAudio = coachAudio ?? createCoachAudio(),
+        alertWindow = alertWindow ?? createAlertWindow(),
         soundListening = soundListening ?? SoundListening(sounds);
 
   final SpeechService speech;
@@ -41,6 +47,12 @@ class AppServices {
 
   /// Microphone and speaker model on the presenter's laptop: who is talking, the speaker or the room.
   final VoiceEngine voice;
+
+  /// The colleague's microphone for the clarity coach (online meetings), analysed in the page.
+  final CoachAudio coachAudio;
+
+  /// The coach's alert in a small window above the meeting app.
+  final AlertWindow alertWindow;
 
   /// Whether sound recognition should run (remembered) and is running; paused while captions run.
   final SoundListening soundListening;
