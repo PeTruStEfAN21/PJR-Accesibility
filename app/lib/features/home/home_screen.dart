@@ -15,7 +15,6 @@ import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sounds/sounds_pill.dart';
-import '../sounds/sounds_screen.dart';
 
 /// `--dart-define=ECHO_PHONE_PREVIEW=true` shows the phone layout in Chrome, for design reviews.
 const _phonePreview = bool.fromEnvironment('ECHO_PHONE_PREVIEW');
@@ -154,7 +153,6 @@ class HomeScreen extends StatelessWidget {
                   _Elsewhere(
                     title: l10n.homeElsewhere,
                     rows: [
-                      _ToolRow(icon: Icons.hearing, title: l10n.homeSounds, hint: l10n.homeSoundsHint, onTap: () => open(const SoundsScreen())),
                       _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
                       if (meetings != null)
                         _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),

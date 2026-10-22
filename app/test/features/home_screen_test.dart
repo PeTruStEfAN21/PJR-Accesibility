@@ -34,7 +34,9 @@ void main() {
 
     expect(find.text('Sunt la un meeting'), findsOneWidget);
     expect(find.text('În afara meetingurilor'), findsOneWidget);
-    expect(find.text('Sunetele din jur'), findsOneWidget);
+    // Visible sound is the pill in the top bar, not a row.
+    expect(find.text('Sunetele din jur'), findsNothing);
+    expect(find.text('Sunete'), findsOneWidget);
     expect(find.text('Vorbesc cu cineva'), findsOneWidget);
     expect(find.text('Tu prezinți? Deschide modul prezentator'), findsOneWidget);
 
@@ -50,7 +52,7 @@ void main() {
 
     expect(find.text('Eu prezint'), findsOneWidget);
     expect(find.text('Participi la meeting? Intră de aici'), findsOneWidget);
-    expect(find.text('Sunetele din jur'), findsNothing);
+    expect(find.text('Sunete'), findsNothing);
     expect(find.text('Vorbesc cu cineva'), findsNothing);
   });
 

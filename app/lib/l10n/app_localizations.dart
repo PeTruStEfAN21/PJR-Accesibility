@@ -134,18 +134,6 @@ abstract class AppLocalizations {
   /// **'Pornești meetingul și le arăți celorlalți codul.'**
   String get homePresentHint;
 
-  /// No description provided for @homeSounds.
-  ///
-  /// In ro, this message translates to:
-  /// **'Sunetele din jur'**
-  String get homeSounds;
-
-  /// No description provided for @homeSoundsHint.
-  ///
-  /// In ro, this message translates to:
-  /// **'Te anunțăm când sună o alarmă, un claxon sau cineva te strigă.'**
-  String get homeSoundsHint;
-
   /// No description provided for @homeConversation.
   ///
   /// In ro, this message translates to:
@@ -733,6 +721,12 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Sunetul vizibil: în pauză cât merge subtitrarea'**
   String get soundsPillPaused;
+
+  /// No description provided for @soundsPillHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Apasă lung pentru detalii și testarea alertelor.'**
+  String get soundsPillHint;
 
   /// No description provided for @soundsTest.
   ///

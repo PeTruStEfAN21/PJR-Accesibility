@@ -28,13 +28,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homePresentHint => 'Start the meeting and show everyone the code.';
 
   @override
-  String get homeSounds => 'Sounds around you';
-
-  @override
-  String get homeSoundsHint =>
-      'We\'ll tell you when there\'s an alarm, a horn, or someone calls your name.';
-
-  @override
   String get homeConversation => 'I\'m talking with someone';
 
   @override
@@ -363,6 +356,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsPillPaused => 'Visible sound: paused while captions run';
+
+  @override
+  String get soundsPillHint => 'Long press for details and to test the alerts.';
 
   @override
   String get soundsTest => 'Test the alerts';

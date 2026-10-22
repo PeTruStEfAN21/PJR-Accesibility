@@ -7,7 +7,7 @@ import '../fakes.dart';
 
 void main() {
   Future<void> openSounds(WidgetTester tester) async {
-    await tester.tap(find.text('Sunetele din jur'));
+    await tester.longPress(find.text('Sunete'));
     await tester.pumpAndSettle();
   }
 
@@ -60,5 +60,25 @@ void main() {
     await tester.pumpAndSettle();
     expect(h.sounds.listening, isFalse);
     expect(find.bySemanticsLabel('Sunetul vizibil: oprit'), findsOneWidget);
+  });
+
+  testWidgets('screen readers can switch the pill and open the Sounds screen', (tester) async {
+    final semantics = tester.ensureSemantics();
+    final h = await TestHarness.create();
+    await tester.pumpWidget(h.app());
+
+    final pill = find.bySemanticsLabel('Sunetul vizibil: oprit');
+    expect(
+      tester.getSemantics(pill),
+      matchesSemantics(
+        label: 'Sunetul vizibil: oprit',
+        hint: 'Apasă lung pentru detalii și testarea alertelor.',
+        isButton: true,
+        hasToggledState: true,
+        hasTapAction: true,
+        hasLongPressAction: true,
+      ),
+    );
+    semantics.dispose();
   });
 }
