@@ -728,4 +728,21 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get meetingSaving => 'Transcrierea se salvează în contul tău';
+
+  @override
+  String get alarmFire => 'Incendiu';
+
+  @override
+  String get alarmEvacuation => 'Evacuare';
+
+  @override
+  String get alarmSiren => 'Sirenă sau pericol afară';
+
+  @override
+  String get alarmMachine => 'Pericol la un utilaj';
+
+  @override
+  String alarmFromColleague(String name) {
+    return '$name · semnalat de un coleg';
+  }
 }

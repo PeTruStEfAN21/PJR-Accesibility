@@ -237,5 +237,12 @@
   "historyDeleted": "Meetingul a fost șters",
   "meetingRename": "Redenumește",
   "meetingNameLabel": "Numele meetingului",
-  "meetingSaving": "Transcrierea se salvează în contul tău"
+  "meetingSaving": "Transcrierea se salvează în contul tău",
+
+  "alarmFire": "Incendiu",
+  "alarmEvacuation": "Evacuare",
+  "alarmSiren": "Sirenă sau pericol afară",
+  "alarmMachine": "Pericol la un utilaj",
+  "alarmFromColleague": "{name} · semnalat de un coleg",
+  "@alarmFromColleague": {"placeholders": {"name": {"type": "String"}}}
 }

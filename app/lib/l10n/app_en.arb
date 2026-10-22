@@ -233,5 +233,11 @@
   "historyDeleted": "Meeting deleted",
   "meetingRename": "Rename",
   "meetingNameLabel": "Meeting name",
-  "meetingSaving": "The transcript is being saved to your account"
+  "meetingSaving": "The transcript is being saved to your account",
+
+  "alarmFire": "Fire",
+  "alarmEvacuation": "Evacuation",
+  "alarmSiren": "Siren or danger outside",
+  "alarmMachine": "Machine hazard",
+  "alarmFromColleague": "{name} · raised by a colleague"
 }
