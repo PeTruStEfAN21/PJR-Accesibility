@@ -36,11 +36,15 @@ ThemeData buildTheme(AppSettings settings) {
   );
 
   final base = ThemeData(colorScheme: scheme, useMaterial3: true, fontFamily: settings.dyslexiaMode ? dyslexiaFont : textFont);
+  // Sizes are explicit: styles handed to component themes (the top bar, dialogs) are not given the
+  // platform's sizes later, so a style without one would fall back to 14 px.
   final sized = base.textTheme.copyWith(
-    headlineMedium: base.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.3),
-    headlineSmall: base.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w500, letterSpacing: -0.2),
-    titleLarge: base.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
-    titleMedium: base.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+    headlineMedium: base.textTheme.headlineMedium?.copyWith(fontSize: 28, height: 1.25, fontWeight: FontWeight.w500, letterSpacing: -0.3),
+    headlineSmall: base.textTheme.headlineSmall?.copyWith(fontSize: 24, height: 1.3, fontWeight: FontWeight.w500, letterSpacing: -0.2),
+    titleLarge: base.textTheme.titleLarge?.copyWith(fontSize: 22, height: 1.3, fontWeight: FontWeight.w600),
+    titleMedium: base.textTheme.titleMedium?.copyWith(fontSize: 17, height: 1.4, fontWeight: FontWeight.w600),
+    titleSmall: base.textTheme.titleSmall?.copyWith(fontSize: 15, height: 1.4, fontWeight: FontWeight.w600),
+    labelMedium: base.textTheme.labelMedium?.copyWith(fontSize: 13, height: 1.3),
     bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: 17, height: 1.5),
     bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.45),
     labelLarge: base.textTheme.labelLarge?.copyWith(fontSize: 15, fontWeight: FontWeight.w600),

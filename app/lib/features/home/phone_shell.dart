@@ -237,7 +237,10 @@ class _AlarmUnavailable extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(24),
           children: [
-            Icon(Icons.emergency_share_outlined, size: 48, color: palette.brand),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: Icon(Icons.emergency_share_outlined, size: 48, color: palette.brand),
+            ),
             const SizedBox(height: 16),
             Text(signIn ? l10n.alarmNeedsAccount : l10n.alarmAccountsOff, style: theme.textTheme.bodyLarge),
             if (signIn && account != null) ...[
