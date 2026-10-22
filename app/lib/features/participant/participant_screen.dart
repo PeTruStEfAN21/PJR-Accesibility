@@ -4,9 +4,11 @@ import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 
 import '../../core/echo_filter.dart';
+import '../../core/history/meeting_recorder.dart';
 import '../../core/ids.dart';
 import '../../core/join_link.dart';
 import '../../core/protocol.dart';
+import '../../core/server_api.dart';
 import '../../core/services.dart';
 import '../../core/session_connection.dart';
 import '../../core/speech/speech_service.dart';
@@ -37,6 +39,7 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
 
   late final SessionConnection _connection;
   late final SpeechService _speech;
+  MeetingRecorder? _recorder;
   StreamSubscription<ServerEvent>? _events;
   StreamSubscription<SpeechSegment>? _segments;
   bool _listening = false;
@@ -52,6 +55,16 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     _connection = SessionConnection(widget.link, 'participant', channelFactory: services.channelFactory)..connect();
     _events = _connection.events.listen(_onEvent);
     _transcript.addListener(_autoScroll);
+    // Signed-in participants keep the meeting in their account to review later.
+    final meetings = services.signedInMeetings;
+    if (meetings != null) {
+      _recorder = MeetingRecorder(
+        store: meetings,
+        transcript: _transcript,
+        lang: SettingsScope.of(context).speechLocaleId,
+        sessionCode: widget.link.code,
+      )..start();
+    }
   }
 
   @override
@@ -60,6 +73,8 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     _segments?.cancel();
     if (_listening) _speech.stop();
     _connection.dispose();
+    // stop() detaches from the transcript right away; the last save finishes in the background.
+    _recorder?.stop();
     _transcript.dispose();
     _scroll.dispose();
     _message.dispose();
@@ -127,6 +142,19 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     _connection.send(caption.toJson());
   }
 
+  Future<void> _saveSummary(MeetingSummary summary, String lang) async {
+    final recorder = _recorder;
+    if (recorder == null) return;
+    await recorder.flush();
+    final id = recorder.meetingId;
+    if (id == null) return;
+    try {
+      await recorder.store.saveSummary(id, summary, lang);
+    } on Object catch (error) {
+      debugPrint('Saving the summary failed: $error');
+    }
+  }
+
   void _sendNotify(NotifyKind kind, String text) {
     if (text.trim().isEmpty) return;
     final notify = Notify(id: newId(), kind: kind, text: text.trim(), ts: nowMs());
@@ -160,7 +188,7 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
           PopupMenuButton<String>(
             onSelected: (value) {
               final api = services.api(widget.link.server);
-              if (value == 'summary') showSummarySheet(context, api, _transcript);
+              if (value == 'summary') showSummarySheet(context, api, _transcript, onSummary: _saveSummary);
               if (value == 'ask') openAskScreen(context, api, _transcript);
             },
             itemBuilder: (_) => [
@@ -181,6 +209,17 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
                   : null,
             ),
           ),
+          if (_recorder != null)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+              child: Row(
+                children: [
+                  const Icon(Icons.cloud_upload_outlined, size: 20),
+                  const SizedBox(width: 8),
+                  Expanded(child: Text(l10n.meetingSaving, style: Theme.of(context).textTheme.bodySmall)),
+                ],
+              ),
+            ),
           Expanded(
             child: ListenableBuilder(
               listenable: _transcript,

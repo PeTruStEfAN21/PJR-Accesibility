@@ -9,7 +9,24 @@ services:
     environment:
       # The address the iPhone uses to reach this laptop, e.g. http://172.20.10.2:8000 on an iPhone hotspot.
       PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8000}
+      # Live sessions and AI limits in Redis, so more server instances can run side by side.
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
     volumes:
       # Presenter page: run `flutter build web` in app/ first.
       - ./app/build/web:/srv/web:ro
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Only short-lived data (session codes, who is connected, request counts): no volume needed.
+  # Saved meetings and accounts live in Supabase (Postgres), see supabase/.
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     restart: unless-stopped

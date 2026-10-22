@@ -1,12 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../widgets/echo_logo.dart';
 import '../../widgets/pressable.dart';
 import '../../theme/echo_style.dart';
+import '../account/account_screen.dart';
+import '../account/sign_in_screen.dart';
 import '../conversation/conversation_screen.dart';
+import '../history/history_screen.dart';
 import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
 import '../settings/settings_screen.dart';
@@ -35,10 +39,20 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final account = ServicesScope.of(context).account;
+    // Accounts are optional: without Supabase configured the home screen is unchanged.
+    if (account == null) return _build(context);
+    return ListenableBuilder(listenable: account, builder: (context, _) => _build(context));
+  }
+
+  Widget _build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final settings = SettingsScope.of(context);
     final palette = EchoPalette.of(context);
     final theme = Theme.of(context);
+    final services = ServicesScope.of(context);
+    final account = services.account;
+    final meetings = services.signedInMeetings;
     void open(Widget screen) => Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
     void markTipSeen() {
       if (!settings.seenTips.contains(_tipId)) settings.update((s) => s.seenTips.add(_tipId));
@@ -81,6 +95,16 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
+          if (account != null)
+            IconButton(
+              tooltip: account.isSignedIn ? l10n.account : l10n.signIn,
+              icon: Icon(account.isSignedIn ? Icons.account_circle : Icons.login, color: palette.brand),
+              onPressed: () => open(
+                meetings != null
+                    ? AccountScreen(account: account, meetings: meetings)
+                    : SignInScreen(account: account),
+              ),
+            ),
           IconButton(
             tooltip: l10n.settings,
             icon: Icon(Icons.settings_outlined, color: palette.brand),
@@ -129,6 +153,8 @@ class HomeScreen extends StatelessWidget {
                     rows: [
                       _ToolRow(icon: Icons.hearing, title: l10n.homeSounds, hint: l10n.homeSoundsHint, onTap: () => open(const SoundsScreen())),
                       _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
+                      if (meetings != null)
+                        _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
                     ],
                   ),
                 ],

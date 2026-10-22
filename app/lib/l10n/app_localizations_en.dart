@@ -408,4 +408,132 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPreview => 'Preview';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get account => 'My account';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get signInIntro =>
+      'Sign in to save your meetings and review them any time. No password needed.';
+
+  @override
+  String get signInEmailLabel => 'Email address';
+
+  @override
+  String get signInSendCode => 'Send me a code';
+
+  @override
+  String signInCodeSent(String email) {
+    return 'We sent a code to $email. You can also open the link in the email.';
+  }
+
+  @override
+  String get signInCodeLabel => 'Code from the email';
+
+  @override
+  String get signInVerify => 'Confirm code';
+
+  @override
+  String get signInOtherEmail => 'Use another address';
+
+  @override
+  String get signInOr => 'or';
+
+  @override
+  String get signInGoogle => 'Continue with Google';
+
+  @override
+  String get signInInvalidEmail => 'This email address doesn\'t look right';
+
+  @override
+  String get signInInvalidCode => 'Enter the numeric code from the email';
+
+  @override
+  String get signInFailed =>
+      'We couldn\'t sign you in. Check the details and try again.';
+
+  @override
+  String accountSignedInAs(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get accountSignOut => 'Sign out';
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteBody =>
+      'Your account and all saved meetings, transcripts and summaries are deleted for good. This cannot be undone.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete for good';
+
+  @override
+  String get accountError => 'Something went wrong. Try again.';
+
+  @override
+  String get homeHistory => 'My meetings';
+
+  @override
+  String get homeHistoryHint =>
+      'Review transcripts and summaries, ask any meeting';
+
+  @override
+  String get historySearchHint => 'Search your meetings';
+
+  @override
+  String get historyClearSearch => 'Clear search';
+
+  @override
+  String get historyEmpty =>
+      'No saved meetings yet. When you join a meeting while signed in, the transcript is saved here.';
+
+  @override
+  String historyNoResults(String query) {
+    return 'No meeting contains “$query”.';
+  }
+
+  @override
+  String get historyLoadError => 'We couldn\'t load your meetings.';
+
+  @override
+  String historyUntitled(String date) {
+    return 'Meeting on $date';
+  }
+
+  @override
+  String get historyDelete => 'Delete meeting';
+
+  @override
+  String get historyDeleteTitle => 'Delete this meeting?';
+
+  @override
+  String get historyDeleteBody =>
+      'This meeting\'s transcript and summary are deleted for good.';
+
+  @override
+  String get historyDeleted => 'Meeting deleted';
+
+  @override
+  String get meetingRename => 'Rename';
+
+  @override
+  String get meetingNameLabel => 'Meeting name';
+
+  @override
+  String get meetingSaving => 'The transcript is being saved to your account';
 }

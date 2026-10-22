@@ -34,6 +34,39 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  testWidgets('presenter retries creating the meeting after the server failed', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    var attempts = 0;
+    final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000'});
+    await tester.pumpWidget(EchoApp(
+      settings: h.settings,
+      alerts: h.alerts,
+      services: AppServices(
+        speech: h.speech,
+        sounds: h.sounds,
+        channelFactory: (uri) => h.channel..uri = uri,
+        httpClient: MockClient((request) async => switch (request.url.path) {
+              '/api/sessions' when ++attempts == 1 => http.Response('down', 500),
+              '/api/sessions' => http.Response(jsonEncode({'code': 'ABC234'}), 201),
+              '/api/config' => http.Response(jsonEncode({'public_url': 'http://172.20.10.2:8000'}), 200),
+              _ => http.Response('not found', 404),
+            }),
+      ),
+    ));
+    await tester.tap(find.text('Tu prezinți? Deschide modul prezentator'));
+    await tester.pumpAndSettle();
+    expect(find.text('A B C 2 3 4'), findsNothing);
+
+    await tester.tap(find.text('Reîncearcă'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+    expect(find.text('A B C 2 3 4'), findsOneWidget);
+  });
+
   testWidgets('presenter shows the code, captions speech and marks messages as seen', (tester) async {
     tester.view.physicalSize = const Size(1400, 1000);
     tester.view.devicePixelRatio = 1;

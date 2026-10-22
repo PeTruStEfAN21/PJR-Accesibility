@@ -407,4 +407,132 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get settingsPreview => 'Previzualizare';
+
+  @override
+  String get cancel => 'Anulează';
+
+  @override
+  String get save => 'Salvează';
+
+  @override
+  String get account => 'Contul meu';
+
+  @override
+  String get signIn => 'Intră în cont';
+
+  @override
+  String get signInIntro =>
+      'Intră în cont ca să-ți salvezi meetingurile și să le revezi oricând. Nu ai nevoie de parolă.';
+
+  @override
+  String get signInEmailLabel => 'Adresa de email';
+
+  @override
+  String get signInSendCode => 'Trimite-mi un cod';
+
+  @override
+  String signInCodeSent(String email) {
+    return 'Ți-am trimis un cod pe $email. Poți și să deschizi linkul din email.';
+  }
+
+  @override
+  String get signInCodeLabel => 'Codul din email';
+
+  @override
+  String get signInVerify => 'Confirmă codul';
+
+  @override
+  String get signInOtherEmail => 'Folosește altă adresă';
+
+  @override
+  String get signInOr => 'sau';
+
+  @override
+  String get signInGoogle => 'Continuă cu Google';
+
+  @override
+  String get signInInvalidEmail => 'Adresa de email nu pare corectă';
+
+  @override
+  String get signInInvalidCode => 'Introdu codul din cifre primit pe email';
+
+  @override
+  String get signInFailed =>
+      'Nu am putut intra în cont. Verifică datele și încearcă din nou.';
+
+  @override
+  String accountSignedInAs(String email) {
+    return 'Ești conectat ca $email';
+  }
+
+  @override
+  String get accountSignOut => 'Ieși din cont';
+
+  @override
+  String get accountDelete => 'Șterge contul';
+
+  @override
+  String get accountDeleteTitle => 'Ștergi contul?';
+
+  @override
+  String get accountDeleteBody =>
+      'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.';
+
+  @override
+  String get accountDeleteConfirm => 'Șterge definitiv';
+
+  @override
+  String get accountError => 'Ceva nu a mers. Încearcă din nou.';
+
+  @override
+  String get homeHistory => 'Meetingurile mele';
+
+  @override
+  String get homeHistoryHint =>
+      'Revezi transcrierile și rezumatele, întreabă orice meeting';
+
+  @override
+  String get historySearchHint => 'Caută în meetinguri';
+
+  @override
+  String get historyClearSearch => 'Șterge căutarea';
+
+  @override
+  String get historyEmpty =>
+      'Nu ai încă meetinguri salvate. Când participi la un meeting cu contul deschis, transcrierea se salvează aici.';
+
+  @override
+  String historyNoResults(String query) {
+    return 'Niciun meeting nu conține „$query”.';
+  }
+
+  @override
+  String get historyLoadError => 'Nu am putut încărca meetingurile.';
+
+  @override
+  String historyUntitled(String date) {
+    return 'Meeting din $date';
+  }
+
+  @override
+  String get historyDelete => 'Șterge meetingul';
+
+  @override
+  String get historyDeleteTitle => 'Ștergi meetingul?';
+
+  @override
+  String get historyDeleteBody =>
+      'Transcrierea și rezumatul acestui meeting se șterg definitiv.';
+
+  @override
+  String get historyDeleted => 'Meetingul a fost șters';
+
+  @override
+  String get meetingRename => 'Redenumește';
+
+  @override
+  String get meetingNameLabel => 'Numele meetingului';
+
+  @override
+  String get meetingSaving => 'Transcrierea se salvează în contul tău';
 }
