@@ -794,6 +794,9 @@ class AppLocalizationsRo extends AppLocalizations {
   String get emergencySending => 'Se trimite…';
 
   @override
+  String get emergencyCancelling => 'Se anulează…';
+
+  @override
   String get emergencyErrorSignedOut => 'Intră în cont ca să poți da o alarmă.';
 
   @override
@@ -811,6 +814,10 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get emergencyErrorFailed => 'Alarma nu a plecat. Încearcă din nou.';
+
+  @override
+  String get emergencyErrorCancelFailed =>
+      'Alarma nu mai e activă sau nu a putut fi anulată. Verifică și încearcă din nou.';
 
   @override
   String get emergencyErrorNotConfigured =>

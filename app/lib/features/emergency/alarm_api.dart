@@ -23,11 +23,40 @@ class RaisedAlarm {
   final DateTime at;
 }
 
+/// The alarm this phone sent last, and its kind.
+class SentAlarm {
+  const SentAlarm(this.alarm, this.kind);
+  final RaisedAlarm alarm;
+  final AlarmKind kind;
+}
+
+/// Keeps the alarm this phone sent beyond the emergency screen, so it can still be cancelled
+/// after going back. Forgets it once it is no longer active on the server (15 min).
+class SentAlarmMemory {
+  SentAlarmMemory({DateTime Function()? clock}) : _clock = clock ?? DateTime.now;
+
+  static const activeFor = Duration(minutes: 15);
+
+  final DateTime Function() _clock;
+  SentAlarm? _sent;
+
+  SentAlarm? get sent {
+    final sent = _sent;
+    if (sent != null && _clock().difference(sent.alarm.at) >= activeFor) _sent = null;
+    return _sent;
+  }
+
+  set sent(SentAlarm? value) => _sent = value;
+}
+
 /// Raising and cancelling alarms; both need the signed-in user's token.
 class AlarmApi {
   AlarmApi(this.server, {http.Client? client, required String? Function() token})
       : _client = client ?? http.Client(),
         _token = token;
+
+  /// A dead network must not hold the confirmation dialog open for a minute or more.
+  static const requestTimeout = Duration(seconds: 10);
 
   final Uri server;
   final http.Client _client;
@@ -59,7 +88,7 @@ class AlarmApi {
         server.resolve(path),
         headers: {'content-type': 'application/json', 'Authorization': 'Bearer $token'},
         body: jsonEncode(body),
-      );
+      ).timeout(requestTimeout);
     } on Object {
       throw const AlarmError(AlarmProblem.offline);
     }

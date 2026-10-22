@@ -1496,6 +1496,12 @@ abstract class AppLocalizations {
   /// **'Se trimite…'**
   String get emergencySending;
 
+  /// No description provided for @emergencyCancelling.
+  ///
+  /// In ro, this message translates to:
+  /// **'Se anulează…'**
+  String get emergencyCancelling;
+
   /// No description provided for @emergencyErrorSignedOut.
   ///
   /// In ro, this message translates to:
@@ -1525,6 +1531,12 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Alarma nu a plecat. Încearcă din nou.'**
   String get emergencyErrorFailed;
+
+  /// No description provided for @emergencyErrorCancelFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarma nu mai e activă sau nu a putut fi anulată. Verifică și încearcă din nou.'**
+  String get emergencyErrorCancelFailed;
 
   /// No description provided for @emergencyErrorNotConfigured.
   ///

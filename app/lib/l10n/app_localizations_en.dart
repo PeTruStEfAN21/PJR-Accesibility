@@ -761,7 +761,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String emergencyConfirm(String name) {
-    return 'Send the „$name” alarm?';
+    return 'Send the “$name” alarm?';
   }
 
   @override
@@ -788,6 +788,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get emergencySending => 'Sending…';
 
   @override
+  String get emergencyCancelling => 'Cancelling…';
+
+  @override
   String get emergencyErrorSignedOut => 'Sign in to raise an alarm.';
 
   @override
@@ -805,6 +808,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get emergencyErrorFailed => 'The alarm didn\'t go out. Try again.';
+
+  @override
+  String get emergencyErrorCancelFailed =>
+      'The alarm is no longer active or couldn\'t be cancelled. Check and try again.';
 
   @override
   String get emergencyErrorNotConfigured =>

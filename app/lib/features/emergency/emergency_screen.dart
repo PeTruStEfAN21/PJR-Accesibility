@@ -14,13 +14,16 @@ import 'position_source.dart';
 /// Same visual direction as the home screen (taste-skill "editorial-greeting"): tonal panels,
 /// row cards, one filled button per state (in the confirmation dialog), links for the rest.
 class EmergencyScreen extends StatefulWidget {
-  const EmergencyScreen({super.key, required this.api, required this.positions, required this.onRaised});
+  const EmergencyScreen({super.key, required this.api, required this.positions, required this.onRaised, this.memory});
 
   final AlarmApi api;
   final PositionSource positions;
 
   /// Told the id of each alarm sent, so this phone does not alert itself.
   final void Function(String id) onRaised;
+
+  /// Where the sent alarm is kept after leaving this screen, so it can still be cancelled.
+  final SentAlarmMemory? memory;
 
   @override
   State<EmergencyScreen> createState() => _EmergencyScreenState();
@@ -31,6 +34,22 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   AlarmKind? _sentKind;
   bool _cancelled = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    final kept = widget.memory?.sent;
+    if (kept != null) {
+      _sent = kept.alarm;
+      _sentKind = kept.kind;
+    }
+  }
+
+  /// Cancel failures other than sign-in, network or setup mean the alarm is gone or was refused.
+  String _cancelProblem(AppLocalizations l10n, AlarmError error) => switch (error.problem) {
+        AlarmProblem.signedOut || AlarmProblem.offline || AlarmProblem.notConfigured => _problem(l10n, error),
+        AlarmProblem.tooMany || AlarmProblem.failed => l10n.emergencyErrorCancelFailed,
+      };
 
   String _problem(AppLocalizations l10n, AlarmError error) => switch (error.problem) {
         AlarmProblem.signedOut => l10n.emergencyErrorSignedOut,
@@ -52,6 +71,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     try {
       final alarm = await widget.api.raise(kind, at);
       widget.onRaised(alarm.id);
+      widget.memory?.sent = SentAlarm(alarm, kind);
       if (!mounted) return;
       setState(() {
         _sent = alarm;
@@ -68,6 +88,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     final l10n = AppLocalizations.of(context);
     try {
       await widget.api.cancel(_sent!.id);
+      widget.memory?.sent = null;
       if (!mounted) return;
       setState(() {
         _sent = null;
@@ -76,7 +97,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         _error = null;
       });
     } on AlarmError catch (error) {
-      if (mounted) setState(() => _error = _problem(l10n, error));
+      if (mounted) setState(() => _error = _cancelProblem(l10n, error));
     }
   }
 
@@ -88,6 +109,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       builder: (_) => _ConfirmDialog(
         question: l10n.emergencyConfirm(alarmName(l10n, kind)),
         confirm: l10n.emergencySend,
+        busy: l10n.emergencySending,
         action: () => _raise(kind),
       ),
     );
@@ -101,6 +123,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       builder: (_) => _ConfirmDialog(
         question: l10n.emergencyCancelConfirm,
         confirm: l10n.emergencyCancelAlarm,
+        busy: l10n.emergencyCancelling,
         action: _cancel,
       ),
     );
@@ -143,6 +166,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                     ),
                   ],
                 ),
+                // Above the kinds, so it stays on screen at large text sizes.
+                if (sent == null && _error != null) ...[
+                  const SizedBox(height: 16),
+                  _ErrorNote(text: _error!),
+                ],
                 const SizedBox(height: 24),
                 if (sent != null)
                   _SentPanel(
@@ -157,10 +185,6 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                     const SizedBox(height: 16),
                   ],
                   _KindList(onPick: _confirmRaise),
-                  if (_error != null) ...[
-                    const SizedBox(height: 16),
-                    _ErrorNote(text: _error!),
-                  ],
                 ],
               ],
             ),
@@ -387,10 +411,13 @@ class _ErrorNote extends StatelessWidget {
 /// Asks once more before an alarm goes out or is taken back. The request runs from here, so the
 /// filled button can say "Sending…" (at the same width) and cannot be pressed twice.
 class _ConfirmDialog extends StatefulWidget {
-  const _ConfirmDialog({required this.question, required this.confirm, required this.action});
+  const _ConfirmDialog({required this.question, required this.confirm, required this.busy, required this.action});
 
   final String question;
   final String confirm;
+
+  /// The button's label while the request runs.
+  final String busy;
   final Future<void> Function() action;
 
   @override
@@ -403,8 +430,12 @@ class _ConfirmDialogState extends State<_ConfirmDialog> {
   Future<void> _go() async {
     if (_sending) return;
     setState(() => _sending = true);
-    await widget.action();
-    if (mounted) Navigator.of(context).pop();
+    try {
+      await widget.action();
+    } finally {
+      // Always closes, so a failed request never leaves the user stuck in the dialog.
+      if (mounted) Navigator.of(context).pop();
+    }
   }
 
   @override
@@ -434,7 +465,7 @@ class _ConfirmDialogState extends State<_ConfirmDialog> {
               onPressed: _go,
               child: Stack(
                 alignment: Alignment.center,
-                children: [label(widget.confirm, !_sending), label(l10n.emergencySending, _sending)],
+                children: [label(widget.confirm, !_sending), label(widget.busy, _sending)],
               ),
             ),
           ),

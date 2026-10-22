@@ -13,13 +13,13 @@ class _Positions implements PositionSource {
   int currentCalls = 0;
 
   @override
-  Future<Position?> current({Duration timeout = const Duration(seconds: 5)}) async {
+  Future<Position?> current({Duration timeout = const Duration(seconds: 5), bool ask = true}) async {
     currentCalls++;
     return const Position(lat: 44.0, lon: 26.0, accuracyM: 10);
   }
 
   @override
-  Future<Position?> lastKnown() async => null;
+  Future<Position?> lastKnown({bool ask = true}) async => null;
 }
 
 Map<String, Object> _fire(String id) =>
@@ -105,6 +105,29 @@ void main() {
     await tester.pump();
     await tester.pump();
 
+    expect(find.text('Incendiu · semnalat de un coleg'), findsNothing);
+  });
+
+  testWidgets('a new server address moves the feed there', (tester) async {
+    h = await TestHarness.create(accounts: true);
+    await tester.pumpWidget(app(signedIn: true));
+    await tester.pump();
+    final old = channels.single;
+
+    // Other settings leave the feed alone.
+    h.settings.update((s) => s.textScale = 1.2);
+    await tester.pump();
+    expect(channels, hasLength(1));
+
+    h.settings.update((s) => s.serverUrl = 'https://other.example:9000');
+    await tester.pump();
+    expect(channels, hasLength(2));
+    expect(channels.last.uri.toString(), 'wss://other.example:9000/ws/alarms');
+    expect(channels.last.sink.sent.first['type'], 'auth');
+
+    old.receive(_fire('a3'));
+    await tester.pump();
+    await tester.pump();
     expect(find.text('Incendiu · semnalat de un coleg'), findsNothing);
   });
 }

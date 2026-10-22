@@ -48,6 +48,16 @@ class _EchoAppState extends State<EchoApp> {
     _sounds = widget.services.sounds.alerts.listen(_alerts.show);
     _lifecycle = AppLifecycleListener(onResume: _resumed);
     widget.services.account?.addListener(_accountChanged);
+    widget.settings.addListener(_settingsChanged);
+    _accountChanged();
+  }
+
+  /// A new server address in the settings: the feed moves there.
+  void _settingsChanged() {
+    final feed = _alarmFeed;
+    if (feed == null || feed.server == defaultServer(widget.settings)) return;
+    feed.stop();
+    _alarmFeed = null;
     _accountChanged();
   }
 
@@ -87,6 +97,7 @@ class _EchoAppState extends State<EchoApp> {
   @override
   void dispose() {
     widget.services.account?.removeListener(_accountChanged);
+    widget.settings.removeListener(_settingsChanged);
     _alarmFeed?.stop();
     _lifecycle.dispose();
     _sounds?.cancel();
