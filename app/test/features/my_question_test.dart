@@ -217,4 +217,80 @@ void main() {
     expect(question.id, isNull);
     expect(question.state, isNull);
   });
+
+  test('an answer said while a check runs is checked after the speaker pauses', () {
+    fakeAsync((async) {
+      start(FakeChecker(delay: const Duration(seconds: 10)));
+      question
+        ..asked('q1', 'Când e termenul?')
+        ..markRead('q1');
+      transcript.upsert(line('c', 'Bună întrebare'));
+      async.elapse(const Duration(seconds: 5)); // check started at 3 s, answers at 13 s
+      transcript.upsert(line('d', 'Termenul e vineri'));
+      async.elapse(const Duration(seconds: 8)); // 13 s: "not yet" for the first line only
+      expect(checker.calls, hasLength(1));
+
+      async.elapse(const Duration(seconds: 3));
+      expect(checker.calls, hasLength(2));
+      expect(checker.calls.last.$2.map((l) => l.text), ['Bună întrebare', 'Termenul e vineri']);
+    });
+  });
+
+  test('a passing server error does not stop the search', () {
+    fakeAsync((async) {
+      start(FakeChecker(error: ApiException(502, 'AI service unavailable, try again')));
+      question
+        ..asked('q1', 'Când?')
+        ..markRead('q1');
+      transcript.upsert(line('c', 'unu'));
+      async.elapse(const Duration(seconds: 3));
+      transcript.upsert(line('d', 'doi'));
+      async.elapse(const Duration(seconds: 3));
+      expect(checker.calls, hasLength(2));
+    });
+  });
+
+  test('a check that never answers times out and the search goes on', () {
+    fakeAsync((async) {
+      start(FakeChecker(delay: const Duration(hours: 1)));
+      question
+        ..asked('q1', 'Când?')
+        ..markRead('q1');
+      transcript.upsert(line('c', 'unu'));
+      async.elapse(const Duration(seconds: 3 + 20));
+      transcript.upsert(line('d', 'doi'));
+      async.elapse(const Duration(seconds: 3));
+      expect(checker.calls, hasLength(2));
+    });
+  });
+
+  test('retry works even while a check hangs', () {
+    fakeAsync((async) {
+      start(FakeChecker(delay: const Duration(hours: 1)));
+      question
+        ..asked('q1', 'Când?')
+        ..markRead('q1');
+      transcript.upsert(line('c', 'unu'));
+      async.elapse(const Duration(seconds: 4));
+      question.retry();
+      async.elapse(Duration.zero);
+      expect(checker.calls, hasLength(2));
+    });
+  });
+
+  test('at most the last 200 lines are sent', () {
+    fakeAsync((async) {
+      start();
+      question
+        ..asked('q1', 'Când?')
+        ..markRead('q1');
+      for (var i = 0; i < 250; i++) {
+        transcript.upsert(line('l$i', 'replica $i'));
+      }
+      async.elapse(const Duration(seconds: 3));
+      final sent = checker.calls.single.$2;
+      expect(sent, hasLength(200));
+      expect(sent.last.text, 'replica 249');
+    });
+  });
 }
