@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/echo_filter.dart';
 import '../../core/ids.dart';
@@ -15,10 +17,14 @@ import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../widgets/caption_tile.dart';
 import '../../widgets/connection_banner.dart';
+import 'ask_panel.dart';
 import 'meeting_ai.dart';
+import 'my_question.dart';
+import 'room_questions.dart';
 
-/// The deaf participant's phone: captions by role, quiet messages to the
-/// presenter, and optionally captions of the audience from its own microphone.
+/// The deaf participant's phone: captions by role, questions to the speaker and
+/// their answers, quiet messages, and optionally captions of the room from its own
+/// microphone.
 class ParticipantScreen extends StatefulWidget {
   const ParticipantScreen({super.key, required this.link});
   final JoinLink link;
@@ -37,6 +43,9 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
 
   late final SessionConnection _connection;
   late final SpeechService _speech;
+  late final MyQuestion _myQuestion;
+  late final RoomQuestions _roomQuestions;
+  MyQuestionState? _questionState;
   StreamSubscription<ServerEvent>? _events;
   StreamSubscription<SpeechSegment>? _segments;
   bool _listening = false;
@@ -52,6 +61,19 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     _connection = SessionConnection(widget.link, 'participant', channelFactory: services.channelFactory)..connect();
     _events = _connection.events.listen(_onEvent);
     _transcript.addListener(_autoScroll);
+
+    final api = services.api(widget.link.server);
+    final speechLocale = SettingsScope.of(context).speechLocaleId;
+    _myQuestion = MyQuestion(
+      transcript: _transcript,
+      // The answer is written in the interface language.
+      check: (question, lines) => api.checkAnswer(Localizations.localeOf(context).languageCode, question, lines),
+    )..addListener(_onQuestionChanged);
+    _roomQuestions = RoomQuestions(
+      transcript: _transcript,
+      find: (lines) => api.findQuestions(speechLocale.split('-').first, lines),
+      lang: speechLocale,
+    );
   }
 
   @override
@@ -60,6 +82,8 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     _segments?.cancel();
     if (_listening) _speech.stop();
     _connection.dispose();
+    _myQuestion.dispose();
+    _roomQuestions.dispose();
     _transcript.dispose();
     _scroll.dispose();
     _message.dispose();
@@ -71,12 +95,39 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
       case CaptionReceived(:final caption):
         if (caption.speaker == Speaker.coordinator) _echo.coordinatorSpoke(caption.text, clock.now());
         _transcript.upsert(caption);
+      case ReadReceived(:final id):
+        _myQuestion.markRead(id);
       case SeenReceived(:final id):
         final text = _sentTexts[id];
         if (text != null) _snack(AppLocalizations.of(context).messageSeen(text));
       default:
         break;
     }
+  }
+
+  void _onQuestionChanged() {
+    final state = _myQuestion.state;
+    if (state == MyQuestionState.answered && _questionState != MyQuestionState.answered) {
+      HapticFeedback.heavyImpact();
+      SemanticsService.sendAnnouncement(
+        View.of(context),
+        AppLocalizations.of(context).answeredAnnouncement(_myQuestion.result!.answer),
+        Directionality.of(context),
+        assertiveness: Assertiveness.assertive,
+      );
+    }
+    _questionState = state;
+  }
+
+  void _sendHand() {
+    _connection.send(Notify(id: newId(), kind: NotifyKind.hand, text: '', ts: nowMs()).toJson());
+    _snack(AppLocalizations.of(context).myQuestionHandSent);
+  }
+
+  void _sendQuestion(String text) {
+    final notify = Notify(id: newId(), kind: NotifyKind.question, text: text, ts: nowMs());
+    _connection.send(notify.toJson());
+    _myQuestion.asked(notify.id, notify.text);
   }
 
   void _autoScroll() {
@@ -181,13 +232,24 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
                   : null,
             ),
           ),
+          ListenableBuilder(
+            listenable: _myQuestion,
+            builder: (_, _) => _myQuestion.state == MyQuestionState.answered
+                ? AnsweredCard(question: _myQuestion, transcript: _transcript)
+                : const SizedBox.shrink(),
+          ),
           Expanded(
             child: ListenableBuilder(
-              listenable: _transcript,
-              builder: (context, _) => _CaptionsView(transcript: _transcript, scroll: _scroll),
+              listenable: Listenable.merge([_transcript, _roomQuestions]),
+              builder: (context, _) =>
+                  _CaptionsView(transcript: _transcript, roomQuestions: _roomQuestions, scroll: _scroll),
             ),
           ),
-          _MessageBar(controller: _message, onSend: _sendNotify),
+          _MessageBar(
+            controller: _message,
+            onSend: _sendNotify,
+            ask: AskPanel(question: _myQuestion, onHand: _sendHand, onSend: _sendQuestion),
+          ),
         ],
       ),
     );
@@ -195,8 +257,9 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
 }
 
 class _CaptionsView extends StatelessWidget {
-  const _CaptionsView({required this.transcript, required this.scroll});
+  const _CaptionsView({required this.transcript, required this.roomQuestions, required this.scroll});
   final Transcript transcript;
+  final RoomQuestions roomQuestions;
   final ScrollController scroll;
 
   @override
@@ -228,7 +291,11 @@ class _CaptionsView extends StatelessWidget {
               controller: scroll,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               itemCount: captions.length,
-              itemBuilder: (_, i) => CaptionTile(caption: captions[i], number: numbers[captions[i].id]),
+              itemBuilder: (_, i) => CaptionTile(
+                caption: captions[i],
+                number: numbers[captions[i].id],
+                isQuestion: roomQuestions.isQuestion(captions[i].id),
+              ),
             ),
           ),
         ),
@@ -238,15 +305,17 @@ class _CaptionsView extends StatelessWidget {
 }
 
 class _MessageBar extends StatelessWidget {
-  const _MessageBar({required this.controller, required this.onSend});
+  const _MessageBar({required this.controller, required this.onSend, required this.ask});
   final TextEditingController controller;
   final void Function(NotifyKind kind, String text) onSend;
+
+  /// „Vreau să întreb” and the state of the participant's question.
+  final Widget ask;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final quick = [
-      (NotifyKind.question, l10n.quickQuestion, Icons.front_hand),
       (NotifyKind.repeat, l10n.quickRepeat, Icons.replay),
       (NotifyKind.slower, l10n.quickSlower, Icons.slow_motion_video),
     ];
@@ -264,6 +333,8 @@ class _MessageBar extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              ask,
+              const SizedBox(height: 8),
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
