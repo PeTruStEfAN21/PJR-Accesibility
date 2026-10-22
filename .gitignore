@@ -70,3 +70,8 @@ Thumbs.db
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+# Supabase CLI (fișiere locale)
+supabase/.temp/
+supabase/.branches/
+supabase/.env

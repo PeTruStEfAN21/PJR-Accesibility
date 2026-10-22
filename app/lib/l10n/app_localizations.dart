@@ -745,6 +745,234 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Previzualizare'**
   String get settingsPreview;
+
+  /// No description provided for @cancel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulează'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvează'**
+  String get save;
+
+  /// No description provided for @account.
+  ///
+  /// In ro, this message translates to:
+  /// **'Contul meu'**
+  String get account;
+
+  /// No description provided for @signIn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în cont'**
+  String get signIn;
+
+  /// No description provided for @signInIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în cont ca să-ți salvezi meetingurile și să le revezi oricând. Nu ai nevoie de parolă.'**
+  String get signInIntro;
+
+  /// No description provided for @signInEmailLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adresa de email'**
+  String get signInEmailLabel;
+
+  /// No description provided for @signInSendCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite-mi un cod'**
+  String get signInSendCode;
+
+  /// No description provided for @signInCodeSent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ți-am trimis un cod pe {email}. Poți și să deschizi linkul din email.'**
+  String signInCodeSent(String email);
+
+  /// No description provided for @signInCodeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul din email'**
+  String get signInCodeLabel;
+
+  /// No description provided for @signInVerify.
+  ///
+  /// In ro, this message translates to:
+  /// **'Confirmă codul'**
+  String get signInVerify;
+
+  /// No description provided for @signInOtherEmail.
+  ///
+  /// In ro, this message translates to:
+  /// **'Folosește altă adresă'**
+  String get signInOtherEmail;
+
+  /// No description provided for @signInOr.
+  ///
+  /// In ro, this message translates to:
+  /// **'sau'**
+  String get signInOr;
+
+  /// No description provided for @signInGoogle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Continuă cu Google'**
+  String get signInGoogle;
+
+  /// No description provided for @signInInvalidEmail.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adresa de email nu pare corectă'**
+  String get signInInvalidEmail;
+
+  /// No description provided for @signInInvalidCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Introdu codul din cifre primit pe email'**
+  String get signInInvalidCode;
+
+  /// No description provided for @signInFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut intra în cont. Verifică datele și încearcă din nou.'**
+  String get signInFailed;
+
+  /// No description provided for @accountSignedInAs.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ești conectat ca {email}'**
+  String accountSignedInAs(String email);
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ieși din cont'**
+  String get accountSignOut;
+
+  /// No description provided for @accountDelete.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge contul'**
+  String get accountDelete;
+
+  /// No description provided for @accountDeleteTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi contul?'**
+  String get accountDeleteTitle;
+
+  /// No description provided for @accountDeleteBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.'**
+  String get accountDeleteBody;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge definitiv'**
+  String get accountDeleteConfirm;
+
+  /// No description provided for @accountError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ceva nu a mers. Încearcă din nou.'**
+  String get accountError;
+
+  /// No description provided for @homeHistory.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingurile mele'**
+  String get homeHistory;
+
+  /// No description provided for @homeHistoryHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Revezi transcrierile și rezumatele, întreabă orice meeting'**
+  String get homeHistoryHint;
+
+  /// No description provided for @historySearchHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Caută în meetinguri'**
+  String get historySearchHint;
+
+  /// No description provided for @historyClearSearch.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge căutarea'**
+  String get historyClearSearch;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu ai încă meetinguri salvate. Când participi la un meeting cu contul deschis, transcrierea se salvează aici.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyNoResults.
+  ///
+  /// In ro, this message translates to:
+  /// **'Niciun meeting nu conține „{query}”.'**
+  String historyNoResults(String query);
+
+  /// No description provided for @historyLoadError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut încărca meetingurile.'**
+  String get historyLoadError;
+
+  /// No description provided for @historyUntitled.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meeting din {date}'**
+  String historyUntitled(String date);
+
+  /// No description provided for @historyDelete.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge meetingul'**
+  String get historyDelete;
+
+  /// No description provided for @historyDeleteTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi meetingul?'**
+  String get historyDeleteTitle;
+
+  /// No description provided for @historyDeleteBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Transcrierea și rezumatul acestui meeting se șterg definitiv.'**
+  String get historyDeleteBody;
+
+  /// No description provided for @historyDeleted.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingul a fost șters'**
+  String get historyDeleted;
+
+  /// No description provided for @meetingRename.
+  ///
+  /// In ro, this message translates to:
+  /// **'Redenumește'**
+  String get meetingRename;
+
+  /// No description provided for @meetingNameLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele meetingului'**
+  String get meetingNameLabel;
+
+  /// No description provided for @meetingSaving.
+  ///
+  /// In ro, this message translates to:
+  /// **'Transcrierea se salvează în contul tău'**
+  String get meetingSaving;
 }
 
 class _AppLocalizationsDelegate

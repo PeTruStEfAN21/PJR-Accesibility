@@ -4,18 +4,34 @@ import 'package:http/http.dart' as http;
 
 import '../features/alerts/sound_alert.dart';
 import '../settings/app_settings.dart';
+import 'account/account_service.dart';
+import 'history/meeting_store.dart';
 import 'server_api.dart';
 import 'session_connection.dart';
 import 'speech/speech_service.dart';
 
 /// App-wide services. Tests swap in fakes through [ServicesScope].
 class AppServices {
-  AppServices({required this.speech, required this.sounds, this.httpClient, this.channelFactory});
+  AppServices({
+    required this.speech,
+    required this.sounds,
+    this.httpClient,
+    this.channelFactory,
+    this.account,
+    this.meetings,
+  });
 
   final SpeechService speech;
   final SoundDetector sounds;
   final http.Client? httpClient;
   final ChannelFactory? channelFactory;
+
+  /// Null when accounts are off (no Supabase configured): no sign-in, nothing saved.
+  final AccountService? account;
+  final MeetingStore? meetings;
+
+  /// The meeting store, only while someone is signed in.
+  MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
 
   ServerApi api(Uri server) => ServerApi(server, client: httpClient);
 }
