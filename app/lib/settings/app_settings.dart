@@ -23,7 +23,6 @@ class AppSettings extends ChangeNotifier {
   bool dyslexiaMode = false;
   RolePaletteKind palette = RolePaletteKind.standard;
   bool highContrast = false;
-  ThemeMode themeMode = ThemeMode.system;
   bool autoScroll = true;
   String emergencyExit = '';
   String serverUrl = '';
@@ -32,6 +31,14 @@ class AppSettings extends ChangeNotifier {
   /// voice model it was made with: a voice from another model means nothing to the current one.
   List<double>? voiceprint;
   String? voiceprintModel;
+
+  /// In-app onboarding: false once the user taps "Skip" on any tip.
+  bool tipsEnabled = true;
+
+  /// Ids of the tips the user has already dismissed.
+  Set<String> seenTips = {};
+
+  bool shouldShowTip(String id) => tipsEnabled && !seenTips.contains(id);
 
   static const minTextScale = 1.0;
   static const maxTextScale = 2.0;
@@ -48,10 +55,11 @@ class AppSettings extends ChangeNotifier {
     dyslexiaMode = _prefs.getBool('dyslexiaMode') ?? dyslexiaMode;
     palette = RolePaletteKind.values.asNameMap()[_prefs.getString('palette')] ?? palette;
     highContrast = _prefs.getBool('highContrast') ?? highContrast;
-    themeMode = ThemeMode.values.asNameMap()[_prefs.getString('themeMode')] ?? themeMode;
     autoScroll = _prefs.getBool('autoScroll') ?? autoScroll;
     emergencyExit = _prefs.getString('emergencyExit') ?? emergencyExit;
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;
+    tipsEnabled = _prefs.getBool('tipsEnabled') ?? tipsEnabled;
+    seenTips = (_prefs.getStringList('seenTips') ?? const []).toSet();
     final saved = _prefs.getString('voiceEnrollment');
     final decoded = saved == null ? null : jsonDecode(saved);
     // Older saves were a bare list, without the model: they count as made by an unknown model.
@@ -80,10 +88,11 @@ class AppSettings extends ChangeNotifier {
       ..setBool('dyslexiaMode', dyslexiaMode)
       ..setString('palette', palette.name)
       ..setBool('highContrast', highContrast)
-      ..setString('themeMode', themeMode.name)
       ..setBool('autoScroll', autoScroll)
       ..setString('emergencyExit', emergencyExit)
-      ..setString('serverUrl', serverUrl);
+      ..setString('serverUrl', serverUrl)
+      ..setBool('tipsEnabled', tipsEnabled)
+      ..setStringList('seenTips', seenTips.toList());
     if (voiceprint == null) {
       _prefs.remove('voiceEnrollment');
     } else {

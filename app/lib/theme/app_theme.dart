@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../settings/app_settings.dart';
@@ -5,21 +6,24 @@ import 'role_palette.dart';
 
 const dyslexiaFont = 'OpenDyslexic';
 
-ThemeData buildTheme(AppSettings settings, Brightness brightness) {
-  final dark = brightness == Brightness.dark;
-  var scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FDB), brightness: brightness);
+/// The app's one typeface, bundled in assets/fonts.
+const textFont = 'Roboto';
+
+/// Echo has one theme, light.
+ThemeData buildTheme(AppSettings settings) {
+  var scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FDB));
   if (settings.highContrast) {
     scheme = scheme.copyWith(
-      surface: dark ? Colors.black : Colors.white,
-      onSurface: dark ? Colors.white : Colors.black,
-      onSurfaceVariant: dark ? Colors.white : Colors.black,
-      outline: dark ? Colors.white : Colors.black,
-      primary: dark ? const Color(0xFFB8D4FF) : const Color(0xFF00337A),
-      onPrimary: dark ? Colors.black : Colors.white,
+      surface: Colors.white,
+      onSurface: Colors.black,
+      onSurfaceVariant: Colors.black,
+      outline: Colors.black,
+      primary: const Color(0xFF00337A),
+      onPrimary: Colors.white,
     );
   }
 
-  final base = ThemeData(colorScheme: scheme, useMaterial3: true, fontFamily: settings.dyslexiaMode ? dyslexiaFont : null);
+  final base = ThemeData(colorScheme: scheme, useMaterial3: true, fontFamily: settings.dyslexiaMode ? dyslexiaFont : textFont);
   final textTheme = settings.dyslexiaMode
       // Wider letter and line spacing help readers with dyslexia follow fast captions.
       ? base.textTheme.apply(fontFamily: dyslexiaFont).copyWith(
@@ -33,7 +37,14 @@ ThemeData buildTheme(AppSettings settings, Brightness brightness) {
     textTheme: textTheme,
     // Minimum 48 px touch targets everywhere.
     materialTapTargetSize: MaterialTapTargetSize.padded,
+    // In the browser the default Cupertino slide paints a full-screen shadow on every frame and
+    // stutters on Retina screens; a short fade is far cheaper. Phones keep their native transition.
+    pageTransitionsTheme: kIsWeb ? _webTransitions : null,
     visualDensity: VisualDensity.standard,
-    extensions: [RolePalette.resolve(settings.palette, brightness, highContrast: settings.highContrast)],
+    extensions: [RolePalette.resolve(settings.palette, highContrast: settings.highContrast)],
   );
 }
+
+final _webTransitions = PageTransitionsTheme(
+  builders: {for (final platform in TargetPlatform.values) platform: FadeUpwardsPageTransitionsBuilder()},
+);
