@@ -199,20 +199,11 @@ class _PresenterScreenState extends State<PresenterScreen> {
     _segments = _speech.segments.listen((segment) async {
       // A final line is judged on its own audio; a partial one keeps the last decided label.
       final labeler = _labeler;
-      final speaker = labeler == null
-          ? Speaker.coordinator
-          : segment.isFinal
-              ? await labeler.labelFinal(clock.now())
-              : labeler.current;
+      final judged = labeler != null && segment.isFinal ? await labeler.judgeFinal(clock.now()) : null;
+      final speaker = judged?.speaker ?? labeler?.current ?? Speaker.coordinator;
       if (!mounted) return;
-      if (segment.isFinal && labeler != null) {
-        _testMeeting?.add(
-          id: segment.id,
-          text: segment.text,
-          predicted: speaker,
-          score: labeler.lastScore,
-          clip: labeler.lastClip ?? Float32List(0),
-        );
+      if (judged != null) {
+        _testMeeting?.add(id: segment.id, text: segment.text, predicted: speaker, score: judged.score, clip: judged.clip);
       }
       final caption = Caption(
         id: segment.id,
@@ -234,6 +225,7 @@ class _PresenterScreenState extends State<PresenterScreen> {
       messenger.showSnackBar(SnackBar(content: Text(unavailable)));
       return;
     }
+    _labeler?.startWindowAt(clock.now());
     setState(() => _listening = true);
   }
 
@@ -243,11 +235,26 @@ class _PresenterScreenState extends State<PresenterScreen> {
     final settings = SettingsScope.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final failed = AppLocalizations.of(context).presenterReadFailed;
+    final text = message.notify.text;
+    // The browser's voice sometimes never reports the end: give up after a generous time for the text.
+    final limit = Duration(milliseconds: 5000 + 120 * text.length);
     final wasListening = _listening;
     setState(() => _speaking = true);
     if (wasListening) await _speech.stop();
-    final spoken = await _tts.speak(message.notify.text, settings.speechLocaleId);
-    if (wasListening) await _speech.start(settings.speechLocaleId);
+    var spoken = false;
+    try {
+      spoken = await _tts.speak(text, settings.speechLocaleId).timeout(limit, onTimeout: () {
+        _tts.cancel();
+        return false;
+      });
+    } on Object {
+      spoken = false;
+    } finally {
+      // Captioning restarts whatever happened, unless the speaker pressed Stop meanwhile; the next line is
+      // judged only on what is heard after the laptop's voice.
+      if (wasListening && _listening) await _speech.start(settings.speechLocaleId);
+      _labeler?.startWindowAt(clock.now());
+    }
     if (!mounted) return;
     setState(() => _speaking = false);
     if (spoken) {
