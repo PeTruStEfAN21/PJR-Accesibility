@@ -44,13 +44,21 @@ class FakeChannel implements WebSocketChannel {
   final FakeSink sink = FakeSink();
   Uri? uri;
 
+  int? _closeCode;
+
   void receive(Map<String, Object> message) => _incoming.add(jsonEncode(message));
+
+  /// The server closes the socket with [code].
+  void closeWith(int code) {
+    _closeCode = code;
+    _incoming.close();
+  }
 
   @override
   Stream get stream => _incoming.stream;
 
   @override
-  int? get closeCode => null;
+  int? get closeCode => _closeCode;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -324,6 +332,10 @@ class TestHarness {
   final voice = FakeVoiceEngine();
   final FakeSounds sounds;
   final FakeChannel channel;
+
+  /// The colleague-alarm feed's latest socket, opened while someone is signed in
+  /// (a new one each time the feed connects, e.g. after the server address changes).
+  FakeChannel alarmChannel = FakeChannel();
   final AlertController alerts;
   final FakeAccountService? account;
   final FakeMeetingStore? meetings;
@@ -371,7 +383,7 @@ class TestHarness {
           tts: tts,
           voice: voice,
           httpClient: httpClient,
-          channelFactory: (uri) => channel..uri = uri,
+          channelFactory: (uri) => (uri.path == '/ws/alarms' ? alarmChannel = FakeChannel() : channel)..uri = uri,
           account: account,
           meetings: meetings,
           locationSounds: locationSounds,

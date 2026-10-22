@@ -87,6 +87,8 @@
 	<string>Recunoașterea vorbirii afișează ce se spune în meeting ca text.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera scanează codul QR al meetingului și arată cine vorbește.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Echo folosește locația ca să trimită alarmele de urgență doar colegilor aflați la cel mult 500 m.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>Aplicația se conectează la laptopul prezentatorului din aceeași rețea.</string>
 	<key>NSAppTransportSecurity</key>

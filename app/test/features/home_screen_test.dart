@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
+import 'package:pjr_accesibilitate/features/emergency/emergency_screen.dart';
 import 'package:pjr_accesibilitate/features/home/home_screen.dart';
 import 'package:pjr_accesibilitate/features/participant/join_screen.dart';
 import 'package:pjr_accesibilitate/l10n/app_localizations.dart';
@@ -118,5 +119,26 @@ void main() {
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
     expect(Theme.of(tester.element(find.text('Conectează-te la speaker'))).brightness, Brightness.light);
+  });
+
+  testWidgets('home: the emergency row appears only when signed in', (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final h = await TestHarness.create(accounts: true);
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    expect(find.text('Alarmă de urgență'), findsNothing);
+
+    h.account!.signInAs('a@example.com');
+    await tester.pumpAndSettle();
+    expect(find.text('Alarmă de urgență'), findsOneWidget);
+    expect(find.text('Când aplicația nu aude pericolul'), findsOneWidget);
+    expect(find.byIcon(Icons.emergency_share), findsOneWidget);
+
+    await tester.tap(find.text('Alarmă de urgență'));
+    await tester.pumpAndSettle();
+    expect(find.byType(EmergencyScreen), findsOneWidget);
   });
 }
