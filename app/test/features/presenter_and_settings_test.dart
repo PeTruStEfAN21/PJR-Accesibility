@@ -233,6 +233,7 @@ void main() {
     expect(find.text('Vocea ta e învățată'), findsOneWidget);
     expect(find.text('A B C 2 3 4'), findsOneWidget);
     expect(h.settings.voiceprint, isNotNull);
+    expect(h.settings.voiceprintModel, 'redimnet2-b6-vb2+vox2_v0-lm');
   });
 
   testWidgets('too little speech asks the speaker to read again', (tester) async {
@@ -270,7 +271,9 @@ void main() {
   });
 
   testWidgets('a learned voice is remembered, and can be learned again', (tester) async {
-    final h = await openPresenter(tester, voice: true, prefs: {'voiceEnrollment': '[1.0, 0.0, 0.0]'});
+    final h = await openPresenter(tester, voice: true, prefs: {
+      'voiceEnrollment': '{"model": "redimnet2-b6-vb2+vox2_v0-lm", "vector": [1.0, 0.0, 0.0]}',
+    });
     expect(find.text('A B C 2 3 4'), findsOneWidget);
 
     await tester.tap(find.text('Reînvață vocea'));
@@ -353,5 +356,13 @@ void main() {
     await tester.pump();
 
     expect(h.voice.recentRequests, [const Duration(seconds: 3)]);
+  });
+
+  testWidgets('a voice learned with an older model is learned again', (tester) async {
+    await openPresenter(tester, voice: true, prefs: {
+      'voiceEnrollment': '{"model": "an-older-model", "vector": [1.0, 0.0, 0.0]}',
+    });
+    expect(find.text('Învață vocea ta'), findsOneWidget);
+    expect(find.text('A B C 2 3 4'), findsNothing);
   });
 }
