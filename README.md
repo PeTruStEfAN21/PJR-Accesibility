@@ -40,3 +40,11 @@ Cu conturi activate, din **Contul meu → Compania mea** un angajator își face
 4. Aplicația, construită cu `supabase.env.json` care arată spre Supabase-ul firmei (`SUPABASE_URL`, `SUPABASE_ANON_KEY`).
 
 Testele schemei rulează pe orice Postgres: `TEST_DATABASE_URL=... python -m pytest tests/test_database.py`. Fără Docker, un Postgres temporar merge cu `initdb -D <folder> -U postgres --auth=trust`, apoi `pg_ctl -D <folder> -o "-p 54329" start` și `TEST_DATABASE_URL=postgresql://postgres@localhost:54329/postgres`.
+
+### Alarma dată de un coleg
+
+Un coleg intrat în cont dă o alarmă de urgență din aplicație („Alarmă de urgență” pe ecranul principal); o primesc cei intrați în cont aflați la cel mult 500 m. Cere conturile de mai sus. Detalii în `docs/specs/2026-10-22-alarma-manuala-design.md`.
+
+- Serverul: `POST /api/alarms`, `POST /api/alarms/{id}/cancel` (cu cont, cel mult 3 alarme pe oră) și `/ws/alarms` pentru ascultare.
+- Cine a dat alarma ajunge la `AlarmRecorder` (`server/app/alarms.py`). Deocamdată se scrie doar în logul serverului (`docker compose logs server`); salvarea în baza de date se adaugă acolo.
+- Pe Mac, după `git pull`: `cd app/ios && pod install` (pachetul de locație `geolocator`).

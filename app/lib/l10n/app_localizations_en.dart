@@ -934,4 +934,97 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get alertAnswerSent => 'Your answer was sent to your company.';
+
+  @override
+  String get alarmFire => 'Fire';
+
+  @override
+  String get alarmEvacuation => 'Evacuation';
+
+  @override
+  String get alarmSiren => 'Siren or danger outside';
+
+  @override
+  String get alarmMachine => 'Machine hazard';
+
+  @override
+  String alarmFromColleague(String name) {
+    return '$name · raised by a colleague';
+  }
+
+  @override
+  String get emergencyTitle => 'Emergency alarm';
+
+  @override
+  String get emergencyHomeHint => 'When the app can\'t hear the danger';
+
+  @override
+  String get emergencyIntro => 'The alarm reaches colleagues within 500 m.';
+
+  @override
+  String get emergencyAccountable => 'Your name is kept with the alarm.';
+
+  @override
+  String get alarmLevelCritical => 'Critical';
+
+  @override
+  String get alarmLevelWarning => 'Warning';
+
+  @override
+  String emergencyConfirm(String name) {
+    return 'Send the “$name” alarm?';
+  }
+
+  @override
+  String get emergencySend => 'Send alarm';
+
+  @override
+  String get emergencyCancelDialog => 'Cancel';
+
+  @override
+  String emergencySent(String time) {
+    return 'Alarm sent at $time';
+  }
+
+  @override
+  String get emergencyCancelAlarm => 'Cancel the alarm';
+
+  @override
+  String get emergencyCancelConfirm => 'Cancel the alarm for everyone?';
+
+  @override
+  String get emergencyCancelled => 'Alarm cancelled';
+
+  @override
+  String get emergencySending => 'Sending…';
+
+  @override
+  String get emergencyCancelling => 'Cancelling…';
+
+  @override
+  String get emergencyErrorSignedOut => 'Sign in to raise an alarm.';
+
+  @override
+  String get emergencyErrorLocation =>
+      'Allow location access in Settings so the alarm reaches people nearby.';
+
+  @override
+  String emergencyErrorTooMany(int minutes) {
+    return 'You\'ve raised 3 alarms in the last hour. Try again in $minutes min.';
+  }
+
+  @override
+  String get emergencyErrorOffline =>
+      'Can\'t reach the server. Check the internet and try again.';
+
+  @override
+  String get emergencyErrorFailed => 'The alarm didn\'t go out. Try again.';
+
+  @override
+  String get emergencyErrorCancelFailed =>
+      'The alarm is no longer active or couldn\'t be cancelled. Check and try again.';
+
+  @override
+  String get emergencyErrorNotConfigured =>
+      'The server has no accounts set up. Tell the administrator.';
 }
