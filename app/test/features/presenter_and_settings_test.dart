@@ -365,4 +365,35 @@ void main() {
     expect(find.text('Învață vocea ta'), findsOneWidget);
     expect(find.text('A B C 2 3 4'), findsNothing);
   });
+
+  testWidgets('under the last line the laptop shows how it decided', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+    await enroll(tester, h, voiceAudio(20));
+    await tester.ensureVisible(find.text('Pornește subtitrarea'));
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+
+    h.voice.vectorFor = (_) => Float32List.fromList([0.6, 0.8, 0]);
+    h.speech.say('r1', 'Eu sunt mai aproape de laptop');
+    await tester.pump();
+    await tester.pump();
+    // Fallback head: speaker when the similarity is at least 0.35.
+    expect(find.text('Asemănare cu vocea ta: 0,60 (prag 0,35) → Speaker'), findsOneWidget);
+
+    h.voice.audio = voiceAudio(0.5, silent: 3);
+    h.speech.say('r2', 'da');
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Replică prea scurtă: păstrează eticheta de dinainte'), findsOneWidget);
+  });
+
+  testWidgets('without voice recognition the laptop says so under the last line', (tester) async {
+    final h = await openPresenter(tester);
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.speech.say('s1', 'Bun venit');
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Recunoașterea vocii e oprită: totul apare ca „Speaker”'), findsOneWidget);
+  });
 }
