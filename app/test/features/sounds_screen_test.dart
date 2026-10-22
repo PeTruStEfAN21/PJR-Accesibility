@@ -45,4 +45,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Ascult sunetele din jur'), findsOneWidget);
   });
+
+  testWidgets('the Sounds pill in the top bar turns listening on and off', (tester) async {
+    final h = await TestHarness.create();
+    await tester.pumpWidget(h.app());
+
+    expect(find.bySemanticsLabel('Sunetul vizibil: oprit'), findsOneWidget);
+    await tester.tap(find.text('Sunete'));
+    await tester.pumpAndSettle();
+    expect(h.sounds.listening, isTrue);
+    expect(find.bySemanticsLabel('Sunetul vizibil: pornit'), findsOneWidget);
+
+    await tester.tap(find.text('Sunete'));
+    await tester.pumpAndSettle();
+    expect(h.sounds.listening, isFalse);
+    expect(find.bySemanticsLabel('Sunetul vizibil: oprit'), findsOneWidget);
+  });
 }

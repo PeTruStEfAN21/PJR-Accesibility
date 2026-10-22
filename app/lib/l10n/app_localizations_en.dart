@@ -307,6 +307,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertDismiss => 'Got it';
 
   @override
+  String get alertLevelCritical => 'CRITICAL';
+
+  @override
+  String get alertLevelWarning => 'WARNING';
+
+  @override
+  String get adviceFireAlarm =>
+      'Leave the building by the nearest exit. Do not use the lift.';
+
+  @override
+  String get adviceSiren =>
+      'An emergency vehicle or a public alert. Make way and watch what people around you do.';
+
+  @override
+  String get adviceHorn =>
+      'A vehicle is honking nearby. Stop and look around before you go on.';
+
+  @override
+  String get adviceGlassBreak =>
+      'Glass broke nearby. Keep away from the shards and look around.';
+
+  @override
+  String get adviceLineSignal =>
+      'A signal from a machine. Watch the machines around you.';
+
+  @override
   String get soundsTitle => 'Visible sound';
 
   @override
@@ -325,6 +351,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get soundsPaused =>
       'Listening is paused while captions run. It starts again by itself afterwards.';
+
+  @override
+  String get soundsPill => 'Sounds';
+
+  @override
+  String get soundsPillOn => 'Visible sound: on';
+
+  @override
+  String get soundsPillOff => 'Visible sound: off';
+
+  @override
+  String get soundsPillPaused => 'Visible sound: paused while captions run';
 
   @override
   String get soundsTest => 'Test the alerts';

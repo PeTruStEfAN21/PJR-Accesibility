@@ -632,6 +632,48 @@ abstract class AppLocalizations {
   /// **'Am înțeles'**
   String get alertDismiss;
 
+  /// No description provided for @alertLevelCritical.
+  ///
+  /// In ro, this message translates to:
+  /// **'CRITIC'**
+  String get alertLevelCritical;
+
+  /// No description provided for @alertLevelWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'ATENȚIE'**
+  String get alertLevelWarning;
+
+  /// No description provided for @adviceFireAlarm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ieși din clădire pe cea mai apropiată ieșire. Nu folosi liftul.'**
+  String get adviceFireAlarm;
+
+  /// No description provided for @adviceSiren.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un vehicul de urgență sau o alertă publică. Fă loc și urmărește ce fac cei din jur.'**
+  String get adviceSiren;
+
+  /// No description provided for @adviceHorn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un vehicul claxonează aproape. Oprește-te și uită-te în jur înainte să mergi mai departe.'**
+  String get adviceHorn;
+
+  /// No description provided for @adviceGlassBreak.
+  ///
+  /// In ro, this message translates to:
+  /// **'S-a spart un geam în apropiere. Ferește-te de cioburi și uită-te în jur.'**
+  String get adviceGlassBreak;
+
+  /// No description provided for @adviceLineSignal.
+  ///
+  /// In ro, this message translates to:
+  /// **'Semnal de la un utilaj. Fii atent la mașinile din jur.'**
+  String get adviceLineSignal;
+
   /// No description provided for @soundsTitle.
   ///
   /// In ro, this message translates to:
@@ -667,6 +709,30 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.'**
   String get soundsPaused;
+
+  /// No description provided for @soundsPill.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunete'**
+  String get soundsPill;
+
+  /// No description provided for @soundsPillOn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul vizibil: pornit'**
+  String get soundsPillOn;
+
+  /// No description provided for @soundsPillOff.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul vizibil: oprit'**
+  String get soundsPillOff;
+
+  /// No description provided for @soundsPillPaused.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul vizibil: în pauză cât merge subtitrarea'**
+  String get soundsPillPaused;
 
   /// No description provided for @soundsTest.
   ///
