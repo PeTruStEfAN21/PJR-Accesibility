@@ -9,7 +9,7 @@ enum CoachAlert { overlap, weakMic, tooFast, noPauses, longTalk, noise }
 /// meetings. The pace threshold is calibrated on Romanian speech (`ml/voice`, speech rate report).
 class CoachThresholds {
   const CoachThresholds({
-    this.syllablesPerSecond = 6.0,
+    this.syllablesPerSecond = 4.75,
     this.rateWindow = 20,
     this.minTalkForRate = 10,
     this.talkGap = 1,
@@ -33,7 +33,8 @@ class CoachThresholds {
     this.rest = 180,
   });
 
-  /// Above this the captions are hard to follow (~170 words a minute, calibrated to syllables).
+  /// Above this the captions are hard to follow: 170 words a minute, in syllables the analyzer detects in
+  /// Romanian speech (ml/voice/reports/2026-10-22-ritm.md).
   final double syllablesPerSecond;
 
   /// Pace is measured over the last [rateWindow] s of talk, once there are [minTalkForRate] s of it.
