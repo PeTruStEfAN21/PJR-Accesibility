@@ -107,7 +107,10 @@
   "soundsListening": "Listening to sounds around you. Alerts appear over any screen.",
   "soundsIdle": "Listening is off.",
   "soundsTest": "Test the alerts",
-  "soundsDetectorMissing": "The sound detector (YAMNet) is not connected yet. You can test the alerts below.",
+  "soundsDetectorMissing": "Sound recognition does not work on this device. You can test the alerts below.",
+  "soundGlassBreak": "Breaking glass",
+  "soundLocation": "Workplace sound",
+  "alertOpenApp": "Open Echo for details.",
 
   "conversationTitle": "Conversation",
   "conversationPending": "Speech bubbles next to faces are in progress. Meanwhile, captions appear below.",

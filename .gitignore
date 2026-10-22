@@ -73,3 +73,7 @@ Thumbs.db
 
 # Taste skill working files (direction and seed are recorded in the design doc)
 .taste-skill/
+
+# Node (tools/tfjs_yamnet_worker.mjs)
+tools/node_modules/
+tools/learned_sounds.json

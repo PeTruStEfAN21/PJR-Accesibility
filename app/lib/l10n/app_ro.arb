@@ -107,7 +107,10 @@
   "soundsListening": "Ascult sunetele din jur. Alertele apar peste orice ecran.",
   "soundsIdle": "Ascultarea e oprită.",
   "soundsTest": "Testează alertele",
-  "soundsDetectorMissing": "Detectorul de sunete (YAMNet) nu e încă conectat. Poți testa alertele de mai jos.",
+  "soundsDetectorMissing": "Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.",
+  "soundGlassBreak": "Geam spart",
+  "soundLocation": "Sunet al locației",
+  "alertOpenApp": "Deschide Echo pentru detalii.",
 
   "conversationTitle": "Conversație",
   "conversationPending": "Baloanele lângă fețe sunt în lucru. Între timp, subtitrările apar mai jos.",

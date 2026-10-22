@@ -671,8 +671,26 @@ abstract class AppLocalizations {
   /// No description provided for @soundsDetectorMissing.
   ///
   /// In ro, this message translates to:
-  /// **'Detectorul de sunete (YAMNet) nu e încă conectat. Poți testa alertele de mai jos.'**
+  /// **'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.'**
   String get soundsDetectorMissing;
+
+  /// No description provided for @soundGlassBreak.
+  ///
+  /// In ro, this message translates to:
+  /// **'Geam spart'**
+  String get soundGlassBreak;
+
+  /// No description provided for @soundLocation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunet al locației'**
+  String get soundLocation;
+
+  /// No description provided for @alertOpenApp.
+  ///
+  /// In ro, this message translates to:
+  /// **'Deschide Echo pentru detalii.'**
+  String get alertOpenApp;
 
   /// No description provided for @conversationTitle.
   ///
