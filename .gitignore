@@ -1,0 +1,72 @@
+# Secrete: cheia API și alte variabile locale. Copiază .env.example în .env.
+.env
+.env.*
+!.env.example
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+*.g.dart.bak
+coverage/
+
+# iOS / macOS (Xcode, CocoaPods)
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/ephemeral/
+**/ios/Runner/GeneratedPluginRegistrant.*
+**/macos/Flutter/ephemeral/
+**/macos/Pods/
+xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+
+# Android
+**/android/.gradle/
+**/android/local.properties
+**/android/app/debug/
+**/android/app/release/
+*.jks
+*.keystore
+
+# Windows desktop
+**/windows/flutter/ephemeral/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Modele ML descărcate (prea mari pentru git)
+*.tflite
+*.onnx
+/models/
+# Excepție: modelele mici livrate în aplicație (YAMNet are ~4 MB)
+!app/assets/models/*.tflite
+
+# IDE și sistem
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# LaTeX
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
