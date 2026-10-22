@@ -146,7 +146,13 @@ class AppLocalizationsRo extends AppLocalizations {
   String get myQuestionSend => 'Trimite întrebarea';
 
   @override
-  String get myQuestionHandSent => 'Speakerul știe că vrei să întrebi';
+  String get myQuestionHandSent => 'Am trimis semnalul către speaker';
+
+  @override
+  String get myQuestionHandSeen => 'Speakerul a văzut că vrei să întrebi';
+
+  @override
+  String get myQuestionOffline => 'Speakerul nu e conectat încă';
 
   @override
   String get myQuestionSent => 'Trimisă, așteaptă să fie citită';
