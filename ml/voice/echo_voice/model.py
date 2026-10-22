@@ -24,6 +24,16 @@ def load_base(size: str = "b6", dataset: str = "vb2+vox2_v0", train_type: str = 
     return model.eval()
 
 
+def load_candidate(name: str) -> torch.nn.Module:
+    """'base', or a checkpoint written by echo_voice.train."""
+    if name == "base":
+        return load_base()
+    checkpoint = torch.load(name, map_location="cpu", weights_only=False)
+    model = load_base(**checkpoint["base"])
+    model.load_state_dict(checkpoint["state_dict"])
+    return model.eval()
+
+
 @torch.no_grad()
 def embed(model: torch.nn.Module, wave: np.ndarray) -> np.ndarray:
     """16 kHz mono float samples -> unit-length speaker embedding."""
