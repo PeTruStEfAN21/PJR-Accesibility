@@ -17,13 +17,20 @@
         "source": "github",
         "repo": "multica-ai/andrej-karpathy-skills"
       }
+    },
+    "impeccable": {
+      "source": {
+        "source": "github",
+        "repo": "pbakaus/impeccable"
+      }
     }
   },
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,
     "taste-skill@taste-skill": true,
     "caveman@caveman": true,
-    "andrej-karpathy-skills@karpathy-skills": true
+    "andrej-karpathy-skills@karpathy-skills": true,
+    "impeccable@impeccable": true
   },
   "enabledMcpjsonServers": [
     "playwright"

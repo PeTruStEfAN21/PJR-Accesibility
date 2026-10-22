@@ -2,14 +2,18 @@
 
 ## Claude Code
 
-Proiectul activează patru pluginuri prin `.claude/settings.json`:
+Proiectul activează cinci pluginuri prin `.claude/settings.json`:
 
 - [Superpowers](https://github.com/obra/superpowers): brainstorming, planuri, TDD, debugging, code review
 - [Taste](https://github.com/Leonxlnx/taste-skill): reguli de gust pentru design frontend (necesită Node 22+ și Chrome, Edge sau Chromium)
 - [Caveman](https://github.com/JuliusBrussee/caveman): răspunsuri scurte, cu mai puține tokenuri
 - [Karpathy Skills](https://github.com/multica-ai/andrej-karpathy-skills): reguli de lucru după observațiile lui Andrej Karpathy (gândește înainte de cod, simplitate, modificări chirurgicale)
+- [Impeccable](https://impeccable.style) ([pbakaus/impeccable](https://github.com/pbakaus/impeccable)): limbaj de design pentru frontend, cu comenzi ca `/impeccable audit`, `/impeccable critique`, `/impeccable polish`
 
-Pe lângă pluginuri, `.claude/skills/` conține cele 50 de skilluri de QA din [qa-skills](https://github.com/petrkindlmann/qa-skills) (licență MIT, în `.claude/skills/QA-SKILLS-LICENSE`). Ele se încarcă automat, fără instalare.
+Pe lângă pluginuri, `.claude/skills/` conține skilluri care se încarcă automat, fără instalare:
+
+- cele 50 de skilluri de QA din [qa-skills](https://github.com/petrkindlmann/qa-skills) (licență MIT, în `.claude/skills/QA-SKILLS-LICENSE`);
+- cele 15 skilluri de design și animație ale lui Emil Kowalski din [emilkowalski/skills](https://github.com/emilkowalski/skills) (licență MIT, în `.claude/skills/EMIL-SKILLS-LICENSE`), de exemplu `emil-design-eng`, `animate`, `review-animations`, `break-ui`, `apple-design`. Pentru o versiune nouă: `npx skills@latest add emilkowalski/skills` sau copiezi din nou folderul `skills/`.
 
 După `git pull`, pornește `claude` în folderul proiectului și acceptă marketplace-urile și pluginurile când ești întrebat.
 
@@ -23,6 +27,8 @@ Dacă nu apare promptul, instalează manual:
 /plugin install caveman@caveman
 /plugin marketplace add multica-ai/andrej-karpathy-skills
 /plugin install andrej-karpathy-skills@karpathy-skills
+/plugin marketplace add pbakaus/impeccable
+/plugin install impeccable@impeccable
 ```
 
 ### Servere MCP

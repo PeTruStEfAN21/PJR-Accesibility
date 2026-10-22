@@ -78,6 +78,7 @@ cd app && flutter run -d <iphone>  # doar de pe Mac
 - **Superpowers**: `brainstorming` → design în `docs/superpowers/specs/` → `writing-plans` → implementare cu `test-driven-development` → `verification-before-completion`. Nu se scrie cod de produs nou fără design aprobat.
 - **Karpathy Skills**: modificări mici și chirurgicale, cel mai simplu cod care merge, criterii de reușită verificabile.
 - **Taste** (`taste-skill:design-taste-frontend`) pentru direcția vizuală; regulile de accesibilitate de mai sus au prioritate. Cere Node 22+ și Chrome / Edge.
+- **Impeccable** (`/impeccable audit`, `/impeccable critique`, `/impeccable polish`) și **skillurile lui Emil Kowalski** (`emil-design-eng`, `review-animations`, `break-ui`) pentru verificarea și finisarea interfeței, după Taste. Aceleași reguli de accesibilitate au prioritate.
 - **Caveman** (`/caveman`) pentru răspunsuri scurte când cineva cere.
 - **Pluginuri pentru toată echipa**: orice plugin Claude Code nou se instalează cu `--scope project` (ajunge în `enabledPlugins` din `.claude/settings.json`; marketplace-urile neoficiale în `extraKnownMarketplaces`) și se trece în `README.md`, secțiunea „Claude Code”, cu link și comanda de instalare manuală. La fel pentru serverele MCP: în `.mcp.json` cu versiune fixă, aprobate în `enabledMcpjsonServers` și trecute în README. Niciun plugin sau server MCP folosit în proiect nu rămâne doar pe calculatorul cuiva.
 - Interfața și documentația în **română**; identificatorii și comentariile tehnice din cod în engleză.

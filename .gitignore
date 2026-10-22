@@ -70,3 +70,6 @@ Thumbs.db
 *.synctex.gz
 *.fls
 *.fdb_latexmk
+
+# Taste skill working files (direction and seed are recorded in the design doc)
+.taste-skill/
