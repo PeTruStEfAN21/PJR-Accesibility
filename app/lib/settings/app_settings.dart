@@ -21,7 +21,6 @@ class AppSettings extends ChangeNotifier {
   bool dyslexiaMode = false;
   RolePaletteKind palette = RolePaletteKind.standard;
   bool highContrast = false;
-  ThemeMode themeMode = ThemeMode.light;
   bool autoScroll = true;
   String emergencyExit = '';
   String serverUrl = '';
@@ -49,7 +48,6 @@ class AppSettings extends ChangeNotifier {
     dyslexiaMode = _prefs.getBool('dyslexiaMode') ?? dyslexiaMode;
     palette = RolePaletteKind.values.asNameMap()[_prefs.getString('palette')] ?? palette;
     highContrast = _prefs.getBool('highContrast') ?? highContrast;
-    themeMode = ThemeMode.values.asNameMap()[_prefs.getString('themeMode')] ?? themeMode;
     autoScroll = _prefs.getBool('autoScroll') ?? autoScroll;
     emergencyExit = _prefs.getString('emergencyExit') ?? emergencyExit;
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;
@@ -76,7 +74,6 @@ class AppSettings extends ChangeNotifier {
       ..setBool('dyslexiaMode', dyslexiaMode)
       ..setString('palette', palette.name)
       ..setBool('highContrast', highContrast)
-      ..setString('themeMode', themeMode.name)
       ..setBool('autoScroll', autoScroll)
       ..setString('emergencyExit', emergencyExit)
       ..setString('serverUrl', serverUrl)

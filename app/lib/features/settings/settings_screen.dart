@@ -132,18 +132,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          section(l10n.settingsTheme),
-          RadioGroup<ThemeMode>(
-            groupValue: settings.themeMode,
-            onChanged: (value) => settings.update((s) => s.themeMode = value!),
-            child: Column(
-              children: [
-                RadioListTile(value: ThemeMode.system, title: Text(l10n.themeSystem)),
-                RadioListTile(value: ThemeMode.light, title: Text(l10n.themeLight)),
-                RadioListTile(value: ThemeMode.dark, title: Text(l10n.themeDark)),
-              ],
-            ),
-          ),
           section(l10n.settingsEmergencyExit),
           _TextSetting(
             initial: settings.emergencyExit,

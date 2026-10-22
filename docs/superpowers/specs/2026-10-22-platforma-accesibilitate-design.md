@@ -103,7 +103,7 @@ O singură aplicație, două moduri:
 - **Sunetul vizibil**: YAMNet pe telefon; nivel critic = ecran complet roșu, vibrație repetată, mesaj „ALARMĂ DE INCENDIU” + ieșirea configurată. Se suprapune peste orice ecran.
 - **Conversație**: cameră + detecție fețe (ML Kit), vorbitorul activ după deschiderea gurii, balon lângă față.
 
-Accesibilitate (toate în setări, salvate pe dispozitiv): limba interfeței, limba vorbită, mărime text (100–200%), mod dislexie (OpenDyslexic, spațiere mărită), paletă (standard, protanopie, deuteranopie, tritanopie), contrast ridicat, temă luminoasă / întunecată / sistem, oprirea derulării automate. Toate elementele au etichete pentru VoiceOver.
+Accesibilitate (toate în setări, salvate pe dispozitiv): limba interfeței, limba vorbită, mărime text (100–200%), mod dislexie (OpenDyslexic, spațiere mărită), paletă (standard, protanopie, deuteranopie, tritanopie), contrast ridicat, oprirea derulării automate. Aplicația are o singură temă, luminoasă (modul întunecat a fost scos la cererea echipei, pe 2026-10-22). Toate elementele au etichete pentru VoiceOver.
 
 ## 7. Împărțirea echipei
 

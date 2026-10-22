@@ -842,30 +842,6 @@ abstract class AppLocalizations {
   /// **'Contrast ridicat'**
   String get settingsHighContrast;
 
-  /// No description provided for @settingsTheme.
-  ///
-  /// In ro, this message translates to:
-  /// **'Temă'**
-  String get settingsTheme;
-
-  /// No description provided for @themeSystem.
-  ///
-  /// In ro, this message translates to:
-  /// **'Ca sistemul'**
-  String get themeSystem;
-
-  /// No description provided for @themeLight.
-  ///
-  /// In ro, this message translates to:
-  /// **'Luminoasă'**
-  String get themeLight;
-
-  /// No description provided for @themeDark.
-  ///
-  /// In ro, this message translates to:
-  /// **'Întunecată'**
-  String get themeDark;
-
   /// No description provided for @settingsAutoScroll.
   ///
   /// In ro, this message translates to:

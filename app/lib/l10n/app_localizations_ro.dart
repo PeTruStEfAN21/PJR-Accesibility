@@ -421,18 +421,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get settingsHighContrast => 'Contrast ridicat';
 
   @override
-  String get settingsTheme => 'Temă';
-
-  @override
-  String get themeSystem => 'Ca sistemul';
-
-  @override
-  String get themeLight => 'Luminoasă';
-
-  @override
-  String get themeDark => 'Întunecată';
-
-  @override
   String get settingsAutoScroll => 'Derulare automată a subtitrărilor';
 
   @override

@@ -37,6 +37,8 @@ class HomeScreen extends StatelessWidget {
   /// The centred column on wide screens: 12 columns of 77px with 16px gutters.
   static const _columnWidth = 1100.0;
 
+  static double _sideMargin(double width) => ((width - _columnWidth) / 2).clamp(32.0, double.infinity);
+
   @override
   Widget build(BuildContext context) {
     final account = ServicesScope.of(context).account;
@@ -75,6 +77,10 @@ class HomeScreen extends StatelessWidget {
           inRow: inRow,
         );
 
+    // The bar sits close to the window's edges: the logo top left, settings top right.
+    final wideBar = MediaQuery.sizeOf(context).width >= _wideFrom;
+    final barSide = wideBar ? 24.0 : 12.0;
+
     return Scaffold(
       backgroundColor: palette.ground,
       appBar: AppBar(
@@ -83,16 +89,13 @@ class HomeScreen extends StatelessWidget {
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const EchoLogo(),
-            const SizedBox(width: 10),
-            Text(
-              l10n.appTitle,
-              style: theme.textTheme.titleLarge?.copyWith(color: palette.text, fontWeight: FontWeight.w600, letterSpacing: -0.3),
-            ),
-          ],
+        // The wordmark is the name; high contrast draws it in ink.
+        toolbarHeight: wideBar ? 88 : 72,
+        titleSpacing: barSide,
+        title: EchoLogo(
+          height: wideBar ? 58 : 46,
+          semanticLabel: l10n.appTitle,
+          color: SettingsScope.of(context).highContrast ? palette.text : EchoLogo.brandColor,
         ),
         actions: [
           if (account != null)
@@ -112,14 +115,15 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.settings_outlined, color: palette.brand),
             onPressed: () => open(const SettingsScreen()),
           ),
-          const SizedBox(width: 8),
+          // The icon's own padding is 8, so the glyph ends on the column's right edge.
+          SizedBox(width: barSide - 8),
         ],
       ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= _wideFrom;
-            final side = wide ? ((constraints.maxWidth - _columnWidth) / 2).clamp(32.0, double.infinity) : 20.0;
+            final side = wide ? _sideMargin(constraints.maxWidth) : 20.0;
             return ListView(
               padding: EdgeInsets.fromLTRB(side, wide ? 56 : 12, side, 32),
               children: [

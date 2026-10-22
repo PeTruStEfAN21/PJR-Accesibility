@@ -44,9 +44,9 @@ Stilul de ecran de aplicație `editorial-greeting` (seed 1600705491, `.taste-ski
 - **Iconițe:** outline, gri.
 - **Pe laptop:** coloana are 1100 px, cu acțiunea principală pe 7 coloane și indiciul pe 5, terminate la aceeași înălțime.
 
-**Logo** (`app/lib/widgets/echo_logo.dart`): SVG-ul ales de echipă, o ureche al cărei contur se continuă în linii de text, adică sunetul care devine subtitrare. E desenat în cod cu aceleași curbe, încadrat strâns, fără fundalul închis din SVG și la 44 px. VoiceOver citește doar cuvântul „Echo”.
+**Logo** (`app/assets/brand/echo-logo.svg`, desenat în aplicație de `app/lib/widgets/echo_logo.dart` cu aceleași trasee): cuvântul „echo” cu litere mici, iar „e” stă într-o ureche. O singură culoare, `#18B5D1`, linii groase cu capete rotunjite, fără gradient. Logo-ul înlocuiește textul „Echo” din bară, deci VoiceOver îl citește „Echo”. Are 46 px înălțime pe telefon și 58 px pe ecranele late, unde se aliniază cu coloana de conținut. În modul cu contrast ridicat e desenat în culoarea textului.
 
-**Metal** (`app/lib/widgets/metal.dart`): doar logo-ul e metalic, în cyan închis: un gradient crom pe față, o margine `#00363F` dedesubt și o linie de lumină pe muchia de sus. Gradientul e o abatere asumată de la Taste, cerută de Denis. Iconițele paginii rămân simple. Iconița acțiunii principale și rotița de setări au cyanul plat al logo-ului, `#007D90` (`EchoPalette.brand`, contrast peste 3:1 pe alb). Celelalte sunt gri.
+**Iconițe:** sunt simple. Iconița acțiunii principale și rotița de setări au cyanul `#007D90` (`EchoPalette.brand`), cu contrast peste 3:1 pe alb; celelalte sunt gri.
 
 **Butoane** (`app/lib/theme/echo_style.dart`): două stiluri. `EchoButtons.primary` e plin, aproape negru, rotunjit complet. `EchoButtons.link` e ca un link, subliniat la trecerea cu mouse-ul, la apăsare și la focus de pe tastatură. Niciunul nu are efectul de undă (ripple) care se întinde la apăsare. Panourile atingabile se închid doar puțin la culoare când le apeși.
 
@@ -60,9 +60,9 @@ Stilul de ecran de aplicație `editorial-greeting` (seed 1600705491, `.taste-ski
 - Scanarea QR, ca link cu iconiță.
 - Adresa serverului ascunsă într-un panou gri, unde se vede valoarea curentă și linkul „Schimbă”.
 
-**Modul luminos e implicit:** dacă utilizatorul nu alege altceva în Setări, aplicația pornește luminoasă.
+**Doar modul luminos:** aplicația are o singură temă, luminoasă, indiferent de tema sistemului.
 
-Culorile stau doar pe pagina principală, cu variante pentru temă întunecată și contrast ridicat; tema comună a aplicației rămâne neschimbată. Fontul e Roboto, cerut de Denis, în locul lui Instrument Sans propus de Taste.
+Culorile stau pe ecranele refăcute, cu o variantă pentru contrast ridicat. Aplicația are o singură temă, luminoasă. Fontul e Roboto, cerut de Denis, în locul lui Instrument Sans propus de Taste.
 
 Pentru recenzii de design: `flutter build web --dart-define=ECHO_PHONE_PREVIEW=true` arată varianta de telefon în Chrome.
 
@@ -70,7 +70,7 @@ Pentru recenzii de design: `flutter build web --dart-define=ECHO_PHONE_PREVIEW=t
 
 - Fiecare acțiune e un singur nod VoiceOver, cu titlul și explicația; salutul și titlul de grup sunt `header`.
 - Fără înălțimi fixe: textul la 200% nu se taie. Ținte de minimum 48 px.
-- Paleta paginii are variante pentru tema întunecată și pentru contrast ridicat (alb-negru, cu margini de 2 px); toate textele trec de 4,5:1.
+- Paleta paginii are o variantă pentru contrast ridicat (alb-negru, cu margini de 2 px); toate textele trec de 4,5:1.
 
 ## Teste (widget)
 

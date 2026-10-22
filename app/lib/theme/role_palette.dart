@@ -24,20 +24,9 @@ class RolePalette extends ThemeExtension<RolePalette> {
     RolePaletteKind.tritanopia: RolePalette(coordinator: Color(0xFFB0004F), public: Color(0xFF00707A)),
   };
 
-  static const _dark = {
-    RolePaletteKind.standard: RolePalette(coordinator: Color(0xFF6CB8FF), public: Color(0xFFFFA45C)),
-    RolePaletteKind.protanopia: RolePalette(coordinator: Color(0xFF6CB8FF), public: Color(0xFFE8D24A)),
-    RolePaletteKind.deuteranopia: RolePalette(coordinator: Color(0xFF6CB8FF), public: Color(0xFFF0C04A)),
-    RolePaletteKind.tritanopia: RolePalette(coordinator: Color(0xFFFF7AAE), public: Color(0xFF4DD4DE)),
-  };
-
-  static RolePalette resolve(RolePaletteKind kind, Brightness brightness, {required bool highContrast}) {
-    if (highContrast) {
-      return brightness == Brightness.dark
-          ? const RolePalette(coordinator: Color(0xFF9ED0FF), public: Color(0xFFFFD08A))
-          : const RolePalette(coordinator: Color(0xFF003A70), public: Color(0xFF6B2E00));
-    }
-    return (brightness == Brightness.dark ? _dark : _light)[kind]!;
+  static RolePalette resolve(RolePaletteKind kind, {required bool highContrast}) {
+    if (highContrast) return const RolePalette(coordinator: Color(0xFF003A70), public: Color(0xFF6B2E00));
+    return _light[kind]!;
   }
 
   @override
