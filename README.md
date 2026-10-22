@@ -1,4 +1,4 @@
-# PJR-Accesibility
+# Echo
 
 ## Claude Code
 
@@ -25,8 +25,18 @@ Dacă nu apare promptul, instalează manual:
 /plugin install andrej-karpathy-skills@karpathy-skills
 ```
 
-## Aplicația de test: Ritm
+## Proiectul
 
-Deschide `index.html` în browser. Testele logicii se rulează cu `node store.test.js`.
+Platformă care face meetingurile față în față accesibile persoanelor surde. Contextul complet e în `CLAUDE.md`, designul în `docs/superpowers/specs/`.
 
-> Sfat: aplicația poate fi folosită complet doar din tastatură (Tab, Enter, Space).
+- `app/`: aplicația Flutter (iPhone + pagina prezentatorului în Chrome)
+- `server/`: serverul Python (FastAPI): legătura telefon–laptop și partea de AI
+- `docs/`: prezentarea și documentele de design
+
+Pornire rapidă:
+
+```
+cp .env.example .env               # completează ANTHROPIC_API_KEY și PUBLIC_URL
+cd app && flutter build web && cd ..
+docker compose up --build          # serverul + pagina prezentatorului pe http://localhost:8000
+```
