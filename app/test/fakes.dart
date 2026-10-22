@@ -17,6 +17,8 @@ import 'package:pjr_accesibilitate/core/voice/voice_engine.dart';
 import 'package:pjr_accesibilitate/core/voice/voice_head.dart';
 import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
+import 'package:pjr_accesibilitate/features/coach/alert_window.dart';
+import 'package:pjr_accesibilitate/features/coach/coach_audio.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -142,6 +144,55 @@ class FakeVoiceEngine implements VoiceEngine {
 
   @override
   Future<void> play(Float32List samples) async => played.add(samples.length);
+}
+
+class FakeCoachAudio implements CoachAudio {
+  bool available = true;
+  bool started = false;
+  final controller = StreamController<Float32List>.broadcast();
+
+  /// YAMNet scores for every window; null = YAMNet cannot run.
+  List<double>? scores;
+  final windows = <int>[];
+
+  @override
+  Future<bool> start() async => started = available;
+
+  @override
+  Stream<Float32List> get chunks => controller.stream;
+
+  @override
+  Future<List<double>?> yamnetScores(Float32List window) async {
+    windows.add(window.length);
+    return scores;
+  }
+
+  @override
+  void stop() => started = false;
+}
+
+class FakeAlertWindow implements AlertWindow {
+  @override
+  bool supported = true;
+  bool isOpen = false;
+  void Function()? _onClosed;
+  final shown = <(String, String, bool)>[];
+
+  @override
+  Future<bool> open({required String title, required String language, required void Function() onClosed}) async {
+    _onClosed = onClosed;
+    return isOpen = supported;
+  }
+
+  @override
+  void show(String text, String icon, {required bool alert}) => shown.add((text, icon, alert));
+
+  @override
+  void close() {
+    if (!isOpen) return;
+    isOpen = false;
+    _onClosed?.call();
+  }
 }
 
 class FakeSounds implements SoundDetector {
@@ -318,6 +369,8 @@ class TestHarness {
   final FakeSpeech speech;
   final tts = FakeTts();
   final voice = FakeVoiceEngine();
+  final coachAudio = FakeCoachAudio();
+  final alertWindow = FakeAlertWindow();
   final FakeSounds sounds;
   final FakeChannel channel;
   final AlertController alerts;
@@ -352,6 +405,8 @@ class TestHarness {
           sounds: sounds,
           tts: tts,
           voice: voice,
+          coachAudio: coachAudio,
+          alertWindow: alertWindow,
           httpClient: httpClient,
           channelFactory: (uri) => channel..uri = uri,
           account: account,
