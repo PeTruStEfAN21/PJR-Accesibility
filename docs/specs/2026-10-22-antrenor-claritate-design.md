@@ -47,6 +47,12 @@ Brief-ul cere ca locul de muncă să se adapteze persoanei, nu invers. Aproape t
 
 Meetingul fizic: pagina prezentatorului, telefonul persoanei surde, recunoașterea vocii, alertele de sunet, conturile. Funcția nouă le refolosește, nu le modifică.
 
+## 6b. Date și GDPR
+
+- **Nu se salvează nimic în baza de date, intenționat.** Alertele privesc felul în care vorbește un coleg; păstrate, ar putea fi folosite la evaluarea lui, ceea ce nu e scopul. Nu intră nici în `activity_log`. Dacă se adaugă vreodată un raport după meeting (acum non-obiectiv), e al colegului, în contul lui, cu designul lui.
+- **Prin rețea** pleacă doar `speaking` (da / nu), către colegii din aceeași sesiune; nu se păstrează pe server.
+- **Amprenta vocii** (date biometrice, art. 9) rămâne doar în browserul colegului (`coachVoiceEnrollment`), niciodată pe server. Ecranul spune asta înainte și după învățare, iar „Șterge vocea” o șterge pe loc (art. 17); temeiul e consimțământul colegului, care o învață doar dacă vrea.
+
 ## 7. Non-obiective
 
 Camera (fața, buzele), jargonul, raportul de după meeting, integrarea directă în Teams / Zoom (add-in), subtitrarea pentru persoana surdă în meetingul online (o face platforma meetingului).

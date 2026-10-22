@@ -1604,6 +1604,24 @@ abstract class AppLocalizations {
   /// **'Învață din nou'**
   String get coachRelearnVoice;
 
+  /// No description provided for @coachVoiceStored.
+  ///
+  /// In ro, this message translates to:
+  /// **'Amprenta vocii tale rămâne doar în acest browser. O poți șterge oricând.'**
+  String get coachVoiceStored;
+
+  /// No description provided for @coachForgetVoice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge vocea'**
+  String get coachForgetVoice;
+
+  /// No description provided for @coachVoiceForgotten.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vocea ta a fost ștearsă.'**
+  String get coachVoiceForgotten;
+
   /// No description provided for @coachVoiceError.
   ///
   /// In ro, this message translates to:

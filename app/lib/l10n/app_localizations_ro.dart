@@ -857,6 +857,16 @@ class AppLocalizationsRo extends AppLocalizations {
   String get coachRelearnVoice => 'Învață din nou';
 
   @override
+  String get coachVoiceStored =>
+      'Amprenta vocii tale rămâne doar în acest browser. O poți șterge oricând.';
+
+  @override
+  String get coachForgetVoice => 'Șterge vocea';
+
+  @override
+  String get coachVoiceForgotten => 'Vocea ta a fost ștearsă.';
+
+  @override
   String get coachVoiceError =>
       'Recunoașterea vocii nu merge în acest browser.';
 

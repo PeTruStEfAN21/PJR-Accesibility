@@ -274,4 +274,25 @@ void main() {
     expect(h.settings.coachVoiceprint, isNotNull);
     expect(h.settings.voiceprint, isNull);
   });
+
+  testWidgets('the colleague is told where the voice is kept and can delete it', (tester) async {
+    final h = await harness(tester);
+    h.voice
+      ..available = true
+      ..audio = tone21();
+    await tester.pumpWidget(coachApp(h));
+    // Said before the voice is learned, and after.
+    expect(find.text('Amprenta vocii tale rămâne doar în acest browser. O poți șterge oricând.'), findsOneWidget);
+    await learnVoice(tester, 'Învață-mi vocea');
+    expect(find.text('Amprenta vocii tale rămâne doar în acest browser. O poți șterge oricând.'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Șterge vocea'));
+    await tester.tap(find.text('Șterge vocea'));
+    await tester.pumpAndSettle();
+
+    expect(h.settings.coachVoiceprint, isNull);
+    expect(h.settings.coachVoiceprintModel, isNull);
+    expect(find.text('Învață-mi vocea'), findsOneWidget);
+    expect(find.text('Vocea ta a fost ștearsă.'), findsOneWidget);
+  });
 }
