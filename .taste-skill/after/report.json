@@ -1,0 +1,1390 @@
+{
+ "url": "index.html",
+ "at": "2026-10-21T22:02:27.780Z",
+ "allow": [],
+ "viewports": [
+  {
+   "width": 1440,
+   "height": 900,
+   "load": "load",
+   "screens": 2,
+   "filled": [
+    0.71,
+    0.7
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "page": {
+     "height": 1632,
+     "screens": 1.8,
+     "words": 336,
+     "img": 0,
+     "video": 0,
+     "canvas": 0,
+     "svg": 2,
+     "sections": 3,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "chars": 15,
+     "lines": 1,
+     "size": 24,
+     "vw": 1.7,
+     "font": "Geist",
+     "weight": 700,
+     "tracking": -0.01,
+     "leading": 1.33,
+     "top": 32,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "lines": 1,
+     "size": 24,
+     "font": "Geist"
+    },
+    "headings": [
+     {
+      "text": "8",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 2.1,
+      "font": "Geist",
+      "weight": 500,
+      "tracking": -0.01,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "right",
+      "widthRatio": 0.01,
+      "top": 177,
+      "tag": "span",
+      "kind": "heading"
+     }
+    ],
+    "headingSummary": {
+     "count": 1,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 0,
+     "centered": 0,
+     "medianWords": null,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Geist",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      11,
+      12,
+      13,
+      14,
+      16,
+      18,
+      24,
+      30
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Geist",
+      "size": 12,
+      "leading": 1.67,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 6.1
+     },
+     "measureChars": 124,
+     "max": {
+      "size": 30,
+      "vw": 2.1,
+      "font": "Geist",
+      "text": "8"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.16,
+     "smallText": 10
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f2f4f7",
+     "bodyBgHsl": {
+      "h": 216,
+      "s": 0.24,
+      "l": 0.96
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#ffffff",
+       "top": 108,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#5d636b",
+       "share": 0.48
+      },
+      {
+       "color": "#0a0a0a",
+       "share": 0.44
+      },
+      {
+       "color": "#3d3d3d",
+       "share": 0.03
+      },
+      {
+       "color": "#831c1e",
+       "share": 0.02
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#141414",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 0.08
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 3,
+     "radius": 6,
+     "height": 36,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Sari la conținut",
+      "Toate",
+      "Adaugă"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 17,
+     "hairlineSamples": [
+      "div.toolbar 746px",
+      "li.item 746px",
+      "li.item 746px",
+      "li.item 746px",
+      "li.item 746px"
+     ],
+     "outlinedBoxes": 3,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 3,
+     "boxRadius": 8,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 900,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "geist"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "pageH": 1632,
+    "margins": {
+     "left": 12,
+     "right": 68
+    },
+    "sections": [],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Toate sarcinile",
+      "size": 24,
+      "top": 32,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 1073,
+      "n": 2
+     },
+     {
+      "x": 240,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 3,
+    "bodySize": 12,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0.11,
+    "voidBox": {
+     "x": 600,
+     "y": 300,
+     "w": 240,
+     "h": 600
+    }
+   },
+   "app": {
+    "viewport": {
+     "w": 1440,
+     "h": 900
+    },
+    "dark": false,
+    "ground": "#f2f4f7",
+    "sidebar": {
+     "w": 240,
+     "tag": "header",
+     "links": 9,
+     "share": 0.17
+    },
+    "topbar": null,
+    "canvas": {
+     "left": 25,
+     "right": 68
+    },
+    "hero": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "chars": 15,
+     "lines": 1,
+     "size": 24,
+     "vw": 1.7,
+     "font": "Geist",
+     "weight": 700,
+     "tracking": -0.01,
+     "leading": 1.33,
+     "top": 32,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 3,
+    "layout": {
+     "panels": 3,
+     "firstScreen": 3,
+     "ragged": [
+      {
+       "diff": 832,
+       "top": 108
+      }
+     ],
+     "voids": []
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 4,
+     "radii": [
+      [
+       8,
+       3
+      ],
+      [
+       0,
+       1
+      ]
+     ],
+     "heavyBorders": 0,
+     "borderSamples": [],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 11,
+     "leftAligned": 0,
+     "figures": 0,
+     "tabularShare": null,
+     "kpiMax": null
+    },
+    "rows": null,
+    "chartHues": 1,
+    "placeholders": [],
+    "type": {
+     "under13": 0.21,
+     "tiny": 0,
+     "tinySamples": [],
+     "sizes": [
+      12,
+      13,
+      14,
+      16,
+      18,
+      24
+     ]
+    },
+    "title": {
+     "text": "Toate sarcinile",
+     "size": 24,
+     "top": 32
+    },
+    "colourShare": 0.002
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 768,
+   "height": 1024,
+   "load": "load",
+   "screens": 3,
+   "filled": [
+    0.82,
+    0.87,
+    0.83
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "page": {
+     "height": 2072,
+     "screens": 2,
+     "words": 319,
+     "img": 0,
+     "video": 0,
+     "canvas": 0,
+     "svg": 2,
+     "sections": 3,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "chars": 15,
+     "lines": 1,
+     "size": 24,
+     "vw": 3.1,
+     "font": "Geist",
+     "weight": 700,
+     "tracking": -0.01,
+     "leading": 1.33,
+     "top": 77,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "lines": 1,
+     "size": 24,
+     "font": "Geist"
+    },
+    "headings": [
+     {
+      "text": "8",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 3.9,
+      "font": "Geist",
+      "weight": 500,
+      "tracking": -0.01,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.02,
+      "top": 1757,
+      "tag": "span",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 1,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 1,
+     "centered": 0,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Geist",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      11,
+      12,
+      13,
+      14,
+      16,
+      18,
+      24,
+      30
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Geist",
+      "size": 12,
+      "leading": 1.67,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 6.1
+     },
+     "measureChars": 112,
+     "max": {
+      "size": 30,
+      "vw": 3.9,
+      "font": "Geist",
+      "text": "8"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.17,
+     "smallText": 10
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f2f4f7",
+     "bodyBgHsl": {
+      "h": 216,
+      "s": 0.24,
+      "l": 0.96
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#ffffff",
+       "top": 153,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#5d636b",
+       "share": 0.49
+      },
+      {
+       "color": "#0a0a0a",
+       "share": 0.43
+      },
+      {
+       "color": "#3d3d3d",
+       "share": 0.03
+      },
+      {
+       "color": "#831c1e",
+       "share": 0.02
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#141414",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 0.08
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 3,
+     "radius": 6,
+     "height": 36,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Sari la conținut",
+      "Meniu",
+      "Adaugă"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 18,
+     "hairlineSamples": [
+      "header.side-nav 768px",
+      "div.toolbar 670px",
+      "li.item 670px",
+      "li.item 670px",
+      "li.item 670px"
+     ],
+     "outlinedBoxes": 3,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 3,
+     "boxRadius": 8,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 53,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "geist"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "pageH": 2072,
+    "margins": {
+     "left": 46,
+     "right": 49
+    },
+    "sections": [
+     {
+      "sel": "section.panel.tasks",
+      "tag": "section",
+      "top": 153,
+      "height": 1523,
+      "words": 215,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 49,
+      "right": 49,
+      "textLeft": 49,
+      "textRight": 57,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": false,
+      "pinned": false
+     },
+     {
+      "sel": "aside.rail",
+      "tag": "aside",
+      "top": 1688,
+      "height": 335,
+      "words": 32,
+      "media": 1,
+      "middle": 96,
+      "heading": {
+       "text": "Ritmul săptămânii",
+       "size": 16,
+       "tag": "h2"
+      },
+      "left": 49,
+      "right": 49,
+      "textLeft": 49,
+      "textRight": 60,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Toate sarcinile",
+      "size": 24,
+      "top": 77,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 24,
+      "n": 1
+     },
+     {
+      "x": 49,
+      "n": 1
+     },
+     {
+      "x": 415,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 3,
+    "bodySize": 12,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 768,
+     "h": 1024
+    },
+    "dark": false,
+    "ground": "#f2f4f7",
+    "sidebar": null,
+    "topbar": {
+     "h": 53
+    },
+    "canvas": {
+     "left": 24,
+     "right": 49
+    },
+    "hero": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "chars": 15,
+     "lines": 1,
+     "size": 24,
+     "vw": 3.1,
+     "font": "Geist",
+     "weight": 700,
+     "tracking": -0.01,
+     "leading": 1.33,
+     "top": 77,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 3,
+    "layout": {
+     "panels": 3,
+     "firstScreen": 1,
+     "ragged": [],
+     "voids": [
+      {
+       "gap": 64,
+       "at": 1915,
+       "panel": "De făcut pe categorii"
+      }
+     ]
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 4,
+     "radii": [
+      [
+       8,
+       3
+      ],
+      [
+       0,
+       1
+      ]
+     ],
+     "heavyBorders": 0,
+     "borderSamples": [],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 11,
+     "leftAligned": 0,
+     "figures": 0,
+     "tabularShare": null,
+     "kpiMax": null
+    },
+    "rows": null,
+    "chartHues": 1,
+    "placeholders": [],
+    "type": {
+     "under13": 0.21,
+     "tiny": 0,
+     "tinySamples": [],
+     "sizes": [
+      12,
+      13,
+      14,
+      16,
+      18,
+      24
+     ]
+    },
+    "title": {
+     "text": "Toate sarcinile",
+     "size": 24,
+     "top": 77
+    },
+    "colourShare": 0.003
+   },
+   "consoleErrors": []
+  },
+  {
+   "width": 390,
+   "height": 844,
+   "load": "load",
+   "screens": 5,
+   "filled": [
+    0.83,
+    0.9,
+    0.9,
+    0.82,
+    0.85
+   ],
+   "motion": {
+    "elements": 0,
+    "css": 0,
+    "transitions": 0,
+    "scripted": 0,
+    "videos": 0,
+    "playingVideos": 0
+   },
+   "metrics": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "page": {
+     "height": 3443,
+     "screens": 4.1,
+     "words": 319,
+     "img": 0,
+     "video": 0,
+     "canvas": 0,
+     "svg": 2,
+     "sections": 3,
+     "horizontalOverflow": 0,
+     "overflowCulprits": [],
+     "uiFragments": 0,
+     "uiAbuse": false,
+     "realPictures": 0,
+     "videoCount": 0,
+     "uiPictures": 0,
+     "pictureSamples": [],
+     "blendText": 0,
+     "sideScrollers": 0,
+     "brokenImages": [],
+     "emoji": [],
+     "videosNoPoster": 0
+    },
+    "hero": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "chars": 15,
+     "lines": 1,
+     "size": 22,
+     "vw": 5.6,
+     "font": "Geist",
+     "weight": 700,
+     "tracking": -0.01,
+     "leading": 1.27,
+     "top": 73,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "h1": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "lines": 1,
+     "size": 22,
+     "font": "Geist"
+    },
+    "headings": [
+     {
+      "text": "Toate sarcinile",
+      "words": 2,
+      "chars": 15,
+      "lines": 1,
+      "size": 22,
+      "vw": 5.6,
+      "font": "Geist",
+      "weight": 700,
+      "tracking": -0.01,
+      "leading": 1.27,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "center",
+      "widthRatio": 0.92,
+      "top": 73,
+      "tag": "h1",
+      "kind": "heading"
+     },
+     {
+      "text": "8",
+      "words": 1,
+      "chars": 1,
+      "lines": 1,
+      "size": 30,
+      "vw": 7.7,
+      "font": "Geist",
+      "weight": 500,
+      "tracking": -0.01,
+      "leading": 1.2,
+      "upper": false,
+      "italic": false,
+      "mono": false,
+      "align": "left",
+      "position": "left",
+      "widthRatio": 0.05,
+      "top": 2845,
+      "tag": "span",
+      "kind": "statement"
+     }
+    ],
+    "headingSummary": {
+     "count": 2,
+     "maxLines": 1,
+     "over2Lines": 0,
+     "statements": 1,
+     "centered": 0,
+     "medianWords": 1,
+     "mixedFontHeadings": 0
+    },
+    "type": {
+     "families": [
+      {
+       "family": "Geist",
+       "share": 1,
+       "mono": false
+      }
+     ],
+     "familyCount": 1,
+     "sizes": [
+      11,
+      12,
+      13,
+      14,
+      16,
+      18,
+      22,
+      30
+     ],
+     "sizeCount": 8,
+     "notLoaded": [],
+     "body": {
+      "font": "Geist",
+      "size": 12,
+      "leading": 1.67,
+      "weight": 400,
+      "tracking": 0,
+      "contrast": 6.1
+     },
+     "measureChars": 54,
+     "max": {
+      "size": 30,
+      "vw": 7.7,
+      "font": "Geist",
+      "text": "8"
+     },
+     "monoShare": 0,
+     "monoProseShare": 0,
+     "monoFamilies": [],
+     "monoSamples": [],
+     "microLabels": 0,
+     "microLabelShare": 0,
+     "microSamples": [],
+     "upperShare": 0,
+     "centerShare": 0.17,
+     "smallText": 10
+    },
+    "eyebrows": [],
+    "numbered": [],
+    "color": {
+     "bodyBg": "#f2f4f7",
+     "bodyBgHsl": {
+      "h": 216,
+      "s": 0.24,
+      "l": 0.96
+     },
+     "dark": false,
+     "sectionBgs": [
+      {
+       "color": "#ffffff",
+       "top": 165,
+       "hsl": {
+        "h": 0,
+        "s": 0,
+        "l": 1
+       }
+      }
+     ],
+     "textColors": [
+      {
+       "color": "#5d636b",
+       "share": 0.49
+      },
+      {
+       "color": "#0a0a0a",
+       "share": 0.43
+      },
+      {
+       "color": "#3d3d3d",
+       "share": 0.03
+      },
+      {
+       "color": "#831c1e",
+       "share": 0.02
+      },
+      {
+       "color": "#ffffff",
+       "share": 0.01
+      }
+     ],
+     "button": {
+      "bg": "#141414",
+      "hsl": {
+       "h": 0,
+       "s": 0,
+       "l": 0.08
+      },
+      "fg": "#ffffff"
+     },
+     "lowContrast": []
+    },
+    "buttons": {
+     "count": 3,
+     "inHero": 3,
+     "radius": 6,
+     "height": 44,
+     "withShadow": 0,
+     "withGradient": 0,
+     "mono": 0,
+     "upper": 0,
+     "heroLabels": [
+      "Sari la conținut",
+      "Meniu",
+      "Adaugă"
+     ]
+    },
+    "surfaces": {
+     "shadowStatic": 0,
+     "shadowOverlay": 0,
+     "shadowSamples": [],
+     "gradients": 0,
+     "scrims": 0,
+     "gradientSamples": [],
+     "gradientText": 0,
+     "hairlines": 18,
+     "hairlineSamples": [
+      "header.side-nav 390px",
+      "div.toolbar 324px",
+      "li.item 324px",
+      "li.item 324px",
+      "li.item 324px"
+     ],
+     "outlinedBoxes": 3,
+     "dashed": 0,
+     "blurred": 0,
+     "roundedBoxes": 3,
+     "boxRadius": 8,
+     "squareMedia": 0,
+     "roundedMedia": 0,
+     "mediaRadius": 0,
+     "textShadow": 0,
+     "cardRows": []
+    },
+    "heroMedia": [],
+    "nav": {
+     "links": 0,
+     "fixed": true,
+     "height": 53,
+     "floatingPill": false,
+     "blur": false
+    },
+    "fontsLoaded": [
+     "geist"
+    ]
+   },
+   "layout": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "pageH": 3443,
+    "margins": {
+     "left": 20,
+     "right": 33
+    },
+    "sections": [
+     {
+      "sel": "form#add-form.add",
+      "tag": "form",
+      "top": 182,
+      "height": 266,
+      "words": 6,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 33,
+      "right": 33,
+      "textLeft": 33,
+      "textRight": 137,
+      "fullBleed": false,
+      "footer": false,
+      "hero": true,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "div.toolbar",
+      "tag": "div",
+      "top": 468,
+      "height": 157,
+      "words": 3,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 33,
+      "right": 33,
+      "textLeft": 33,
+      "textRight": 147,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "ul#list.list",
+      "tag": "ul",
+      "top": 673,
+      "height": 2022,
+      "words": 188,
+      "media": 0,
+      "middle": 0,
+      "heading": null,
+      "left": 63,
+      "right": 65,
+      "textLeft": 71,
+      "textRight": 65,
+      "fullBleed": false,
+      "footer": false,
+      "hero": false,
+      "continues": true,
+      "pinned": false
+     },
+     {
+      "sel": "aside.rail",
+      "tag": "aside",
+      "top": 2784,
+      "height": 618,
+      "words": 32,
+      "media": 1,
+      "middle": 0,
+      "heading": {
+       "text": "Ritmul săptămânii",
+       "size": 16,
+       "tag": "h2"
+      },
+      "left": 33,
+      "right": 33,
+      "textLeft": 33,
+      "textRight": 44,
+      "fullBleed": false,
+      "footer": true,
+      "hero": false,
+      "continues": false,
+      "pinned": false
+     }
+    ],
+    "gaps": [],
+    "h1s": [
+     {
+      "text": "Toate sarcinile",
+      "size": 22,
+      "top": 73,
+      "firstScreen": true
+     }
+    ],
+    "edgeText": [],
+    "edges": [
+     {
+      "x": 33,
+      "n": 2
+     },
+     {
+      "x": 16,
+      "n": 1
+     }
+    ],
+    "leftBlocks": 3,
+    "bodySize": 12,
+    "stage": false,
+    "explains": false,
+    "slivers": [],
+    "voidShare": 0,
+    "voidBox": null
+   },
+   "app": {
+    "viewport": {
+     "w": 390,
+     "h": 844
+    },
+    "dark": false,
+    "ground": "#f2f4f7",
+    "sidebar": null,
+    "topbar": {
+     "h": 53
+    },
+    "canvas": {
+     "left": 16,
+     "right": 33
+    },
+    "hero": {
+     "text": "Toate sarcinile",
+     "words": 2,
+     "chars": 15,
+     "lines": 1,
+     "size": 22,
+     "vw": 5.6,
+     "font": "Geist",
+     "weight": 700,
+     "tracking": -0.01,
+     "leading": 1.27,
+     "top": 73,
+     "tag": "h1",
+     "kind": "heading",
+     "align": "left",
+     "position": "left"
+    },
+    "charts": 3,
+    "layout": {
+     "panels": 3,
+     "firstScreen": 1,
+     "ragged": [],
+     "voids": []
+    },
+    "tiles": 0,
+    "panels": {
+     "count": 4,
+     "radii": [
+      [
+       8,
+       3
+      ],
+      [
+       0,
+       1
+      ]
+     ],
+     "heavyBorders": 0,
+     "borderSamples": [],
+     "heavyShadows": 0,
+     "softShadows": 0,
+     "shadowSamples": [],
+     "glass": 0
+    },
+    "chips": {
+     "count": 0,
+     "hues": 0,
+     "samples": []
+    },
+    "numbers": {
+     "cells": 11,
+     "leftAligned": 0,
+     "figures": 0,
+     "tabularShare": null,
+     "kpiMax": null
+    },
+    "rows": null,
+    "chartHues": 1,
+    "placeholders": [],
+    "type": {
+     "under13": 0.21,
+     "tiny": 0,
+     "tinySamples": [],
+     "sizes": [
+      12,
+      13,
+      14,
+      16,
+      18,
+      22
+     ]
+    },
+    "title": {
+     "text": "Toate sarcinile",
+     "size": 22,
+     "top": 73
+    },
+    "colourShare": 0.001
+   },
+   "consoleErrors": []
+  }
+ ],
+ "findings": [
+  {
+   "level": "WARN",
+   "id": "ragged-row",
+   "width": 1440,
+   "message": "1 pair(s) of cards in one row end at different heights (by 832px).",
+   "fix": "Cards that share a row share a bottom edge: balance them by their content (the same number of rows, a block of similar height beside it), or stack them. In testing, ragged rows were marked down every time."
+  }
+ ],
+ "images": [
+  {
+   "viewport": "desktop",
+   "width": 1440,
+   "fold": "C:\\Users\\stefa\\Desktop\\PJR-Accesibility\\.taste-skill\\after\\desktop-fold.jpg",
+   "pages": [
+    "C:\\Users\\stefa\\Desktop\\PJR-Accesibility\\.taste-skill\\after\\desktop-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "tablet",
+   "width": 768,
+   "fold": "C:\\Users\\stefa\\Desktop\\PJR-Accesibility\\.taste-skill\\after\\tablet-fold.jpg",
+   "pages": [
+    "C:\\Users\\stefa\\Desktop\\PJR-Accesibility\\.taste-skill\\after\\tablet-page-01.jpg"
+   ],
+   "film": []
+  },
+  {
+   "viewport": "mobile",
+   "width": 390,
+   "fold": "C:\\Users\\stefa\\Desktop\\PJR-Accesibility\\.taste-skill\\after\\mobile-fold.jpg",
+   "pages": [
+    "C:\\Users\\stefa\\Desktop\\PJR-Accesibility\\.taste-skill\\after\\mobile-page-01.jpg"
+   ],
+   "film": []
+  }
+ ]
+}
