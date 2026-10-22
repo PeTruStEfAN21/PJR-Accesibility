@@ -28,8 +28,10 @@ class AppSettings extends ChangeNotifier {
   String emergencyExit = '';
   String serverUrl = '';
 
-  /// The presenter's learned voice (speaker embedding), kept so a reload does not ask for it again.
+  /// The presenter's learned voice (speaker embedding), kept so a reload does not ask for it again, and the
+  /// voice model it was made with: a voice from another model means nothing to the current one.
   List<double>? voiceprint;
+  String? voiceprintModel;
 
   static const minTextScale = 1.0;
   static const maxTextScale = 2.0;
@@ -51,7 +53,12 @@ class AppSettings extends ChangeNotifier {
     emergencyExit = _prefs.getString('emergencyExit') ?? emergencyExit;
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;
     final saved = _prefs.getString('voiceEnrollment');
-    voiceprint = saved == null ? null : [for (final x in jsonDecode(saved) as List) (x as num).toDouble()];
+    final decoded = saved == null ? null : jsonDecode(saved);
+    // Older saves were a bare list, without the model: they count as made by an unknown model.
+    if (decoded is Map) {
+      voiceprintModel = decoded['model'] as String?;
+      voiceprint = [for (final x in decoded['vector'] as List) (x as num).toDouble()];
+    }
   }
 
   void update(void Function(AppSettings s) change) {
@@ -80,7 +87,7 @@ class AppSettings extends ChangeNotifier {
     if (voiceprint == null) {
       _prefs.remove('voiceEnrollment');
     } else {
-      _prefs.setString('voiceEnrollment', jsonEncode(voiceprint));
+      _prefs.setString('voiceEnrollment', jsonEncode({'model': voiceprintModel, 'vector': voiceprint}));
     }
   }
 }
