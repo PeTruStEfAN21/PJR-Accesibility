@@ -28,13 +28,6 @@ class AppLocalizationsRo extends AppLocalizations {
       'Pornești meetingul și le arăți celorlalți codul.';
 
   @override
-  String get homeSounds => 'Sunetele din jur';
-
-  @override
-  String get homeSoundsHint =>
-      'Te anunțăm când sună o alarmă, un claxon sau cineva te strigă.';
-
-  @override
   String get homeConversation => 'Vorbesc cu cineva';
 
   @override
@@ -363,6 +356,10 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get soundsPillPaused =>
       'Sunetul vizibil: în pauză cât merge subtitrarea';
+
+  @override
+  String get soundsPillHint =>
+      'Apasă lung pentru detalii și testarea alertelor.';
 
   @override
   String get soundsTest => 'Testează alertele';

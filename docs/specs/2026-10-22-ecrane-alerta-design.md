@@ -20,6 +20,7 @@
    - VoiceOver: buton, „Sunetul vizibil: pornit / oprit / în pauză”;
    - cu text foarte mare (scalare peste 1,3) rămâne doar iconița, ca să nu se taie textul în bară;
    - dacă recunoașterea nu merge pe dispozitiv, deschide ecranul „Sunetele din jur” (cu butoanele de test).
+   - rândul „Sunetele din jur” de pe ecranul principal e scos: pastila e singura intrare; apăsarea lungă deschide ecranul „Sunetul vizibil” (stare și butoanele de test, planul B pentru demo).
 
 ## Criterii de reușită
 

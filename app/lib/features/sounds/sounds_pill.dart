@@ -28,10 +28,12 @@ class SoundsPill extends StatelessWidget {
         final foreground = on ? palette.onPrimary : palette.text;
         final iconOnly = MediaQuery.textScalerOf(context).scale(1) > _iconOnlyFrom;
 
+        void openScreen() => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SoundsScreen()));
+
         void tap() {
           // Where recognition cannot run, the Sounds screen explains why and offers the test buttons.
           if (!services.sounds.isAvailable) {
-            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const SoundsScreen()));
+            openScreen();
           } else if (listening.wanted) {
             listening.disable();
           } else {
@@ -47,7 +49,11 @@ class SoundsPill extends StatelessWidget {
               : listening.wanted
                   ? l10n.soundsPillOn
                   : l10n.soundsPillOff,
+          hint: l10n.soundsPillHint,
+          // The label replaces the child's semantics, so the actions are declared here too.
           excludeSemantics: true,
+          onTap: tap,
+          onLongPress: openScreen,
           child: Pressable(
             child: Material(
               color: on ? palette.primary : Colors.transparent,
@@ -55,6 +61,8 @@ class SoundsPill extends StatelessWidget {
               clipBehavior: Clip.antiAlias,
               child: InkWell(
                 onTap: tap,
+                // The Sounds screen (status and the alert test buttons) lives behind a long press.
+                onLongPress: openScreen,
                 splashFactory: NoSplash.splashFactory,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
