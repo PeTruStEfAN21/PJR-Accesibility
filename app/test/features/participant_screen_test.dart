@@ -211,4 +211,29 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(tester.getSize(find.byKey(const Key('captions'))).height, greaterThanOrEqualTo(100));
   });
+
+  testWidgets('without the speaker connected, „Vreau să întreb” waits and says why', (tester) async {
+    final h = await TestHarness.create();
+    await joinMeeting(tester, h);
+    h.channel.receive({'type': 'peer', 'role': 'presenter', 'connected': false});
+    await settle(tester);
+
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Vreau să întreb'));
+    expect(button.onPressed, isNull);
+    expect(find.text('Speakerul nu e conectat încă'), findsOneWidget);
+  });
+
+  testWidgets('the phone says when the speaker has seen the raised hand', (tester) async {
+    final h = await TestHarness.create();
+    await joinMeeting(tester, h);
+    await tester.tap(find.text('Vreau să întreb'));
+    await tester.pump();
+    final hand = h.channel.sink.sent.singleWhere((m) => m['kind'] == 'hand');
+    expect(find.text('Speakerul știe că vrei să întrebi'), findsNothing);
+
+    h.channel.receive({'type': 'seen', 'id': hand['id'] as String});
+    await settle(tester);
+    await tester.pump(const Duration(milliseconds: 500));
+    expect(find.text('Speakerul a văzut că vrei să întrebi'), findsOneWidget);
+  });
 }

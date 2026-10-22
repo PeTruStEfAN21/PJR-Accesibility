@@ -39,6 +39,7 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
   final _scroll = ScrollController();
   final _message = TextEditingController();
   final _sentTexts = <String, String>{};
+  final _handIds = <String>{};
   final _droppedEchoes = <String>{};
 
   late final SessionConnection _connection;
@@ -100,6 +101,7 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
       case SeenReceived(:final id):
         final text = _sentTexts[id];
         if (text != null) _snack(AppLocalizations.of(context).messageSeen(text));
+        if (_handIds.contains(id)) _snack(AppLocalizations.of(context).myQuestionHandSeen);
       default:
         break;
     }
@@ -120,7 +122,9 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
   }
 
   void _sendHand() {
-    _connection.send(Notify(id: newId(), kind: NotifyKind.hand, text: '', ts: nowMs()).toJson());
+    final hand = Notify(id: newId(), kind: NotifyKind.hand, text: '', ts: nowMs());
+    _handIds.add(hand.id);
+    _connection.send(hand.toJson());
     _snack(AppLocalizations.of(context).myQuestionHandSent);
   }
 
@@ -257,12 +261,17 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
             ),
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: constraints.maxHeight * 0.3),
-              child: _MessageBar(
-                controller: _message,
-                onSend: _sendNotify,
-                question: _myQuestion,
-                onHand: _sendHand,
-                onAsk: _sendQuestion,
+              // A question can only go out while the speaker's laptop is connected.
+              child: ListenableBuilder(
+                listenable: _connection,
+                builder: (_, _) => _MessageBar(
+                  controller: _message,
+                  onSend: _sendNotify,
+                  question: _myQuestion,
+                  onHand: _sendHand,
+                  onAsk: _sendQuestion,
+                  canAsk: _connection.status == ConnectionStatus.connected && _connection.peerCount('presenter') > 0,
+                ),
               ),
             ),
           ],
@@ -331,6 +340,7 @@ class _MessageBar extends StatelessWidget {
     required this.question,
     required this.onHand,
     required this.onAsk,
+    required this.canAsk,
   });
   final TextEditingController controller;
   final void Function(NotifyKind kind, String text) onSend;
@@ -339,6 +349,7 @@ class _MessageBar extends StatelessWidget {
   final MyQuestion question;
   final VoidCallback onHand;
   final ValueChanged<String> onAsk;
+  final bool canAsk;
 
   @override
   Widget build(BuildContext context) {
@@ -362,6 +373,7 @@ class _MessageBar extends StatelessWidget {
             question: question,
             onHand: onHand,
             onSend: onAsk,
+            enabled: canAsk,
             quickMessages: Column(
               mainAxisSize: MainAxisSize.min,
               children: [

@@ -14,12 +14,16 @@ class AskPanel extends StatefulWidget {
     required this.onHand,
     required this.onSend,
     this.quickMessages = const SizedBox.shrink(),
+    this.enabled = true,
   });
 
   final MyQuestion question;
   final VoidCallback onHand;
   final ValueChanged<String> onSend;
   final Widget quickMessages;
+
+  /// Off while the speaker's laptop is not connected: nothing would reach it.
+  final bool enabled;
 
   @override
   State<AskPanel> createState() => _AskPanelState();
@@ -79,7 +83,7 @@ class _AskPanelState extends State<AskPanel> {
           else
             FilledButton(
               style: FilledButton.styleFrom(minimumSize: const Size(0, 56)),
-              onPressed: _start,
+              onPressed: widget.enabled ? _start : null,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -88,6 +92,11 @@ class _AskPanelState extends State<AskPanel> {
                   Flexible(child: Text(l10n.myQuestionButton)),
                 ],
               ),
+            ),
+          if (!widget.enabled && !_composing)
+            Padding(
+              padding: const EdgeInsets.only(top: 4),
+              child: Text(l10n.myQuestionOffline, textAlign: TextAlign.center),
             ),
           if (!_composing) ...[const SizedBox(height: 8), widget.quickMessages],
         ],
