@@ -277,6 +277,40 @@ class AppLocalizationsRo extends AppLocalizations {
   }
 
   @override
+  String get presenterHand =>
+      'Persoana care folosește Echo vrea să pună o întrebare';
+
+  @override
+  String get presenterQuestionTitle =>
+      'Întrebare de la persoana care folosește Echo';
+
+  @override
+  String get presenterReadAloud => 'Citește cu voce tare';
+
+  @override
+  String get presenterReadMyself => 'Am citit-o eu';
+
+  @override
+  String get presenterRead => 'Citită';
+
+  @override
+  String get presenterReading => 'Citesc întrebarea…';
+
+  @override
+  String get presenterNoVoice =>
+      'Laptopul nu are o voce în limba asta; citește-o tu';
+
+  @override
+  String get presenterReadFailed => 'Nu am putut citi întrebarea; citește-o tu';
+
+  @override
+  String get presenterForceSpeaker => 'Vorbesc eu';
+
+  @override
+  String get presenterForceSpeakerHint =>
+      'Tot ce se aude apare ca spus de tine';
+
+  @override
   String get presenterCreateError =>
       'Nu pot crea meetingul. Verifică dacă serverul rulează.';
 
