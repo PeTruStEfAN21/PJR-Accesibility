@@ -578,6 +578,66 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{Niciun participant conectat} =1{1 participant conectat} other{{count} participanți conectați}}'**
   String presenterParticipants(int count);
 
+  /// No description provided for @presenterHand.
+  ///
+  /// In ro, this message translates to:
+  /// **'Persoana care folosește Echo vrea să pună o întrebare'**
+  String get presenterHand;
+
+  /// No description provided for @presenterQuestionTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebare de la persoana care folosește Echo'**
+  String get presenterQuestionTitle;
+
+  /// No description provided for @presenterReadAloud.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citește cu voce tare'**
+  String get presenterReadAloud;
+
+  /// No description provided for @presenterReadMyself.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am citit-o eu'**
+  String get presenterReadMyself;
+
+  /// No description provided for @presenterRead.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citită'**
+  String get presenterRead;
+
+  /// No description provided for @presenterReading.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citesc întrebarea…'**
+  String get presenterReading;
+
+  /// No description provided for @presenterNoVoice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Laptopul nu are o voce în limba asta; citește-o tu'**
+  String get presenterNoVoice;
+
+  /// No description provided for @presenterReadFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut citi întrebarea; citește-o tu'**
+  String get presenterReadFailed;
+
+  /// No description provided for @presenterForceSpeaker.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vorbesc eu'**
+  String get presenterForceSpeaker;
+
+  /// No description provided for @presenterForceSpeakerHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Tot ce se aude apare ca spus de tine'**
+  String get presenterForceSpeakerHint;
+
   /// No description provided for @presenterCreateError.
   ///
   /// In ro, this message translates to:
