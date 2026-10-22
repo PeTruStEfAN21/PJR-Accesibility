@@ -853,6 +853,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coachRelearnVoice => 'Learn again';
 
   @override
+  String get coachVoiceStored =>
+      'Your voice fingerprint stays only in this browser. You can delete it at any time.';
+
+  @override
+  String get coachForgetVoice => 'Delete my voice';
+
+  @override
+  String get coachVoiceForgotten => 'Your voice was deleted.';
+
+  @override
   String get coachVoiceError =>
       'Voice recognition doesn\'t work in this browser.';
 

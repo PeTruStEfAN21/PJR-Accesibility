@@ -82,6 +82,7 @@ class _CoachScreenState extends State<CoachScreen> {
   bool _busy = false;
   String? _error;
   String? _codeNote;
+  String? _voiceNote;
   String? _enrollMessage;
   bool _voiceStarted = false;
   SpeakerLabeler? _labeler;
@@ -161,6 +162,16 @@ class _CoachScreenState extends State<CoachScreen> {
     });
   }
 
+  /// Deletes the learned voice from this browser; the next start counts every voice again.
+  void _forgetVoice() {
+    SettingsScope.of(context).update((s) {
+      s.coachVoiceprint = null;
+      s.coachVoiceprintModel = null;
+    });
+    _labeler?.voiceprint = null;
+    setState(() => _voiceNote = AppLocalizations.of(context).coachVoiceForgotten);
+  }
+
   /// The text was read: learn the colleague's voice from the last 20 s, or ask again.
   Future<void> _finishEnrollment() async {
     final labeler = _labeler!;
@@ -173,6 +184,7 @@ class _CoachScreenState extends State<CoachScreen> {
         s.coachVoiceprint = labeler.voiceprint!.toList();
         s.coachVoiceprintModel = labeler.head.model;
       });
+      _voiceNote = null;
     }
     setState(() {
       switch (result) {
@@ -441,6 +453,11 @@ class _CoachScreenState extends State<CoachScreen> {
                     onPressed: _busy ? null : _learnVoice,
                     child: Text(l10n.coachRelearnVoice),
                   ),
+                  TextButton(
+                    style: EchoButtons.link(palette),
+                    onPressed: _busy ? null : _forgetVoice,
+                    child: Text(l10n.coachForgetVoice),
+                  ),
                 ],
               )
             else ...[
@@ -455,6 +472,13 @@ class _CoachScreenState extends State<CoachScreen> {
               ),
               const SizedBox(height: 8),
               Text(l10n.coachVoiceHint, style: muted),
+            ],
+            const SizedBox(height: 8),
+            // A voice fingerprint is biometric data: say where it is kept, before and after learning it.
+            Text(l10n.coachVoiceStored, style: muted),
+            if (_voiceNote case final note?) ...[
+              const SizedBox(height: 8),
+              Semantics(liveRegion: true, child: Text(note, style: theme.textTheme.titleMedium?.copyWith(color: palette.text))),
             ],
           ],
         ),
