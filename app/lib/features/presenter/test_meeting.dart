@@ -102,8 +102,14 @@ Uint8List _storedZip(List<(String, Uint8List)> files) {
 }
 
 class RecordedLine {
-  RecordedLine({required this.id, required this.text, required this.predicted, required this.score, required this.clip})
-      : label = predicted;
+  RecordedLine({
+    required this.id,
+    required this.text,
+    required this.predicted,
+    required this.score,
+    required this.reason,
+    required this.clip,
+  }) : label = predicted;
 
   final String id;
   final String text;
@@ -111,6 +117,9 @@ class RecordedLine {
   /// What the page decided while the meeting ran.
   final Speaker predicted;
   final double? score;
+
+  /// Why the page labelled it so (judged, tooShort, notEnrolled, forced, modelError).
+  final String reason;
   final Float32List clip;
 
   /// What the team says it was, after listening.
@@ -140,8 +149,9 @@ class TestMeetingRecorder extends ChangeNotifier {
     required Speaker predicted,
     required double? score,
     required Float32List clip,
+    String reason = 'judged',
   }) {
-    _lines.add(RecordedLine(id: id, text: text, predicted: predicted, score: score, clip: clip));
+    _lines.add(RecordedLine(id: id, text: text, predicted: predicted, score: score, reason: reason, clip: clip));
     notifyListeners();
   }
 
@@ -164,6 +174,7 @@ class TestMeetingRecorder extends ChangeNotifier {
         'text': line.text,
         'predicted': line.predicted.name,
         'score': line.score,
+        'reason': line.reason,
         'label': line.label.name,
       });
     }
