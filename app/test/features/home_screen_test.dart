@@ -24,7 +24,43 @@ Widget laptopHome(TestHarness h) => ServicesScope(
       ),
     );
 
+/// The home screen as the browser build shows it, choosing by screen width.
+Widget webHome(TestHarness h) => ServicesScope(
+      services: AppServices(speech: h.speech, sounds: h.sounds),
+      child: SettingsScope(
+        settings: h.settings,
+        child: MaterialApp(
+          locale: const Locale('ro'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          home: const HomeScreen(web: true),
+        ),
+      ),
+    );
+
 void main() {
+  testWidgets('browser on a phone-sized screen: the phone app, in the same build', (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final h = await TestHarness.create();
+    await tester.pumpWidget(webHome(h));
+    await tester.pumpAndSettle();
+    expect(find.text('Conectează-te la speaker'), findsOneWidget);
+    expect(find.text('Eu prezint'), findsNothing);
+  });
+
+  testWidgets('browser on a laptop: the presenter home', (tester) async {
+    tester.view.physicalSize = const Size(1366, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final h = await TestHarness.create();
+    await tester.pumpWidget(webHome(h));
+    await tester.pumpAndSettle();
+    expect(find.text('Eu prezint'), findsOneWidget);
+    expect(find.text('Conectează-te la speaker'), findsNothing);
+  });
+
   testWidgets('phone: the Sounds card says the state and opens the Sounds screen', (tester) async {
     tester.view.physicalSize = const Size(390, 1600);
     tester.view.devicePixelRatio = 1;

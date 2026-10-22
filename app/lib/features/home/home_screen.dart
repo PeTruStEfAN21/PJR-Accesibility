@@ -20,18 +20,24 @@ import '../presenter/presenter_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sounds/sounds_screen.dart';
 
-/// `--dart-define=ECHO_PHONE_PREVIEW=true` shows the phone layout in Chrome, for design reviews.
-const _phonePreview = bool.fromEnvironment('ECHO_PHONE_PREVIEW');
-
-/// One obvious main action per device: joining on the phone, presenting on the laptop (Chrome).
+/// One obvious main action per device: joining on the phone, presenting on the laptop.
+///
+/// The browser build holds both apps: a phone-sized screen (a phone's browser, or a narrow window) gets
+/// the phone app, a wider one the presenter's home. Each links to the other.
 ///
 /// Visual direction: "editorial-greeting" (seed 1600705491): the greeting as the title,
 /// tonal panels instead of shadows, one deep-teal accent, pill controls.
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, this.presenterFirst = kIsWeb && !_phonePreview});
+  const HomeScreen({super.key, this.presenterFirst, this.web = kIsWeb});
 
-  /// True on the presenter's laptop. Sounds and face captions need the phone, so they are hidden there.
-  final bool presenterFirst;
+  /// True for the presenter's home, false for the phone app; null decides by device and screen width.
+  final bool? presenterFirst;
+
+  /// Running in a browser, where both apps live in one build.
+  final bool web;
+
+  /// Up to this width a browser shows the phone app.
+  static const phoneMaxWidth = 600.0;
 
   static const _tipId = 'home';
 
@@ -52,6 +58,7 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _build(BuildContext context) {
+    final presenterFirst = this.presenterFirst ?? (web && MediaQuery.sizeOf(context).width > phoneMaxWidth);
     final l10n = AppLocalizations.of(context);
     final settings = SettingsScope.of(context);
     final palette = EchoPalette.of(context);
