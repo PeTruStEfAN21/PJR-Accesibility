@@ -728,4 +728,190 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get meetingSaving => 'Transcrierea se salvează în contul tău';
+
+  @override
+  String get homeOnline => 'Meeting online';
+
+  @override
+  String get homeCoach => 'Sunt coleg într-un meeting online';
+
+  @override
+  String get homeCoachHint =>
+      'Echo îți arată discret când vorbești prea repede sau peste alții, ca un coleg surd să poată citi subtitrarea.';
+
+  @override
+  String get coachTitle => 'Antrenorul de claritate';
+
+  @override
+  String get coachIntro =>
+      'În meetingurile online, colegii surzi citesc subtitrarea. Echo îți ascultă vocea pe acest calculator și îți arată discret când subtitrarea nu mai ține pasul. Sunetul nu pleacă de aici.';
+
+  @override
+  String get coachTeam => 'Echipa';
+
+  @override
+  String get coachCodeLabel => 'Codul echipei (opțional)';
+
+  @override
+  String get coachCodeHint =>
+      'Cu același cod, Echo îți spune și când vorbești peste un coleg.';
+
+  @override
+  String get coachCreateCode => 'Creează un cod';
+
+  @override
+  String coachCodeCreated(String code) {
+    return 'Codul $code e gata: spune-l colegilor.';
+  }
+
+  @override
+  String get coachCodeInvalid => 'Codul are 6 litere și cifre.';
+
+  @override
+  String get coachServerError =>
+      'Nu pot ajunge la serverul Echo. Încearcă din nou.';
+
+  @override
+  String get coachMicrophone => 'Microfonul';
+
+  @override
+  String get coachHeadphones => 'Folosesc căști';
+
+  @override
+  String get coachHeadphonesHint =>
+      'Așa microfonul nu aude meetingul din difuzoare.';
+
+  @override
+  String get coachLearnVoice => 'Învață-mi vocea';
+
+  @override
+  String get coachVoiceHint =>
+      'Citești un text 20 de secunde; apoi Echo numără doar ce spui tu.';
+
+  @override
+  String get coachVoiceLearned => 'Vocea ta e învățată';
+
+  @override
+  String get coachRelearnVoice => 'Învață din nou';
+
+  @override
+  String get coachVoiceError =>
+      'Recunoașterea vocii nu merge în acest browser.';
+
+  @override
+  String get coachEnrollIntro =>
+      'Citește textul de mai jos cu voce normală, cam 20 de secunde. Așa Echo îți recunoaște vocea și nu numără vocile colegilor care se aud din difuzoare. Sunetul rămâne pe acest calculator.';
+
+  @override
+  String get coachApproximate =>
+      'Fără căști și fără vocea învățată, microfonul poate auzi și meetingul din difuzoare: alertele sunt aproximative, iar alerta de suprapunere e oprită.';
+
+  @override
+  String get coachDemo => 'Mod demonstrație';
+
+  @override
+  String get coachDemoHint =>
+      'Praguri scurte, ca toate alertele să apară în câteva minute. Nu pentru meetinguri reale.';
+
+  @override
+  String get coachStart => 'Pornește antrenorul';
+
+  @override
+  String get coachMicError =>
+      'Nu pot porni microfonul. Dă voie microfonului în browser; pagina trebuie deschisă pe https sau pe localhost.';
+
+  @override
+  String get coachAllGood => 'Totul e în regulă: subtitrarea ține pasul.';
+
+  @override
+  String get coachAlertOverlap => 'Vorbești în același timp cu altcineva';
+
+  @override
+  String get coachAlertWeakMic =>
+      'Microfonul te prinde slab: apropie-te sau verifică-l';
+
+  @override
+  String get coachAlertTooFast => 'Vorbești prea repede pentru subtitrare';
+
+  @override
+  String get coachAlertNoPauses => 'Fă pauze între idei';
+
+  @override
+  String coachAlertLongTalk(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minute',
+      one: 'un minut',
+    );
+    return 'Ai vorbit $_temp0 fără pauză: lasă loc de întrebări';
+  }
+
+  @override
+  String get coachAlertNoise => 'Zgomot la tine: pune mute când nu vorbești';
+
+  @override
+  String get coachWatching => 'Ce urmăresc';
+
+  @override
+  String get coachWatchOverlap => 'Dacă vorbești peste alții';
+
+  @override
+  String get coachWatchWeakMic => 'Cât de bine te prinde microfonul';
+
+  @override
+  String get coachWatchTooFast => 'Cât de repede vorbești';
+
+  @override
+  String get coachWatchNoPauses => 'Pauzele dintre idei';
+
+  @override
+  String get coachWatchLongTalk => 'Cât vorbești fără să lași loc de întrebări';
+
+  @override
+  String get coachWatchNoise => 'Zgomotul de la tine, cât nu vorbești';
+
+  @override
+  String get coachPip => 'Arată alertele peste meeting';
+
+  @override
+  String get coachPipClose => 'Închide fereastra de alerte';
+
+  @override
+  String get coachPipTitle => 'Echo · alerte';
+
+  @override
+  String get coachPipUnsupported =>
+      'Fereastra peste meeting merge în Chrome sau Edge pe calculator, pe https sau localhost.';
+
+  @override
+  String coachTeamStatus(String code, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count colegi conectați',
+      one: 'un coleg conectat',
+      zero: 'niciun alt coleg conectat',
+    );
+    return 'Cod $code · $_temp0';
+  }
+
+  @override
+  String get coachNoTeam =>
+      'Fără cod de echipă: alerta de suprapunere e oprită.';
+
+  @override
+  String coachUnknownCode(String code) {
+    return 'Codul $code nu există. Verifică-l sau creează altul.';
+  }
+
+  @override
+  String get coachReconnecting => 'Mă reconectez la echipă…';
+
+  @override
+  String get coachNoNoise =>
+      'Recunoașterea zgomotelor nu merge aici: alerta de zgomot e oprită.';
+
+  @override
+  String get coachStop => 'Oprește';
 }

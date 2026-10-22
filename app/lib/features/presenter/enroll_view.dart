@@ -3,12 +3,20 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Learning the speaker's voice: a text to read in a normal voice for [duration], with a progress bar.
-/// [onRecorded] runs when the time is up; [message] tells the speaker how the last attempt went.
+/// [onRecorded] runs when the time is up; [message] tells the speaker how the last attempt went; [intro]
+/// replaces the presenter's explanation (the clarity coach explains it for an online meeting).
 class EnrollView extends StatefulWidget {
-  const EnrollView({super.key, required this.onRecorded, this.message, this.duration = const Duration(seconds: 20)});
+  const EnrollView({
+    super.key,
+    required this.onRecorded,
+    this.message,
+    this.intro,
+    this.duration = const Duration(seconds: 20),
+  });
 
   final Future<void> Function() onRecorded;
   final String? message;
+  final String? intro;
   final Duration duration;
 
   @override
@@ -53,7 +61,7 @@ class _EnrollViewState extends State<EnrollView> with SingleTickerProviderStateM
         children: [
           Semantics(header: true, child: Text(l10n.enrollTitle, style: theme.textTheme.headlineSmall)),
           const SizedBox(height: 8),
-          Text(l10n.enrollIntro, style: theme.textTheme.bodyLarge),
+          Text(widget.intro ?? l10n.enrollIntro, style: theme.textTheme.bodyLarge),
           const SizedBox(height: 16),
           Container(
             width: double.infinity,

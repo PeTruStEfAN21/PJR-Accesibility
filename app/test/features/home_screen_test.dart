@@ -46,6 +46,9 @@ void main() {
   });
 
   testWidgets('laptop: presenting is the main action, phone-only tools are hidden', (tester) async {
+    tester.view.physicalSize = const Size(1366, 768);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final h = await TestHarness.create();
     await tester.pumpWidget(laptopHome(h));
     await tester.pumpAndSettle();

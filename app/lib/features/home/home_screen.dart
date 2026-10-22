@@ -9,6 +9,7 @@ import '../../widgets/pressable.dart';
 import '../../theme/echo_style.dart';
 import '../account/account_screen.dart';
 import '../account/sign_in_screen.dart';
+import '../coach/coach_screen.dart';
 import '../conversation/conversation_screen.dart';
 import '../history/history_screen.dart';
 import '../participant/join_screen.dart';
@@ -152,6 +153,16 @@ class HomeScreen extends StatelessWidget {
                   if (showTip) ...[tip(), const SizedBox(height: 16)],
                   mainAction(),
                 ],
+                // Online meetings: the hearing colleague's clarity coach runs in Chrome on their computer.
+                if (presenterFirst) ...[
+                  const SizedBox(height: 16),
+                  _Elsewhere(
+                    title: l10n.homeOnline,
+                    rows: [
+                      _ToolRow(icon: Icons.record_voice_over_outlined, title: l10n.homeCoach, hint: l10n.homeCoachHint, onTap: () => open(const CoachScreen())),
+                    ],
+                  ),
+                ],
                 if (!presenterFirst) ...[
                   const SizedBox(height: 16),
                   _Elsewhere(
@@ -242,7 +253,7 @@ class _MainAction extends StatelessWidget {
   }
 }
 
-/// The phone-only tools, grouped in one tonal panel so they never compete with the main action.
+/// Secondary tools, grouped in one tonal panel so they never compete with the main action.
 class _Elsewhere extends StatelessWidget {
   const _Elsewhere({required this.title, required this.rows});
 

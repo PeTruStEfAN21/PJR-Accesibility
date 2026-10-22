@@ -32,6 +32,11 @@ class AppSettings extends ChangeNotifier {
   List<double>? voiceprint;
   String? voiceprintModel;
 
+  /// The colleague's own voice for the clarity coach (online meetings), kept apart from the presenter's:
+  /// one laptop can be both.
+  List<double>? coachVoiceprint;
+  String? coachVoiceprintModel;
+
   /// In-app onboarding: false once the user taps "Skip" on any tip.
   bool tipsEnabled = true;
 
@@ -67,6 +72,12 @@ class AppSettings extends ChangeNotifier {
       voiceprintModel = decoded['model'] as String?;
       voiceprint = [for (final x in decoded['vector'] as List) (x as num).toDouble()];
     }
+    final coach = _prefs.getString('coachVoiceEnrollment');
+    if (coach != null) {
+      final decoded = jsonDecode(coach) as Map;
+      coachVoiceprintModel = decoded['model'] as String?;
+      coachVoiceprint = [for (final x in decoded['vector'] as List) (x as num).toDouble()];
+    }
   }
 
   void update(void Function(AppSettings s) change) {
@@ -97,6 +108,11 @@ class AppSettings extends ChangeNotifier {
       _prefs.remove('voiceEnrollment');
     } else {
       _prefs.setString('voiceEnrollment', jsonEncode({'model': voiceprintModel, 'vector': voiceprint}));
+    }
+    if (coachVoiceprint == null) {
+      _prefs.remove('coachVoiceEnrollment');
+    } else {
+      _prefs.setString('coachVoiceEnrollment', jsonEncode({'model': coachVoiceprintModel, 'vector': coachVoiceprint}));
     }
   }
 }

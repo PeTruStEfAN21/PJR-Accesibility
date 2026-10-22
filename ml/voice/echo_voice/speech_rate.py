@@ -168,6 +168,36 @@ def calibrate(clips: Iterable[tuple[np.ndarray, str]], words_per_minute: float =
     )
 
 
+def pace_windows(segments: Iterable[tuple[str, np.ndarray, str]], talk_seconds: float = 20) -> Iterator[tuple[float, float]]:
+    """What the coach judges: consecutive segments of one speech, joined with 0.4 s of quiet room until they
+    hold [talk_seconds] of talk, as (words a minute, detected syllables a second)."""
+    rng = np.random.default_rng(0)
+    current, waves, words = None, [], 0
+    for speech, wave, text in segments:
+        if speech != current:
+            current, waves, words = speech, [], 0
+        waves += [wave, rng.uniform(-0.003, 0.003, 6400).astype(np.float32)]
+        words += len(text.split())
+        frames = FrameAnalyzer().add(np.concatenate(waves))
+        talk = talk_time(frames)
+        if talk >= talk_seconds:
+            yield 60 * words / talk, sum(f.syllable for f in frames) / talk
+            waves, words = [], 0
+
+
+def voxpopuli_segments(src: Path) -> Iterator[tuple[str, np.ndarray, str]]:
+    """The validation and test segments, grouped by speech and in the order they were spoken."""
+    speeches: dict[str, list[tuple[int, dict]]] = {}
+    for shard in sorted(src.glob("validation-*.parquet")) + sorted(src.glob("test-*.parquet")):
+        for row in pq.read_table(shard, columns=["audio_id", "audio", "normalized_text"]).to_pylist():
+            speech, _, part = row["audio_id"].rpartition("_")
+            speeches.setdefault(speech, []).append((int(part) if part.isdigit() else 0, row))
+    for speech, parts in speeches.items():
+        for _, row in sorted(parts, key=lambda p: p[0]):
+            wave, sample_rate = sf.read(io.BytesIO(row["audio"]["bytes"]), dtype="float32")
+            yield speech, to_16k_mono(wave, sample_rate), row["normalized_text"]
+
+
 def voxpopuli_clips(src: Path) -> Iterator[tuple[np.ndarray, str]]:
     """The validation and test clips (speakers never used in training), as 16 kHz waves with their text."""
     for shard in sorted(src.glob("validation-*.parquet")) + sorted(src.glob("test-*.parquet")):
@@ -186,6 +216,14 @@ def main(argv: list[str] | None = None) -> None:
 
     result = calibrate(voxpopuli_clips(args.src), args.words_per_minute)
     wpm, sps = result.words_per_minute, result.syllables_per_second
+    pace, rate = (np.array(column) for column in zip(*pace_windows(voxpopuli_segments(args.src))))
+    fast, slow = pace >= args.words_per_minute + 20, pace <= args.words_per_minute - 20
+    bands = [(0, 130), (130, 150), (150, 170), (170, 190), (190, 210), (210, 400)]
+    table = [
+        f"| {lo}–{hi if hi < 400 else '…'} | {m.sum()} | {np.median(rate[m]):.2f} |"
+        for lo, hi in bands
+        if (m := (pace >= lo) & (pace < hi)).any()
+    ]
     today = datetime.date.today().isoformat()
     report = "\n".join([
         f"# Pragul de ritm al antrenorului de claritate ({today})",
@@ -204,7 +242,25 @@ def main(argv: list[str] | None = None) -> None:
         f" {args.words_per_minute - 20:.0f} sau mai puțin semnalate greșit: {100 * result.false_alarms:.0f}%",
         f"- Corelația ritm în cuvinte / silabe detectate pe secundă: {result.correlation:.2f}",
         "",
-        "Un clip are 5–20 s; antrenorul judecă pe 20 s de vorbire, deci în aplicație măsurătoarea e mai stabilă.",
+        "## Ce judecă aplicația: 20 s de vorbire a aceluiași om",
+        "",
+        f"{len(pace)} ferestre: segmente consecutive din același discurs, cu 0,4 s de liniște între ele, până la 20 s",
+        "de vorbire.",
+        "",
+        f"- Corelația ritm în cuvinte / silabe detectate pe secundă: {np.corrcoef(pace, rate)[0, 1]:.2f}",
+        f"- La pragul {result.threshold:.2f}: prinde {100 * np.mean(rate[fast] > result.threshold):.0f}% din ferestrele de"
+        f" {args.words_per_minute + 20:.0f}+ cuvinte pe minut ({fast.sum()}) și semnalează greșit"
+        f" {100 * np.mean(rate[slow] > result.threshold):.0f}% din cele de {args.words_per_minute - 20:.0f} sau mai puțin"
+        f" ({slow.sum()})",
+        "",
+        "| cuvinte pe minut | ferestre | silabe detectate / s (mediana) |",
+        "|---|---|---|",
+        *table,
+        "",
+        "Detectorul se saturează la vorbire foarte rapidă (silabele se contopesc în mai puține vârfuri de intensitate):",
+        "pragul rămâne conservator, cu puține alerte greșite pentru cine vorbește normal. Variante încercate (ferestre",
+        "de 40–64 ms cu pas de 10 ms, preaccentuare, banda vocalelor 300–2500 Hz, netezire, praguri de 1–3 dB) nu au",
+        "separat mai bine (AUC 0,84–0,85 pe clipuri, față de 0,84). Modul demonstrație din aplicație folosește 4,5.",
         "",
         "De la ~170 de cuvinte pe minut în sus, cititorii de subtitrare încep să aibă dificultăți (Jensema, 1998).",
         f"Un cuvânt românesc are aici în medie {result.letters_per_word:.1f} litere (în engleză ~4,7): la același număr de",

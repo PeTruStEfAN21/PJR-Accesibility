@@ -33,8 +33,25 @@ class CoachThresholds {
     this.rest = 180,
   });
 
+  /// Short timings so every alert can be shown within a few minutes (a demo), not for real meetings: pace
+  /// over 10 s with a lower threshold, one 8 s stretch without a pause, a minute of talk, alerts back
+  /// after 20 s.
+  static const demo = CoachThresholds(
+    syllablesPerSecond: 4.5,
+    rateWindow: 10,
+    minTalkForRate: 6,
+    unbrokenRun: 8,
+    unbrokenCount: 1,
+    unbrokenWindow: 60,
+    longTalk: 60,
+    noiseHold: 3,
+    overlapHold: 1,
+    minShown: 4,
+    rest: 20,
+  );
+
   /// Above this the captions are hard to follow: 170 words a minute, in syllables the analyzer detects in
-  /// Romanian speech (ml/voice/reports/2026-10-22-ritm.md).
+  /// Romanian speech (ml/voice/reports/2026-10-23-ritm.md).
   final double syllablesPerSecond;
 
   /// Pace is measured over the last [rateWindow] s of talk, once there are [minTalkForRate] s of it.
