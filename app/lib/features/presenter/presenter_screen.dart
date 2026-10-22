@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../core/ids.dart';
@@ -61,6 +62,9 @@ class _PresenterScreenState extends State<PresenterScreen> {
 
   /// On while a test meeting is being recorded.
   TestMeetingRecorder? _testMeeting;
+
+  /// How the last final line was labelled, shown under it (for tuning in a real room).
+  String? _lastDecision;
   StreamSubscription<ServerEvent>? _events;
   StreamSubscription<SpeechSegment>? _segments;
   final _messages = <_ReceivedMessage>[];
@@ -211,6 +215,7 @@ class _PresenterScreenState extends State<PresenterScreen> {
       if (judged != null) {
         _testMeeting?.add(id: segment.id, text: segment.text, predicted: speaker, score: judged.score, clip: judged.clip);
       }
+      if (segment.isFinal) _lastDecision = _describe(labeler, judged, speaker);
       final caption = Caption(
         id: segment.id,
         speaker: speaker,
@@ -233,6 +238,21 @@ class _PresenterScreenState extends State<PresenterScreen> {
     }
     _labeler?.startWindowAt(clock.now());
     setState(() => _listening = true);
+  }
+
+  String _describe(SpeakerLabeler? labeler, Judgement? judged, Speaker speaker) {
+    final l10n = AppLocalizations.of(context);
+    if (labeler == null) return l10n.voiceDiagOff;
+    if (!labeler.enrolled) return l10n.voiceDiagNotLearned;
+    if (labeler.forceSpeaker) return l10n.voiceDiagForced;
+    final score = judged?.score;
+    if (score == null) return l10n.voiceDiagShort;
+    final number = NumberFormat('0.00', Localizations.localeOf(context).toString());
+    return l10n.voiceDiagScore(
+      number.format(score),
+      number.format(labeler.head.cosineThreshold),
+      speakerLabel(l10n, speaker),
+    );
   }
 
   /// Reads the question with the laptop's voice. Captioning stops meanwhile, so the laptop does not
@@ -311,6 +331,7 @@ class _PresenterScreenState extends State<PresenterScreen> {
             link: public,
             listening: _listening,
             lastCaption: _lastOwnCaption,
+            lastDecision: _lastDecision,
             onToggle: _toggleListening,
             forceSpeaker: _forceSpeaker,
             onForceSpeaker: (value) => setState(() {
@@ -379,6 +400,7 @@ class _JoinPanel extends StatelessWidget {
     required this.link,
     required this.listening,
     required this.lastCaption,
+    required this.lastDecision,
     required this.onToggle,
     required this.forceSpeaker,
     required this.onForceSpeaker,
@@ -391,6 +413,7 @@ class _JoinPanel extends StatelessWidget {
   final JoinLink link;
   final bool listening;
   final Caption? lastCaption;
+  final String? lastDecision;
   final VoidCallback onToggle;
   final bool forceSpeaker;
   final ValueChanged<bool> onForceSpeaker;
@@ -485,6 +508,7 @@ class _JoinPanel extends StatelessWidget {
           if (lastCaption != null) ...[
             const SizedBox(height: 12),
             CaptionTile(caption: lastCaption!),
+            if (lastDecision case final decision?) Text(decision, style: theme.textTheme.bodySmall),
           ],
         ],
       ),

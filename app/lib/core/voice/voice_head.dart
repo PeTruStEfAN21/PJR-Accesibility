@@ -58,4 +58,7 @@ class VoiceHead {
   double probability(double cosine) => 1 / (1 + exp(-(scale * cosine + bias)));
 
   bool isSpeaker(double cosine) => probability(cosine) >= threshold;
+
+  /// The similarity at which a line starts counting as the speaker's.
+  double get cosineThreshold => (log(threshold / (1 - threshold)) - bias) / scale;
 }
