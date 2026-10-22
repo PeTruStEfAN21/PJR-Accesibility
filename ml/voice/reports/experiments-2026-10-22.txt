@@ -1,0 +1,18 @@
+base        curat           1.5 s   EER  2.20%   cu AS-norm  2.10%
+base        curat           3.0 s   EER  1.20%   cu AS-norm  1.20%
+base        curat           8.0 s   EER  1.30%   cu AS-norm  1.20%
+base        sală 5-10 m     1.5 s   EER  5.70%   cu AS-norm  4.40%
+base        sală 5-10 m     3.0 s   EER  2.30%   cu AS-norm  2.10%
+base        sală 5-10 m     8.0 s   EER  1.80%   cu AS-norm  1.50%
+fine-tuned  curat           1.5 s   EER  2.00%   cu AS-norm  2.00%
+fine-tuned  curat           3.0 s   EER  1.20%   cu AS-norm  1.20%
+fine-tuned  curat           8.0 s   EER  1.20%   cu AS-norm  1.20%
+fine-tuned  sală 5-10 m     1.5 s   EER  3.00%   cu AS-norm  3.00%
+fine-tuned  sală 5-10 m     3.0 s   EER  1.50%   cu AS-norm  1.50%
+fine-tuned  sală 5-10 m     8.0 s   EER  1.20%   cu AS-norm  1.20%
+fuziune     curat           1.5 s   EER  2.00%
+fuziune     curat           3.0 s   EER  1.20%
+fuziune     curat           8.0 s   EER  1.20%
+fuziune     sală 5-10 m     1.5 s   EER  3.50%
+fuziune     sală 5-10 m     3.0 s   EER  1.80%
+fuziune     sală 5-10 m     8.0 s   EER  1.20%
