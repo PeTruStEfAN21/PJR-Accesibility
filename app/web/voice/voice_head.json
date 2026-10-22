@@ -3,7 +3,7 @@
   "scale": 9.685967292807584,
   "bias": -3.0425592203603564,
   "threshold": 0.8703038391237771,
-  "min_voiced_ms": 1000,
+  "min_voiced_ms": 500,
   "enroll_min_voiced_ms": 10000,
   "window_ms": 3000
 }

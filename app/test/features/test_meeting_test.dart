@@ -56,8 +56,8 @@ void main() {
   test('the archive holds the enrollment, every clip and the labels the team set', () {
     final recorder = TestMeetingRecorder(model: 'redimnet2-b6-vb2+vox2_v0-lm')
       ..setEnrollment(clip(20))
-      ..add(id: 'c1', text: 'Bun venit', predicted: Speaker.coordinator, score: 0.81, clip: clip(2))
-      ..add(id: 'c2', text: 'Când e termenul', predicted: Speaker.coordinator, score: 0.52, clip: clip(1.5))
+      ..add(id: 'c1', text: 'Bun venit', predicted: Speaker.coordinator, score: 0.81, clip: clip(2), reason: 'judged')
+      ..add(id: 'c2', text: 'Când e termenul', predicted: Speaker.coordinator, score: 0.52, clip: clip(1.5), reason: 'judged')
       ..setLabel('c2', Speaker.public);
 
     final entries = readZip(recorder.buildArchive());
@@ -73,8 +73,8 @@ void main() {
     expect(labels['model'], 'redimnet2-b6-vb2+vox2_v0-lm');
     expect(labels['enrollment'], 'enrollment.wav');
     expect(labels['lines'], [
-      {'id': 'c1', 'file': 'clips/001.wav', 'text': 'Bun venit', 'predicted': 'coordinator', 'score': 0.81, 'label': 'coordinator'},
-      {'id': 'c2', 'file': 'clips/002.wav', 'text': 'Când e termenul', 'predicted': 'coordinator', 'score': 0.52, 'label': 'public'},
+      {'id': 'c1', 'file': 'clips/001.wav', 'text': 'Bun venit', 'predicted': 'coordinator', 'score': 0.81, 'reason': 'judged', 'label': 'coordinator'},
+      {'id': 'c2', 'file': 'clips/002.wav', 'text': 'Când e termenul', 'predicted': 'coordinator', 'score': 0.52, 'reason': 'judged', 'label': 'public'},
     ]);
   });
 
