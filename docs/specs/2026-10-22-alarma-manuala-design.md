@@ -1,6 +1,6 @@
 # Alarma dată de un coleg (design)
 
-**Data:** 2026-10-22 · **Stare:** aprobat de Denis David · **Pornește de la:** `2026-10-22-sunetul-vizibil-design.md`, `2026-10-22-ecrane-alerta-design.md` (alertele lui Petru), `2026-10-22-conturi-si-baza-de-date-design.md` (conturile)
+**Data:** 2026-10-22 · **Stare:** implementat (aprobat de Denis David) · **Pornește de la:** `2026-10-22-sunetul-vizibil-design.md`, `2026-10-22-ecrane-alerta-design.md` (alertele lui Petru), `2026-10-22-conturi-si-baza-de-date-design.md` (conturile)
 
 ## Intenție
 

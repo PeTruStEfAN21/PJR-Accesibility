@@ -745,4 +745,74 @@ class AppLocalizationsRo extends AppLocalizations {
   String alarmFromColleague(String name) {
     return '$name · semnalat de un coleg';
   }
+
+  @override
+  String get emergencyTitle => 'Alarmă de urgență';
+
+  @override
+  String get emergencyHomeHint => 'Când aplicația nu aude pericolul';
+
+  @override
+  String get emergencyIntro =>
+      'Alarma ajunge la colegii aflați la cel mult 500 m.';
+
+  @override
+  String get emergencyAccountable => 'Numele tău se păstrează odată cu alarma.';
+
+  @override
+  String get alarmLevelCritical => 'Critic';
+
+  @override
+  String get alarmLevelWarning => 'Atenție';
+
+  @override
+  String emergencyConfirm(String name) {
+    return 'Trimiți alarma „$name”?';
+  }
+
+  @override
+  String get emergencySend => 'Trimite alarma';
+
+  @override
+  String get emergencyCancelDialog => 'Renunță';
+
+  @override
+  String emergencySent(String time) {
+    return 'Alarmă trimisă la $time';
+  }
+
+  @override
+  String get emergencyCancelAlarm => 'Anulează alarma';
+
+  @override
+  String get emergencyCancelConfirm => 'Anulezi alarma pentru toți colegii?';
+
+  @override
+  String get emergencyCancelled => 'Alarmă anulată';
+
+  @override
+  String get emergencySending => 'Se trimite…';
+
+  @override
+  String get emergencyErrorSignedOut => 'Intră în cont ca să poți da o alarmă.';
+
+  @override
+  String get emergencyErrorLocation =>
+      'Permite accesul la locație din Setări, ca alarma să ajungă la cine e aproape.';
+
+  @override
+  String emergencyErrorTooMany(int minutes) {
+    return 'Ai dat deja 3 alarme în ultima oră. Încearcă din nou peste $minutes min.';
+  }
+
+  @override
+  String get emergencyErrorOffline =>
+      'Nu ajungem la server. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get emergencyErrorFailed => 'Alarma nu a plecat. Încearcă din nou.';
+
+  @override
+  String get emergencyErrorNotConfigured =>
+      'Serverul nu are conturi pornite. Anunță administratorul.';
 }

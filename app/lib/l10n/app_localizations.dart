@@ -1411,6 +1411,126 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'{name} · semnalat de un coleg'**
   String alarmFromColleague(String name);
+
+  /// No description provided for @emergencyTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmă de urgență'**
+  String get emergencyTitle;
+
+  /// No description provided for @emergencyHomeHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Când aplicația nu aude pericolul'**
+  String get emergencyHomeHint;
+
+  /// No description provided for @emergencyIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarma ajunge la colegii aflați la cel mult 500 m.'**
+  String get emergencyIntro;
+
+  /// No description provided for @emergencyAccountable.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele tău se păstrează odată cu alarma.'**
+  String get emergencyAccountable;
+
+  /// No description provided for @alarmLevelCritical.
+  ///
+  /// In ro, this message translates to:
+  /// **'Critic'**
+  String get alarmLevelCritical;
+
+  /// No description provided for @alarmLevelWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Atenție'**
+  String get alarmLevelWarning;
+
+  /// No description provided for @emergencyConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimiți alarma „{name}”?'**
+  String emergencyConfirm(String name);
+
+  /// No description provided for @emergencySend.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite alarma'**
+  String get emergencySend;
+
+  /// No description provided for @emergencyCancelDialog.
+  ///
+  /// In ro, this message translates to:
+  /// **'Renunță'**
+  String get emergencyCancelDialog;
+
+  /// No description provided for @emergencySent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmă trimisă la {time}'**
+  String emergencySent(String time);
+
+  /// No description provided for @emergencyCancelAlarm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulează alarma'**
+  String get emergencyCancelAlarm;
+
+  /// No description provided for @emergencyCancelConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulezi alarma pentru toți colegii?'**
+  String get emergencyCancelConfirm;
+
+  /// No description provided for @emergencyCancelled.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmă anulată'**
+  String get emergencyCancelled;
+
+  /// No description provided for @emergencySending.
+  ///
+  /// In ro, this message translates to:
+  /// **'Se trimite…'**
+  String get emergencySending;
+
+  /// No description provided for @emergencyErrorSignedOut.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în cont ca să poți da o alarmă.'**
+  String get emergencyErrorSignedOut;
+
+  /// No description provided for @emergencyErrorLocation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Permite accesul la locație din Setări, ca alarma să ajungă la cine e aproape.'**
+  String get emergencyErrorLocation;
+
+  /// No description provided for @emergencyErrorTooMany.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai dat deja 3 alarme în ultima oră. Încearcă din nou peste {minutes} min.'**
+  String emergencyErrorTooMany(int minutes);
+
+  /// No description provided for @emergencyErrorOffline.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu ajungem la server. Verifică internetul și încearcă din nou.'**
+  String get emergencyErrorOffline;
+
+  /// No description provided for @emergencyErrorFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarma nu a plecat. Încearcă din nou.'**
+  String get emergencyErrorFailed;
+
+  /// No description provided for @emergencyErrorNotConfigured.
+  ///
+  /// In ro, this message translates to:
+  /// **'Serverul nu are conturi pornite. Anunță administratorul.'**
+  String get emergencyErrorNotConfigured;
 }
 
 class _AppLocalizationsDelegate

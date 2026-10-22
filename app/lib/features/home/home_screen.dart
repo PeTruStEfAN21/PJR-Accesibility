@@ -10,6 +10,9 @@ import '../../theme/echo_style.dart';
 import '../account/account_screen.dart';
 import '../account/sign_in_screen.dart';
 import '../conversation/conversation_screen.dart';
+import '../emergency/alarm_api.dart';
+import '../emergency/alarm_scope.dart';
+import '../emergency/emergency_screen.dart';
 import '../history/history_screen.dart';
 import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
@@ -160,6 +163,18 @@ class HomeScreen extends StatelessWidget {
                       _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
                       if (meetings != null)
                         _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
+                      // Raising an alarm needs an account: the name is kept with it.
+                      if (account?.isSignedIn == true)
+                        _ToolRow(
+                          icon: Icons.emergency_share,
+                          title: l10n.emergencyTitle,
+                          hint: l10n.emergencyHomeHint,
+                          onTap: () => open(EmergencyScreen(
+                            api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
+                            positions: services.positions,
+                            onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
+                          )),
+                        ),
                     ],
                   ),
                 ],
