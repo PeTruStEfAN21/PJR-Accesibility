@@ -5,13 +5,21 @@ import '../../l10n/app_localizations.dart';
 import 'my_question.dart';
 
 /// „Vreau să întreb”: alerts the speaker first, then lets the participant type the question, and shows
-/// where the question is (sent, read out, not answered yet).
+/// where the question is (sent, read out, not answered yet). [quickMessages] step aside while typing, so the
+/// captions keep their room on a small phone with the keyboard open.
 class AskPanel extends StatefulWidget {
-  const AskPanel({super.key, required this.question, required this.onHand, required this.onSend});
+  const AskPanel({
+    super.key,
+    required this.question,
+    required this.onHand,
+    required this.onSend,
+    this.quickMessages = const SizedBox.shrink(),
+  });
 
   final MyQuestion question;
   final VoidCallback onHand;
   final ValueChanged<String> onSend;
+  final Widget quickMessages;
 
   @override
   State<AskPanel> createState() => _AskPanelState();
@@ -81,6 +89,7 @@ class _AskPanelState extends State<AskPanel> {
                 ],
               ),
             ),
+          if (!_composing) ...[const SizedBox(height: 8), widget.quickMessages],
         ],
       ),
     );
@@ -145,45 +154,40 @@ class AnsweredCard extends StatelessWidget {
       child: Card(
         margin: const EdgeInsets.fromLTRB(12, 8, 12, 0),
         color: theme.colorScheme.secondaryContainer,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.45),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.check_circle, color: theme.colorScheme.onSecondaryContainer),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Semantics(
-                        header: true,
-                        child: Text(l10n.answeredTitle, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+        // The parent decides how tall the card may be; longer answers scroll inside it.
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.check_circle, color: theme.colorScheme.onSecondaryContainer),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        l10n.answeredTitle,
+                        style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(l10n.answeredQuestion(question.text ?? ''), style: theme.textTheme.bodyMedium),
-                const SizedBox(height: 8),
-                Text(result.answer, style: theme.textTheme.titleLarge),
-                for (final id in result.lineIds)
-                  if (cited[id] case final line?)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Text('#${line.number} ${line.text}', style: theme.textTheme.bodyMedium),
-                    ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: TextButton(
-                    style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
-                    onPressed: question.dismiss,
-                    child: Text(l10n.close),
                   ),
-                ),
-              ],
-            ),
+                  // Always in sight, even when a long answer scrolls inside the card.
+                  IconButton(tooltip: l10n.close, icon: const Icon(Icons.close), onPressed: question.dismiss),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(l10n.answeredQuestion(question.text ?? ''), style: theme.textTheme.bodyMedium),
+              const SizedBox(height: 8),
+              Text(result.answer, style: theme.textTheme.titleLarge),
+              for (final id in result.lineIds)
+                if (cited[id] case final line?)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text('#${line.number} ${line.text}', style: theme.textTheme.bodyMedium),
+                  ),
+            ],
           ),
         ),
       ),
