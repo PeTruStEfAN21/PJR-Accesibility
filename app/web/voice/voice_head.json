@@ -1,8 +1,8 @@
 {
   "model": "redimnet2-b6-vb2+vox2_v0-lm+vp-ro-1",
-  "scale": 9.058102538899693,
-  "bias": -3.3290332646397665,
-  "threshold": 0.9038713019229195,
+  "scale": 9.685967292807584,
+  "bias": -3.0425592203603564,
+  "threshold": 0.8703038391237771,
   "min_voiced_ms": 1000,
   "enroll_min_voiced_ms": 10000,
   "window_ms": 3000
