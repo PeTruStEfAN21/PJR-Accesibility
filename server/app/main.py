@@ -1,7 +1,10 @@
 """FastAPI entry point: meeting sessions, the realtime relay and the AI endpoints."""
 
+import asyncio
 import json
+import logging
 import os
+import time
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -13,7 +16,18 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
 from app import agent, ai
-from app.auth import Caller, InvalidToken, TokenVerifier, verifier_from_env
+from app.alarms import (
+    Alarm,
+    AlarmFeed,
+    AlarmIn,
+    AlarmRecorder,
+    DatabaseRecorder,
+    LocalAlarmFeed,
+    RedisAlarmFeed,
+    purge_daily,
+    recorder_from_env,
+)
+from app.auth import AccountCaller, Caller, InvalidToken, TokenVerifier, verifier_from_env
 from app.hub import Hub, LocalHub, RedisHub
 from app.limits import Limiter, MemoryLimiter, RedisLimiter
 from app.protocol import ALLOWED, MAX_MESSAGE_BYTES, ROLES, client_message
@@ -39,8 +53,27 @@ def _default_ai_client() -> anthropic.AsyncAnthropic | None:
     return anthropic.AsyncAnthropic()
 
 
+# Same logger as LogRecorder, so an entry the recorder could not save still ends up in the logs.
+alarm_log = logging.getLogger("echo.alarms")
+
+
 def _limit(name: str, default: int) -> int:
     return int(os.environ.get(name) or default)
+
+
+def _alarm_entry(event: str, alarm: Alarm | None, who: AccountCaller) -> dict:
+    return {
+        "event": event,
+        "id": alarm.id if alarm else None,
+        "kind": alarm.kind if alarm else None,
+        "at": alarm.at if alarm else None,
+        "lat": alarm.lat if alarm else None,
+        "lon": alarm.lon if alarm else None,
+        "accuracy_m": alarm.accuracy_m if alarm else None,
+        "user_id": who.user_id,
+        "email": who.email,
+        "ip": who.ip,
+    }
 
 
 def create_app(
@@ -49,16 +82,21 @@ def create_app(
     hub: Hub | None = None,
     limiter: Limiter | None = None,
     verifier: Any = _DEFAULT,
+    alarm_feed: AlarmFeed | None = None,
+    recorder: AlarmRecorder | None = None,
 ) -> FastAPI:
     # REDIS_URL set: sessions and limits are shared by every server instance. Unset: one process.
     redis_url = os.environ.get("REDIS_URL")
     redis = None
-    if redis_url and (hub is None or limiter is None):
+    if redis_url and (hub is None or limiter is None or alarm_feed is None):
         import redis.asyncio as aioredis
 
         redis = aioredis.from_url(redis_url, decode_responses=True)
     hub = hub or (RedisHub(redis) if redis else LocalHub())
     limiter = limiter or (RedisLimiter(redis) if redis else MemoryLimiter())
+    alarm_feed = alarm_feed or (RedisAlarmFeed(redis) if redis else LocalAlarmFeed())
+    # AUDIT_DATABASE_URL set: alarms go to the activity log in the database. Unset: to the server log.
+    recorder = recorder or recorder_from_env()
     verifier: TokenVerifier | None = verifier_from_env() if verifier is _DEFAULT else verifier
     user_limit = _limit("AI_REQUESTS_PER_HOUR", 120)
     anonymous_limit = _limit("AI_ANONYMOUS_REQUESTS_PER_HOUR", 60)
@@ -66,9 +104,19 @@ def create_app(
     @asynccontextmanager
     async def lifespan(_: FastAPI):
         await hub.start()
+        await alarm_feed.start()
+        purge = asyncio.create_task(purge_daily(recorder)) if isinstance(recorder, DatabaseRecorder) else None
         try:
             yield
         finally:
+            if purge is not None:
+                purge.cancel()
+                try:
+                    await purge
+                except asyncio.CancelledError:
+                    pass
+                await recorder.close()
+            await alarm_feed.close()
             await hub.close()
             if redis is not None:
                 await redis.aclose()
@@ -109,6 +157,23 @@ def create_app(
                 headers={"WWW-Authenticate": "Bearer"},
             ) from exc
 
+    async def account_caller(request: Request) -> AccountCaller:
+        """Like `caller`, but the caller must be signed in."""
+        if verifier is None:
+            raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Accounts are not configured on this server")
+        ip = request.client.host if request.client else "unknown"
+        header = request.headers.get("authorization", "")
+        unauthorized = {"WWW-Authenticate": "Bearer"}
+        if not header.lower().startswith("bearer "):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in to use alarms", headers=unauthorized)
+        try:
+            who = await verifier.identity(header[7:].strip())
+        except InvalidToken as exc:
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED, "Invalid or expired session, sign in again", headers=unauthorized
+            ) from exc
+        return AccountCaller(user_id=who.user_id, email=who.email, ip=ip)
+
     async def ai_caller(who: Caller = Depends(caller)) -> Caller:
         retry_after = await limiter.hit(who.key, user_limit if who.user_id else anonymous_limit)
         if retry_after is not None:
@@ -130,6 +195,69 @@ def create_app(
     @app.get("/api/me")
     async def me(who: Caller = Depends(caller)) -> dict:
         return {"user_id": who.user_id}
+
+    async def _record(entry: dict) -> None:
+        # The alarm already went out: a failing recorder must not turn that into an error the sender retries.
+        try:
+            await recorder.record(entry)
+        except Exception:
+            alarm_log.exception("alarm not recorded: %s", json.dumps(entry, ensure_ascii=False))
+
+    @app.post("/api/alarms", status_code=status.HTTP_201_CREATED)
+    async def raise_alarm(body: AlarmIn, who: AccountCaller = Depends(account_caller)) -> dict:
+        retry_after = await limiter.hit(f"alarm:user:{who.user_id}", 3)
+        if retry_after is not None:
+            raise HTTPException(
+                status.HTTP_429_TOO_MANY_REQUESTS,
+                "Too many alarms, try again later",
+                headers={"Retry-After": str(retry_after)},
+            )
+        alarm = Alarm(at=time.time(), **body.model_dump())
+        await alarm_feed.add(alarm, who.user_id)
+        await _record(_alarm_entry("raised", alarm, who))
+        return {"id": alarm.id, "at": alarm.at}
+
+    @app.post("/api/alarms/{alarm_id}/cancel")
+    async def cancel_alarm(alarm_id: str, who: AccountCaller = Depends(account_caller)) -> dict:
+        now = time.time()
+        known = next((a for a in await alarm_feed.active(now) if a.id == alarm_id), None)
+        result = await alarm_feed.cancel(alarm_id, who.user_id)
+        if result == "missing":
+            raise HTTPException(status.HTTP_404_NOT_FOUND, "Unknown alarm")
+        if result == "forbidden":
+            raise HTTPException(status.HTTP_403_FORBIDDEN, "Only the author can cancel an alarm")
+        entry = _alarm_entry("cancelled", known, who)
+        entry["id"], entry["at"] = alarm_id, now
+        await _record(entry)
+        return {"id": alarm_id}
+
+    # Declared before /ws/{code}, or "alarms" would be taken for a session code.
+    @app.websocket("/ws/alarms")
+    async def alarms_socket(websocket: WebSocket) -> None:
+        await websocket.accept()
+        try:
+            if verifier is None:
+                await websocket.close(code=4503, reason="accounts are not configured")
+                return
+            try:
+                first = await asyncio.wait_for(websocket.receive_json(), timeout=10)
+                if not isinstance(first, dict) or first.get("type") != "auth":
+                    raise InvalidToken("auth expected")
+                listener = await verifier.identity(str(first.get("token") or ""))
+            except (InvalidToken, asyncio.TimeoutError, ValueError):
+                await websocket.close(code=4401, reason="sign in to listen for alarms")
+                return
+            await websocket.send_json({"type": "auth_ok"})
+            # Subscribe before listing, so an alarm raised in between is not lost (clients de-duplicate by id).
+            alarm_feed.subscribe(websocket, listener.user_id)
+            for alarm in await alarm_feed.active(time.time(), viewer=listener.user_id):
+                await websocket.send_json(alarm.public())
+            while True:
+                await websocket.receive_text()  # Later client messages are ignored.
+        except WebSocketDisconnect:
+            pass
+        finally:
+            alarm_feed.unsubscribe(websocket)
 
     @app.post("/api/sessions", status_code=status.HTTP_201_CREATED)
     async def create_session() -> dict:

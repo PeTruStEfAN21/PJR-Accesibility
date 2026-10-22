@@ -152,7 +152,7 @@ class _SavedMeetingScreenState extends State<SavedMeetingScreen> {
     final summary = _summary;
     final header = [
       Text(meetingDate(context, _meeting.startedAt), style: Theme.of(context).textTheme.bodyMedium),
-      if (summary != null) _SummaryCard(summary: summary),
+      if (summary != null) MeetingSummaryCard(summary: summary),
       if (captions.isEmpty) Padding(padding: const EdgeInsets.all(16), child: Text(l10n.transcriptEmpty)),
     ];
     return ListView.builder(
@@ -167,8 +167,9 @@ class _SavedMeetingScreenState extends State<SavedMeetingScreen> {
   }
 }
 
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({required this.summary});
+/// A meeting's summary and tasks, as saved.
+class MeetingSummaryCard extends StatelessWidget {
+  const MeetingSummaryCard({super.key, required this.summary});
   final MeetingSummary summary;
 
   @override

@@ -265,6 +265,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get aiError => 'The AI could not answer. Please try again.';
 
   @override
+  String get aiErrorLimit =>
+      'The AI has had too many requests this hour. Please try again later.';
+
+  @override
+  String get aiErrorOff =>
+      'The AI is not set up on the server. Captions still work.';
+
+  @override
   String get simplify => 'Simplify';
 
   @override
@@ -490,12 +498,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundsTitle => 'Visible sound';
 
   @override
-  String get soundsStart => 'Start listening';
-
-  @override
-  String get soundsStop => 'Stop listening';
-
-  @override
   String get soundsListening =>
       'Listening to sounds around you, also with the phone locked. Starts by itself every time you open the app.';
 
@@ -507,19 +509,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Listening is paused while captions run. It starts again by itself afterwards.';
 
   @override
-  String get soundsPill => 'Sounds';
+  String get homeSounds => 'Sounds';
 
   @override
-  String get soundsPillOn => 'Visible sound: on';
+  String get homeSoundsOn =>
+      'On: your phone alerts you to alarms, horns and your name.';
 
   @override
-  String get soundsPillOff => 'Visible sound: off';
+  String get homeSoundsOff => 'Off: tap to turn sound alerts on.';
 
   @override
-  String get soundsPillPaused => 'Visible sound: paused while captions run';
+  String get homeSoundsPaused => 'Paused while captions run.';
 
   @override
-  String get soundsPillHint => 'Long press for details and to test the alerts.';
+  String get homeSoundsUnavailable =>
+      'Not available on this device: tap for details.';
 
   @override
   String get soundsTest => 'Test the alerts';
@@ -527,6 +531,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Sound recognition does not work on this device. You can test the alerts below.';
+
+  @override
+  String get soundsExplain =>
+      'Your phone listens to the sounds around you, right on the device: nothing goes to the internet. When it recognises a sound, the screen changes and the phone vibrates. Critical alerts cover any screen until you close them.';
+
+  @override
+  String get soundsSwitch => 'Sound alerts';
+
+  @override
+  String get soundsVibrations => 'Vibrations';
+
+  @override
+  String get soundsLevelExamplesCritical => 'Fire alarm, siren';
+
+  @override
+  String get soundsLevelExamplesWarning => 'Car horn, breaking glass';
+
+  @override
+  String get soundsLevelExamplesInfo => 'Your name, phone, door';
+
+  @override
+  String get levelCritical => 'Critical';
+
+  @override
+  String get levelWarning => 'Important';
+
+  @override
+  String get levelInfo => 'Informational';
+
+  @override
+  String get hapticLong => 'Long';
+
+  @override
+  String get hapticLongHint => 'One long, strong buzz';
+
+  @override
+  String get hapticStrong => 'Triple';
+
+  @override
+  String get hapticStrongHint => 'Three strong buzzes in a row';
+
+  @override
+  String get hapticLight => 'Short';
+
+  @override
+  String get hapticLightHint => 'One short, light buzz';
+
+  @override
+  String vibrationUsedBy(String level) {
+    return 'Used for $level';
+  }
+
+  @override
+  String vibrationSwapped(String level, String haptic) {
+    return '$level now uses $haptic';
+  }
+
+  @override
+  String get vibrationCriticalRepeats =>
+      'For critical alerts the vibration repeats until you close the alert.';
 
   @override
   String get soundGlassBreak => 'Breaking glass';
@@ -664,7 +728,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDeleteBody =>
-      'Your account and all saved meetings, transcripts and summaries are deleted for good. This cannot be undone.';
+      'Your account, saved meetings, transcripts, summaries and their history are deleted for good. Kept for 12 months, with your email but no longer linked to the account: the alarms you raised, your answers to alarms and, if you are an admin, which employees\' meetings you read (for investigations into alarms, and so employees know who read their meetings). This cannot be undone.';
 
   @override
   String get accountDeleteConfirm => 'Delete for good';
@@ -910,4 +974,503 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get coachStop => 'Stop';
+
+  @override
+  String get locSoundsTitle => 'Sounds of this place';
+
+  @override
+  String get locSoundsHint =>
+      'Teach the sounds that matter here: the hall alarm, the office doorbell. Only the sound\'s fingerprint is kept, never the recording.';
+
+  @override
+  String get locSoundsEmpty => 'No sounds learned yet.';
+
+  @override
+  String get locSoundsLearn => 'Learn a sound';
+
+  @override
+  String get locSoundsFromCompany => 'From your company';
+
+  @override
+  String get locSoundsShare => 'Share with the company';
+
+  @override
+  String get locSoundsShared => 'The sound was sent to your company.';
+
+  @override
+  String get locSoundsDelete => 'Delete the sound';
+
+  @override
+  String get learnName => 'Name of the sound';
+
+  @override
+  String get learnNameHint => 'For example: Hall 2 alarm';
+
+  @override
+  String get learnLevel => 'How important it is';
+
+  @override
+  String get learnLevelCritical => 'Critical: red screen until you confirm';
+
+  @override
+  String get learnLevelWarning => 'Warning: yellow screen';
+
+  @override
+  String get learnLevelInfo => 'Info: a quiet notification';
+
+  @override
+  String get learnRecord => 'Record a sample (3 seconds)';
+
+  @override
+  String get learnRecording => 'Listening… play the sound now.';
+
+  @override
+  String learnSamples(int count) {
+    return 'Samples: $count of 3';
+  }
+
+  @override
+  String get learnNothingHeard =>
+      'I heard nothing. Bring the phone closer to the sound and try again.';
+
+  @override
+  String get learnSave => 'Save the sound';
+
+  @override
+  String get orgError => 'That didn\'t work. Check the internet and try again.';
+
+  @override
+  String get orgLastAdmin =>
+      'You are the company\'s only admin and others are still in it. Make someone else admin, then try again.';
+
+  @override
+  String get orgTitle => 'My company';
+
+  @override
+  String get orgNone => 'You are not part of a company.';
+
+  @override
+  String get orgInvitesTitle => 'Invitations';
+
+  @override
+  String orgInviteFrom(String org) {
+    return '$org invites you to join';
+  }
+
+  @override
+  String get orgAccept => 'Accept';
+
+  @override
+  String get orgCreateTitle => 'Create a company';
+
+  @override
+  String get orgCreateHint =>
+      'For employers: invite employees, share the sounds of your sites and see who is safe during an alarm.';
+
+  @override
+  String get orgName => 'Company name';
+
+  @override
+  String get orgCreate => 'Create';
+
+  @override
+  String get orgRoleAdmin => 'Admin';
+
+  @override
+  String get orgRoleEmployee => 'Employee';
+
+  @override
+  String get orgMyNeeds => 'My needs';
+
+  @override
+  String get orgMyNeedsHint =>
+      'Your company sees only what you tick here. No medical details.';
+
+  @override
+  String get needCaptions => 'Captions in meetings';
+
+  @override
+  String get needVisualAlerts => 'Visual alerts for sounds';
+
+  @override
+  String get needWatchAlerts => 'Alerts on my watch';
+
+  @override
+  String get needLargeText => 'Large text';
+
+  @override
+  String get orgSave => 'Save';
+
+  @override
+  String get orgSaved => 'Saved.';
+
+  @override
+  String get orgLeave => 'Leave the company';
+
+  @override
+  String orgLeaveTitle(String org) {
+    return 'Leave $org?';
+  }
+
+  @override
+  String get orgLeaveBody =>
+      'The company will no longer see your needs or your answers to alarms.';
+
+  @override
+  String get orgMembers => 'Employees';
+
+  @override
+  String get orgMakeAdmin => 'Make admin';
+
+  @override
+  String get orgMakeEmployee => 'Make employee';
+
+  @override
+  String get orgRemove => 'Remove from the company';
+
+  @override
+  String get orgNeedsNotShared => 'Needs not filled in';
+
+  @override
+  String get orgInvite => 'Invite an employee';
+
+  @override
+  String get orgEmail => 'Employee\'s email';
+
+  @override
+  String get orgDepartment => 'Department (optional)';
+
+  @override
+  String get orgSendInvite => 'Send the invitation';
+
+  @override
+  String get orgInviteSent =>
+      'Invitation sent. The employee sees it after signing in with this email.';
+
+  @override
+  String get orgPending => 'Pending invitations';
+
+  @override
+  String get orgCancelInvite => 'Cancel the invitation';
+
+  @override
+  String get orgAlarms => 'Alarms in progress';
+
+  @override
+  String get orgNoAlarms => 'No alarm right now.';
+
+  @override
+  String orgAlarmSafe(int count) {
+    return 'Safe: $count';
+  }
+
+  @override
+  String orgAlarmHelp(int count) {
+    return 'Need help: $count';
+  }
+
+  @override
+  String orgAlarmNoAnswer(int count) {
+    return 'No answer: $count';
+  }
+
+  @override
+  String get orgCloseAlarm => 'Close the alarm';
+
+  @override
+  String get orgRollCallNote =>
+      'This list does not replace the evacuation procedure.';
+
+  @override
+  String get alertSafe => 'I\'m safe';
+
+  @override
+  String get alertNeedHelp => 'I need help';
+
+  @override
+  String get alertAnswerSent => 'Your answer was sent to your company.';
+
+  @override
+  String get alarmFire => 'Fire';
+
+  @override
+  String get alarmEvacuation => 'Evacuation';
+
+  @override
+  String get alarmSiren => 'Siren or danger outside';
+
+  @override
+  String get alarmMachine => 'Machine hazard';
+
+  @override
+  String alarmFromColleague(String name) {
+    return '$name · raised by a colleague';
+  }
+
+  @override
+  String get emergencyTitle => 'Emergency alarm';
+
+  @override
+  String get emergencyHomeHint => 'When the app can\'t hear the danger';
+
+  @override
+  String get emergencyIntro => 'The alarm reaches colleagues within 500 m.';
+
+  @override
+  String get emergencyAccountable =>
+      'The alarm is saved with your account, the time, the place and your IP address.';
+
+  @override
+  String get alarmLevelCritical => 'Critical';
+
+  @override
+  String get alarmLevelWarning => 'Warning';
+
+  @override
+  String emergencyConfirm(String name) {
+    return 'Send the “$name” alarm?';
+  }
+
+  @override
+  String get emergencySend => 'Send alarm';
+
+  @override
+  String get emergencyCancelDialog => 'Cancel';
+
+  @override
+  String emergencySent(String time) {
+    return 'Alarm sent at $time';
+  }
+
+  @override
+  String get emergencyCancelAlarm => 'Cancel the alarm';
+
+  @override
+  String get emergencyCancelConfirm => 'Cancel the alarm for everyone?';
+
+  @override
+  String get emergencyCancelled => 'Alarm cancelled';
+
+  @override
+  String get emergencySending => 'Sending…';
+
+  @override
+  String get emergencyCancelling => 'Cancelling…';
+
+  @override
+  String get emergencyErrorSignedOut => 'Sign in to raise an alarm.';
+
+  @override
+  String get emergencyErrorLocation =>
+      'Allow location access in Settings so the alarm reaches people nearby.';
+
+  @override
+  String emergencyErrorTooMany(int minutes) {
+    return 'You\'ve raised 3 alarms in the last hour. Try again in $minutes min.';
+  }
+
+  @override
+  String get emergencyErrorOffline =>
+      'Can\'t reach the server. Check the internet and try again.';
+
+  @override
+  String get emergencyErrorFailed => 'The alarm didn\'t go out. Try again.';
+
+  @override
+  String get emergencyErrorCancelFailed =>
+      'The alarm is no longer active or couldn\'t be cancelled. Check and try again.';
+
+  @override
+  String get emergencyErrorNotConfigured =>
+      'The server has no accounts set up. Tell the administrator.';
+
+  @override
+  String get activityTitle => 'My history';
+
+  @override
+  String get activityHint => 'Your alarms, saved meetings and who read them';
+
+  @override
+  String get activityEmpty =>
+      'Nothing in your history yet. Your alarms, saved meetings and who read them show up here.';
+
+  @override
+  String get activityCompanyEmpty => 'Nothing in the company history yet.';
+
+  @override
+  String get activityLoadError =>
+      'Could not load the history. Check the internet connection and try again.';
+
+  @override
+  String get activityOlder => 'Older';
+
+  @override
+  String get activitySomeone => 'Someone';
+
+  @override
+  String get activityNoTitle => 'without a title';
+
+  @override
+  String activityQuoted(String title) {
+    return '“$title”';
+  }
+
+  @override
+  String get activityStatusSafe => 'I\'m safe';
+
+  @override
+  String get activityStatusNeedHelp => 'I need help';
+
+  @override
+  String activityPlace(String lat, String lon, String accuracy) {
+    return 'Place: $lat, $lon (±$accuracy m)';
+  }
+
+  @override
+  String activityAlarmRaisedMe(String kind) {
+    return 'You raised an alarm: $kind';
+  }
+
+  @override
+  String activityAlarmRaised(String who, String kind) {
+    return '$who raised an alarm: $kind';
+  }
+
+  @override
+  String activityAlarmCancelledMe(String kind) {
+    return 'You cancelled the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmCancelled(String who, String kind) {
+    return '$who cancelled the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmReportedMe(String kind) {
+    return 'You reported the alarm to the company: $kind';
+  }
+
+  @override
+  String activityAlarmReported(String who, String kind) {
+    return '$who reported the alarm to the company: $kind';
+  }
+
+  @override
+  String activityAlarmAnsweredMe(String status, String kind) {
+    return 'You answered “$status” to the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmAnswered(String who, String status, String kind) {
+    return '$who answered “$status” to the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmClosedMe(String kind) {
+    return 'You closed the alarm: $kind';
+  }
+
+  @override
+  String activityAlarmClosed(String who, String kind) {
+    return '$who closed the alarm: $kind';
+  }
+
+  @override
+  String activityMeetingStartedMe(String meeting) {
+    return 'You started the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingStarted(String who, String meeting) {
+    return '$who started the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingEndedMe(String meeting) {
+    return 'You ended the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingEnded(String who, String meeting) {
+    return '$who ended the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingDeletedMe(String meeting) {
+    return 'You deleted the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingDeleted(String who, String meeting) {
+    return '$who deleted the meeting $meeting';
+  }
+
+  @override
+  String activityMeetingReadMine(String who, String meeting) {
+    return '$who (admin) read your meeting $meeting';
+  }
+
+  @override
+  String activityMeetingReadByMe(String meeting, String owner) {
+    return 'You read the meeting $meeting, saved by $owner';
+  }
+
+  @override
+  String activityMeetingRead(String who, String meeting, String owner) {
+    return '$who (admin) read the meeting $meeting, saved by $owner';
+  }
+
+  @override
+  String get orgHistory => 'Company history';
+
+  @override
+  String get orgHistoryHint => 'Alarms and meetings in the company, and who';
+
+  @override
+  String get orgMeetings => 'Company meetings';
+
+  @override
+  String get orgMeetingsHint =>
+      'Meetings saved by employees while in the company';
+
+  @override
+  String get orgMeetingsNotice =>
+      'When you open a meeting, the employee sees in their history that you read it.';
+
+  @override
+  String get orgMeetingsEmpty =>
+      'No meetings saved for the company yet. Meetings employees save while in the company show up here.';
+
+  @override
+  String get orgMeetingsLoadError =>
+      'Could not load the company meetings. Check the internet connection and try again.';
+
+  @override
+  String orgMeetingReadNotice(String owner) {
+    return '$owner sees in their history that you read this meeting.';
+  }
+
+  @override
+  String get orgMeetingOwnerUnknown => 'The employee';
+
+  @override
+  String get orgMeetingLoadError =>
+      'Could not open the meeting. It may no longer belong to the company; try again.';
+
+  @override
+  String get orgInviteNotice =>
+      'If you accept, the company\'s admins can read the meetings you save while in the company, and your alarms show up in the company history.';
+
+  @override
+  String get orgEmployeeNotice =>
+      'Admins can read the meetings you save while in the company, and your alarms show up in the company history. When an admin reads one of your meetings, you see it in My history.';
+
+  @override
+  String meetingSavingForOrg(String org) {
+    return 'The meeting is being saved for $org. Its admins can read it.';
+  }
+
+  @override
+  String get meetingPickOrg => 'Choose the company';
 }

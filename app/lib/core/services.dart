@@ -8,9 +8,12 @@ import '../features/alerts/sound_alert.dart';
 import '../features/alerts/sound_listening.dart';
 import '../features/coach/alert_window.dart';
 import '../features/coach/coach_audio.dart';
+import '../features/emergency/position_source.dart';
 import '../settings/app_settings.dart';
 import 'account/account_service.dart';
 import 'history/meeting_store.dart';
+import 'org/activity_store.dart';
+import 'org/organizations.dart';
 import 'server_api.dart';
 import 'session_connection.dart';
 import 'speech/speech_service.dart';
@@ -33,6 +36,9 @@ class AppServices {
     this.channelFactory,
     this.account,
     this.meetings,
+    this.organizations,
+    this.activity,
+    this.positions = const GeolocatorPositionSource(),
   })  : tts = tts ?? createTtsService(),
         voice = voice ?? createVoiceEngine(),
         coachAudio = coachAudio ?? createCoachAudio(),
@@ -69,10 +75,19 @@ class AppServices {
   final AccountService? account;
   final MeetingStore? meetings;
 
+  /// The signed-in user's companies; null when accounts are off.
+  final Organizations? organizations;
+
+  /// Everyone's own history and, for admins, the company's history and meetings; null when accounts are off.
+  final ActivityStore? activity;
+
+  /// Where this phone is, for colleague alarms. Constructing the default touches no plugin.
+  final PositionSource positions;
+
   /// The meeting store, only while someone is signed in.
   MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
 
-  ServerApi api(Uri server) => ServerApi(server, client: httpClient);
+  ServerApi api(Uri server) => ServerApi(server, client: httpClient, accessToken: () => account?.accessToken);
 }
 
 class ServicesScope extends InheritedWidget {

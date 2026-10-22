@@ -8,6 +8,9 @@ import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/account/account_service.dart';
 import 'package:pjr_accesibilitate/core/history/meeting_store.dart';
+import 'package:pjr_accesibilitate/core/org/activity_store.dart';
+import 'package:pjr_accesibilitate/core/org/org_store.dart';
+import 'package:pjr_accesibilitate/core/org/organizations.dart';
 import 'package:pjr_accesibilitate/core/protocol.dart';
 import 'package:pjr_accesibilitate/core/server_api.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
@@ -16,6 +19,8 @@ import 'package:pjr_accesibilitate/core/tts/tts_service.dart';
 import 'package:pjr_accesibilitate/core/voice/voice_engine.dart';
 import 'package:pjr_accesibilitate/core/voice/voice_head.dart';
 import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
+import 'package:pjr_accesibilitate/features/alerts/alert_signals.dart';
+import 'package:pjr_accesibilitate/features/alerts/location_sounds.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/features/coach/alert_window.dart';
 import 'package:pjr_accesibilitate/features/coach/coach_audio.dart';
@@ -43,13 +48,21 @@ class FakeChannel implements WebSocketChannel {
   final FakeSink sink = FakeSink();
   Uri? uri;
 
+  int? _closeCode;
+
   void receive(Map<String, Object> message) => _incoming.add(jsonEncode(message));
+
+  /// The server closes the socket with [code].
+  void closeWith(int code) {
+    _closeCode = code;
+    _incoming.close();
+  }
 
   @override
   Stream get stream => _incoming.stream;
 
   @override
-  int? get closeCode => null;
+  int? get closeCode => _closeCode;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -234,8 +247,11 @@ class FakeSounds implements SoundDetector {
   int starts = 0;
   int stops = 0;
 
+  /// False = the detector model is missing on this device.
+  bool available = true;
+
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => available;
 
   @override
   Stream<SoundAlert> get alerts => controller.stream;
@@ -260,6 +276,24 @@ class FakeSounds implements SoundDetector {
   void dispose() {}
 }
 
+/// Alert signals that only record what was asked of them.
+class FakeAlertSignals implements AlertSignals {
+  final vibrated = <Haptic>[];
+  int clears = 0;
+
+  @override
+  Future<void> requestPermission() async {}
+
+  @override
+  void vibrate(Haptic haptic) => vibrated.add(haptic);
+
+  @override
+  void notify(SoundAlert alert, String title, String body) {}
+
+  @override
+  void clear() => clears++;
+}
+
 class FakeAccountService extends AccountService {
   FakeAccountService({AccountUser? user}) : _user = user;
 
@@ -267,6 +301,9 @@ class FakeAccountService extends AccountService {
   String expectedCode = '123456';
   final sentCodes = <String>[];
   bool deleted = false;
+
+  /// Makes deleteAccount fail with this error, as the database would.
+  Object? deleteError;
 
   @override
   AccountUser? get user => _user;
@@ -299,6 +336,7 @@ class FakeAccountService extends AccountService {
 
   @override
   Future<void> deleteAccount() async {
+    if (deleteError != null) throw deleteError!;
     deleted = true;
     await signOut();
   }
@@ -310,6 +348,12 @@ class FakeMeetingStore implements MeetingStore {
   final lines = <String, List<SavedLine>>{};
   final summaries = <String, MeetingSummary>{};
   final finished = <String>{};
+
+  /// The company each meeting was saved for (null: only the owner's).
+  final orgOf = <String, String?>{};
+
+  /// Companies the user has left meanwhile: saving for them fails, as in the database.
+  final goneOrgs = <String>{};
   int saveCalls = 0;
 
   /// Makes the next saves fail, like a dropped connection.
@@ -327,9 +371,11 @@ class FakeMeetingStore implements MeetingStore {
   }
 
   @override
-  Future<String> createMeeting({String? sessionCode, required String lang, String? title}) async {
+  Future<String> createMeeting({String? sessionCode, required String lang, String? title, String? orgId}) async {
     if (failSaves) throw StateError('offline');
+    if (goneOrgs.contains(orgId)) throw const CompanyGoneException();
     final id = 'm${meetings.length + 1}';
+    orgOf[id] = orgId;
     meetings[id] = SavedMeeting(id: id, title: title, startedAt: DateTime(2026, 10, 22));
     lines[id] = [];
     return id;
@@ -390,7 +436,8 @@ class FakeMeetingStore implements MeetingStore {
 }
 
 class TestHarness {
-  TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings) {
+  TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings,
+      this.locationSounds, this.orgStore, this.organizations, this.activity) {
     coachAudio.sharedWith = voice;
   }
 
@@ -401,10 +448,23 @@ class TestHarness {
   final coachAudio = FakeCoachAudio();
   final alertWindow = FakeAlertWindow();
   final FakeSounds sounds;
+  final signals = FakeAlertSignals();
   final FakeChannel channel;
+
+  /// The colleague-alarm feed's latest socket, opened while someone is signed in
+  /// (a new one each time the feed connects, e.g. after the server address changes).
+  FakeChannel alarmChannel = FakeChannel();
   final AlertController alerts;
   final FakeAccountService? account;
   final FakeMeetingStore? meetings;
+  final LocationSoundStore locationSounds;
+
+  /// With [create]'s accounts: the companies of whoever is signed in.
+  final FakeOrgStore? orgStore;
+  final Organizations? organizations;
+
+  /// With [create]'s accounts: the activity log and the company meetings.
+  final FakeActivityStore? activity;
 
   /// HTTP calls to the server (AI endpoints); set before [app] to answer them.
   http.Client? httpClient;
@@ -415,14 +475,24 @@ class TestHarness {
     bool accounts = false,
   }) async {
     SharedPreferences.setMockInitialValues(prefs);
+    final shared = await SharedPreferences.getInstance();
+    final account = accounts ? FakeAccountService() : null;
+    final locationSounds = LocationSoundStore(shared);
+    final orgStore = account != null ? FakeOrgStore(account) : null;
     return TestHarness._(
-      AppSettings(await SharedPreferences.getInstance()),
+      AppSettings(shared),
       FakeSpeech(),
       FakeSounds(),
       FakeChannel(),
       AlertController(haptic: (_) {}),
-      accounts ? FakeAccountService() : null,
+      account,
       accounts ? FakeMeetingStore() : null,
+      locationSounds,
+      orgStore,
+      orgStore != null
+          ? Organizations(store: orgStore, account: account!, sounds: locationSounds, model: SoundModel.tflite)
+          : null,
+      accounts ? FakeActivityStore() : null,
     );
   }
 
@@ -436,10 +506,238 @@ class TestHarness {
           voice: voice,
           coachAudio: coachAudio,
           alertWindow: alertWindow,
+          alertSignals: signals,
           httpClient: httpClient,
-          channelFactory: (uri) => channel..uri = uri,
+          channelFactory: (uri) => (uri.path == '/ws/alarms' ? alarmChannel = FakeChannel() : channel)..uri = uri,
           account: account,
           meetings: meetings,
+          locationSounds: locationSounds,
+          organizations: organizations,
+          activity: activity,
         ),
       );
+}
+
+
+/// Organizations in memory, seen by whoever [account] says is signed in.
+/// Enforces the few rules the screens rely on (admins only, invited email only).
+class FakeOrgStore implements OrgStore {
+  FakeOrgStore(this.account);
+
+  final FakeAccountService account;
+  final orgNames = <String, String>{};
+  final people = <String, Map<String, OrgMember>>{};
+  final invites = <String, ({String orgId, String email, OrgRole role, String? department})>{};
+  final needs = <String, MemberNeeds>{};
+  final sounds = <String, List<(LocationSound, SoundModel)>>{};
+  final alarms = <String, ({String orgId, String kind, DateTime startedAt, bool open})>{};
+  final answers = <String, Map<String, AlarmAnswer>>{};
+  int _ids = 0;
+
+  String get _me => account.user!.id;
+  String _id(String prefix) => '$prefix${++_ids}';
+  bool _isAdmin(String orgId) => people[orgId]?[_me]?.role == OrgRole.admin;
+  void _requireAdmin(String orgId) {
+    if (!_isAdmin(orgId)) throw StateError('admins only');
+  }
+
+  /// Puts [userId] in an organization directly (test setup).
+  void addMember(String orgId, String userId, {OrgRole role = OrgRole.employee, String? email, MemberNeeds? needs}) {
+    people.putIfAbsent(orgId, () => {})[userId] = OrgMember(userId: userId, role: role, email: email);
+    if (needs != null) this.needs['$orgId/$userId'] = needs;
+  }
+
+  String addOrg(String name) {
+    final id = _id('org');
+    orgNames[id] = name;
+    return id;
+  }
+
+  @override
+  Future<List<OrgMembership>> myOrganizations() async => [
+        for (final MapEntry(key: orgId, value: people) in people.entries)
+          if (account.user != null && people.containsKey(_me))
+            OrgMembership(orgId: orgId, orgName: orgNames[orgId]!, role: people[_me]!.role),
+      ];
+
+  @override
+  Future<List<OrgInvite>> myInvites() async => [
+        for (final MapEntry(key: id, value: i) in invites.entries)
+          if (i.email == account.user?.email) OrgInvite(id: id, orgId: i.orgId, orgName: orgNames[i.orgId]!, role: i.role),
+      ];
+
+  @override
+  Future<String> createOrganization(String name) async {
+    final id = addOrg(name);
+    addMember(id, _me, role: OrgRole.admin, email: account.user!.email);
+    return id;
+  }
+
+  @override
+  Future<String> acceptInvite(String inviteId) async {
+    final invite = invites[inviteId];
+    if (invite == null || invite.email != account.user?.email) throw StateError('invitation not found');
+    invites.remove(inviteId);
+    people.putIfAbsent(invite.orgId, () => {})[_me] =
+        OrgMember(userId: _me, role: invite.role, email: invite.email, department: invite.department);
+    return invite.orgId;
+  }
+
+  @override
+  Future<void> leave(String orgId, String userId) => removeMember(orgId, userId);
+
+  @override
+  Future<MemberNeeds?> loadNeeds(String orgId, String userId) async => needs['$orgId/$userId'];
+
+  @override
+  Future<void> saveNeeds(String orgId, String userId, MemberNeeds value) async {
+    if (userId != _me) throw StateError('only the employee writes needs');
+    needs['$orgId/$userId'] = value;
+  }
+
+  @override
+  Future<List<OrgMember>> members(String orgId) async {
+    _requireAdmin(orgId);
+    return [
+      for (final m in people[orgId]!.values)
+        OrgMember(
+          userId: m.userId,
+          role: m.role,
+          email: m.email,
+          displayName: m.displayName,
+          department: m.department,
+          needs: needs['$orgId/${m.userId}'],
+        ),
+    ];
+  }
+
+  @override
+  Future<void> invite(String orgId, String email, {OrgRole role = OrgRole.employee, String? department}) async {
+    _requireAdmin(orgId);
+    invites[_id('inv')] = (orgId: orgId, email: email.trim().toLowerCase(), role: role, department: department);
+  }
+
+  @override
+  Future<List<PendingInvite>> pendingInvites(String orgId) async {
+    _requireAdmin(orgId);
+    return [
+      for (final MapEntry(key: id, value: i) in invites.entries)
+        if (i.orgId == orgId) PendingInvite(id: id, email: i.email, role: i.role, department: i.department),
+    ];
+  }
+
+  @override
+  Future<void> cancelInvite(String inviteId) async => invites.remove(inviteId);
+
+  @override
+  Future<void> setRole(String orgId, String userId, OrgRole role) async {
+    _requireAdmin(orgId);
+    final m = people[orgId]![userId]!;
+    people[orgId]![userId] = OrgMember(userId: userId, role: role, email: m.email, department: m.department);
+  }
+
+  @override
+  Future<void> removeMember(String orgId, String userId) async {
+    if (userId != _me) _requireAdmin(orgId);
+    final others = people[orgId]!.values.where((m) => m.userId != userId);
+    if (people[orgId]![userId]?.role == OrgRole.admin &&
+        others.isNotEmpty &&
+        !others.any((m) => m.role == OrgRole.admin)) {
+      throw const LastAdminException();
+    }
+    people[orgId]!.remove(userId);
+    needs.remove('$orgId/$userId');
+    // The last person leaving takes the company with them.
+    if (people[orgId]!.isEmpty) people.remove(orgId);
+  }
+
+  @override
+  Future<List<LocationSound>> sharedSounds(String orgId, SoundModel model) async => [
+        for (final (sound, m) in sounds[orgId] ?? const <(LocationSound, SoundModel)>[])
+          if (m == model) sound,
+      ];
+
+  @override
+  Future<void> shareSound(String orgId, LocationSound sound, SoundModel model) async {
+    _requireAdmin(orgId);
+    final shared = LocationSound(id: 'org-${_id('s')}', label: sound.label, level: sound.level, print: sound.print);
+    sounds.putIfAbsent(orgId, () => []).add((shared, model));
+  }
+
+  @override
+  Future<String> reportAlarm(String orgId, SoundKind kind) async {
+    for (final MapEntry(key: id, value: a) in alarms.entries) {
+      if (a.orgId == orgId && a.open) return id;
+    }
+    final id = _id('alarm');
+    alarms[id] = (orgId: orgId, kind: kind.name, startedAt: DateTime(2026, 10, 22, 15), open: true);
+    return id;
+  }
+
+  @override
+  Future<void> answerAlarm(String orgId, String eventId, String userId, AlarmAnswerStatus status) async {
+    answers.putIfAbsent(eventId, () => {})[userId] = AlarmAnswer(userId: userId, status: status, at: DateTime(2026));
+  }
+
+  @override
+  Future<List<AlarmEvent>> openAlarms(String orgId) async => [
+        for (final MapEntry(key: id, value: a) in alarms.entries)
+          if (a.orgId == orgId && a.open) AlarmEvent(id: id, kind: a.kind, startedAt: a.startedAt),
+      ];
+
+  @override
+  Future<List<AlarmAnswer>> alarmAnswers(String eventId) async => [...?answers[eventId]?.values];
+
+  @override
+  Future<void> closeAlarm(String eventId) async {
+    final a = alarms[eventId]!;
+    alarms[eventId] = (orgId: a.orgId, kind: a.kind, startedAt: a.startedAt, open: false);
+  }
+}
+
+/// The activity log and company meetings in memory. [opened] lists the company
+/// meetings read, in order: the database logs each reading in the employee's history.
+class FakeActivityStore implements ActivityStore {
+  final mine = <ActivityEntry>[];
+  final company = <String, List<ActivityEntry>>{};
+  final meetings = <String, List<CompanyMeeting>>{};
+  final contents = <String, CompanyMeetingContent>{};
+  final opened = <String>[];
+  final pageRequests = <int?>[];
+
+  /// Rows sent as events this app version does not know: counted in the page, not shown.
+  final unknownIds = <int>{};
+
+  ActivityPage _page(List<ActivityEntry> rows, int? beforeId, int maxRows) {
+    final page = (List.of(rows)..sort((a, b) => b.id.compareTo(a.id)))
+        .where((e) => beforeId == null || e.id < beforeId)
+        .take(maxRows)
+        .toList();
+    return ActivityPage(
+      entries: [for (final e in page) if (!unknownIds.contains(e.id)) e],
+      rawCount: page.length,
+      lastId: page.isEmpty ? null : page.last.id,
+    );
+  }
+
+  @override
+  Future<ActivityPage> myActivity({int? beforeId, int maxRows = 50}) async {
+    pageRequests.add(beforeId);
+    return _page(mine, beforeId, maxRows);
+  }
+
+  @override
+  Future<ActivityPage> companyActivity(String orgId, {int? beforeId, int maxRows = 50}) async =>
+      _page(company[orgId] ?? const [], beforeId, maxRows);
+
+  @override
+  Future<List<CompanyMeeting>> companyMeetings(String orgId) async => [...?meetings[orgId]];
+
+  @override
+  Future<CompanyMeetingContent> companyMeeting(String meetingId) async {
+    final content = contents[meetingId];
+    if (content == null) throw StateError('not a meeting of your company');
+    opened.add(meetingId);
+    return content;
+  }
 }

@@ -9,6 +9,7 @@ import '../../core/echo_filter.dart';
 import '../../core/history/meeting_recorder.dart';
 import '../../core/ids.dart';
 import '../../core/join_link.dart';
+import '../../core/org/org_store.dart';
 import '../../core/protocol.dart';
 import '../../core/server_api.dart';
 import '../../core/services.dart';
@@ -55,6 +56,9 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
   bool _listening = false;
   bool _started = false;
 
+  /// The company picked in the banner; null: the first one.
+  String? _pickedOrg;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -86,8 +90,18 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
         transcript: _transcript,
         lang: SettingsScope.of(context).speechLocaleId,
         sessionCode: widget.link.code,
+        company: () => _company(services.organizations?.memberships ?? const [])?.orgId,
+        refreshCompanies: services.organizations?.refresh,
       )..start();
     }
+  }
+
+  /// The company the meeting will be saved for: the one picked, else the first.
+  OrgMembership? _company(List<OrgMembership> memberships) {
+    for (final m in memberships) {
+      if (m.orgId == _pickedOrg) return m;
+    }
+    return memberships.firstOrNull;
   }
 
   @override
@@ -228,6 +242,60 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
       ..showSnackBar(SnackBar(content: Text(text)));
   }
 
+  /// Where the transcript goes. For a company member: that company, whose admins can read it,
+  /// with a choice of company (several) until the meeting is first saved.
+  Widget _savingBanner(BuildContext context, AppLocalizations l10n, List<OrgMembership> memberships) {
+    final recorder = _recorder!;
+    final saved = recorder.meetingId != null;
+    final company = saved
+        ? memberships.where((m) => m.orgId == recorder.orgId).firstOrNull
+        : _company(memberships);
+    if (company == null) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+        child: Row(
+          children: [
+            const Icon(Icons.cloud_upload_outlined, size: 20),
+            const SizedBox(width: 8),
+            Expanded(child: Text(l10n.meetingSaving, style: Theme.of(context).textTheme.bodySmall)),
+          ],
+        ),
+      );
+    }
+    final theme = Theme.of(context);
+    final onColor = theme.colorScheme.onSecondaryContainer;
+    return Container(
+      width: double.infinity,
+      color: theme.colorScheme.secondaryContainer,
+      padding: const EdgeInsets.fromLTRB(16, 4, 4, 4),
+      child: Row(
+        children: [
+          ExcludeSemantics(child: Icon(Icons.business, size: 20, color: onColor)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                l10n.meetingSavingForOrg(company.orgName),
+                style: theme.textTheme.bodyMedium?.copyWith(color: onColor),
+              ),
+            ),
+          ),
+          if (!saved && memberships.length > 1)
+            PopupMenuButton<String>(
+              tooltip: l10n.meetingPickOrg,
+              icon: Icon(Icons.swap_horiz, color: onColor),
+              initialValue: company.orgId,
+              onSelected: (orgId) => setState(() => _pickedOrg = orgId),
+              itemBuilder: (_) => [
+                for (final m in memberships) PopupMenuItem(value: m.orgId, child: Text(m.orgName)),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -281,15 +349,10 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
                   : const SizedBox.shrink(),
             ),
             if (_recorder != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
-                child: Row(
-                  children: [
-                    const Icon(Icons.cloud_upload_outlined, size: 20),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(l10n.meetingSaving, style: Theme.of(context).textTheme.bodySmall)),
-                  ],
-                ),
+              // The transcript changes often, so the banner soon shows the company actually saved for.
+              ListenableBuilder(
+                listenable: Listenable.merge([services.organizations, _transcript]),
+                builder: (context, _) => _savingBanner(context, l10n, services.organizations?.memberships ?? const []),
               ),
             Expanded(
               child: ListenableBuilder(
