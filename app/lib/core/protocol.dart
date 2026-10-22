@@ -2,7 +2,10 @@
 
 enum Speaker { coordinator, public }
 
-enum NotifyKind { question, repeat, slower, custom }
+enum NotifyKind { question, repeat, slower, custom, hand }
+
+/// Who read the participant's question out loud: the laptop's synthetic voice or the speaker.
+enum ReadBy { voice, speaker }
 
 class Caption {
   const Caption({
@@ -59,6 +62,16 @@ class Notify {
       );
 }
 
+class ReadMessage {
+  const ReadMessage({required this.id, required this.by});
+
+  /// Id of the participant's `question` notify.
+  final String id;
+  final ReadBy by;
+
+  Map<String, Object> toJson() => {'type': 'read', 'id': id, 'by': by.name};
+}
+
 /// Everything a device can receive from the server.
 sealed class ServerEvent {
   const ServerEvent();
@@ -75,6 +88,7 @@ sealed class ServerEvent {
         'caption' => CaptionReceived(Caption.fromJson(json)),
         'notify' => NotifyReceived(Notify.fromJson(json)),
         'seen' => SeenReceived(json['id'] as String),
+        'read' => ReadReceived(json['id'] as String, ReadBy.values.byName(json['by'] as String)),
         'error' => ServerError(json['message'] as String),
         _ => null,
       };
@@ -109,6 +123,12 @@ class NotifyReceived extends ServerEvent {
 class SeenReceived extends ServerEvent {
   const SeenReceived(this.id);
   final String id;
+}
+
+class ReadReceived extends ServerEvent {
+  const ReadReceived(this.id, this.by);
+  final String id;
+  final ReadBy by;
 }
 
 class ServerError extends ServerEvent {

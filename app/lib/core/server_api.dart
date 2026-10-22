@@ -31,6 +31,16 @@ class MeetingAnswer {
   final List<int> citations;
 }
 
+/// Whether the speaker answered the participant's question, from the lines said since it was sent.
+class AnswerCheck {
+  const AnswerCheck({required this.answered, required this.answer, required this.lineIds});
+  final bool answered;
+  final String answer;
+
+  /// Lines the answer comes from, numbered as in [Transcript.finalLines].
+  final List<int> lineIds;
+}
+
 /// HTTP calls to server/ (see the REST table in the design doc).
 class ServerApi {
   ServerApi(this.baseUrl, {http.Client? client}) : _client = client ?? http.Client();
@@ -66,6 +76,24 @@ class ServerApi {
       'lines': [for (final l in lines) l.toJson()],
     });
     return MeetingAnswer(answer: json['answer'] as String, citations: List<int>.from(json['citations'] as List));
+  }
+
+  Future<AnswerCheck> checkAnswer(String lang, String question, List<TranscriptLine> lines) async {
+    final json = await _post('/api/ai/answer-check', {
+      'lang': lang,
+      'question': question,
+      'lines': [for (final l in lines) l.toJson()],
+    });
+    return AnswerCheck(
+      answered: json['answered'] as bool,
+      answer: json['answer'] as String,
+      lineIds: List<int>.from(json['line_ids'] as List),
+    );
+  }
+
+  Future<List<int>> findQuestions(String lang, List<TranscriptLine> lines) async {
+    final json = await _post('/api/ai/questions', {'lang': lang, 'lines': [for (final l in lines) l.toJson()]});
+    return List<int>.from(json['question_ids'] as List);
   }
 
   Future<Map<String, dynamic>> _post(String path, Map<String, Object> body) async {
