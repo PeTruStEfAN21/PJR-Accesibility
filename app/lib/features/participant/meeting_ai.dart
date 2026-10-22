@@ -8,6 +8,13 @@ import '../../widgets/caption_tile.dart';
 
 String _lang(BuildContext context) => Localizations.localeOf(context).languageCode;
 
+/// What the user reads when an AI call fails: the server's hourly limit and a missing AI key are told apart.
+String aiErrorMessage(AppLocalizations l10n, Object? error) => switch (error) {
+      ApiException(statusCode: 429) => l10n.aiErrorLimit,
+      ApiException(statusCode: 503) => l10n.aiErrorOff,
+      _ => l10n.aiError,
+    };
+
 void _showEmpty(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).transcriptEmpty)));
 }
@@ -42,7 +49,7 @@ void showSummarySheet(
         builder: (context, scroll) => FutureBuilder<MeetingSummary>(
           future: future,
           builder: (context, snapshot) {
-            if (snapshot.hasError) return _AiError(message: l10n.aiError);
+            if (snapshot.hasError) return _AiError(message: aiErrorMessage(l10n, snapshot.error));
             if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
             final summary = snapshot.data!;
             return ListView(
@@ -92,6 +99,7 @@ class _Exchange {
   _Exchange(this.question);
   final String question;
   MeetingAnswer? answer;
+  Object? error;
   bool failed = false;
 }
 
@@ -117,7 +125,8 @@ class _AskScreenState extends State<_AskScreen> {
     });
     try {
       exchange.answer = await widget.api.ask(_lang(context), widget.transcript.finalLines(), text);
-    } on Object {
+    } on Object catch (error) {
+      exchange.error = error;
       exchange.failed = true;
     }
     if (mounted) setState(() => _busy = false);
@@ -146,7 +155,7 @@ class _AskScreenState extends State<_AskScreen> {
                     ),
                   ),
                   if (exchange.failed)
-                    _AiError(message: l10n.aiError)
+                    _AiError(message: aiErrorMessage(l10n, exchange.error))
                   else if (exchange.answer == null)
                     Semantics(liveRegion: true, child: Padding(padding: const EdgeInsets.all(12), child: Text(l10n.askThinking)))
                   else
