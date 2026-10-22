@@ -27,7 +27,12 @@ Future<void> openCompany(WidgetTester tester, TestHarness h) async {
 }
 
 Future<void> openSounds(WidgetTester tester) async {
-  await tester.longPress(find.text('Sunete'));
+  // A tall view, so the Sounds card is on screen without scrolling.
+  tester.view.physicalSize = const Size(390, 1600);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Sunete'));
   await tester.pumpAndSettle();
 }
 

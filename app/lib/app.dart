@@ -28,7 +28,7 @@ class EchoApp extends StatefulWidget {
 }
 
 class _EchoAppState extends State<EchoApp> {
-  late final AlertController _alerts = widget.alerts ?? AlertController(haptic: widget.services.alertSignals.vibrate);
+  late final AlertController _alerts = widget.alerts ?? AlertController(haptic: widget.services.alertSignals.vibrate, hapticFor: widget.settings.hapticFor);
   StreamSubscription<SoundAlert>? _sounds;
   late final AppLifecycleListener _lifecycle;
   late final AlarmPresenter _alarmPresenter = AlarmPresenter(
