@@ -161,6 +161,17 @@ void main() {
       expect(shown, isEmpty);
     });
 
+    test('an own alarm marked while locating is not shown', () async {
+      positions.slow = Completer();
+      feed.start();
+      channels.single.receive(alarmMessage('a1'));
+      await pumpEventQueue();
+      feed.markOwn('a1');
+      positions.slow!.complete(here);
+      await pumpEventQueue();
+      expect(shown, isEmpty);
+    });
+
     test('without a token it does not connect', () async {
       account.token = null;
       feed.start();
