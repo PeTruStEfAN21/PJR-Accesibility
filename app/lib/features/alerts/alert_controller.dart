@@ -7,6 +7,22 @@ import 'sound_alert.dart';
 
 enum Haptic { long, strong, light }
 
+/// How long each vibration pattern lasts.
+extension HapticTiming on Haptic {
+  Duration get duration => switch (this) {
+        Haptic.long => const Duration(milliseconds: 450),
+        Haptic.strong => const Duration(milliseconds: 1500),
+        Haptic.light => const Duration(milliseconds: 150),
+      };
+}
+
+/// The vibration each alert level uses until the user picks another.
+const defaultAlertHaptics = <AlertLevel, Haptic>{
+  AlertLevel.critical: Haptic.long,
+  AlertLevel.warning: Haptic.strong,
+  AlertLevel.info: Haptic.light,
+};
+
 /// Decides which alert is on screen and drives the vibration pattern.
 ///
 /// A critical alert is never replaced or auto-dismissed: the user has to
