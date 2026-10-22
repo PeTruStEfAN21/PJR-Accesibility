@@ -6,7 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.auth import Identity, TokenVerifier
 from app.main import create_app
-from tests.fakes import FakeAnthropic
+from tests.fakes import FakeAnthropic, text_response
 from tests.test_accounts import SECRET
 
 
@@ -157,3 +157,136 @@ def test_public_message_has_no_identity():
     keys = set(make_alarm().public())
     assert keys == {"type", "id", "kind", "at", "lat", "lon", "accuracy_m"}
     assert not keys & {"user_id", "email", "ip", "owner"}
+
+
+# --- alarm routes ---
+
+from starlette.websockets import WebSocketDisconnect  # noqa: E402
+
+FIRE = {"kind": "fire", "lat": 44.43, "lon": 26.10, "accuracy_m": 12}
+
+
+class FakeRecorder:
+    def __init__(self) -> None:
+        self.entries: list[dict] = []
+
+    async def record(self, entry: dict) -> None:
+        self.entries.append(entry)
+
+
+def bearer(sub: str = "user-1", email: str | None = "ana@firma.ro") -> dict:
+    return {"Authorization": f"Bearer {token(sub, email)}"}
+
+
+def alarm_app(**kwargs):
+    recorder = FakeRecorder()
+    app = create_app(ai_client=FakeAnthropic(text_response("ok")), verifier=TokenVerifier(secret=SECRET), recorder=recorder, **kwargs)
+    return TestClient(app), recorder
+
+
+def listen(client: TestClient, sub: str = "user-1"):
+    ws = client.websocket_connect("/ws/alarms")
+    socket = ws.__enter__()
+    socket.send_json({"type": "auth", "token": token(sub)})
+    assert socket.receive_json() == {"type": "auth_ok"}
+    return ws, socket
+
+
+def test_alarm_reaches_a_listening_phone():
+    client, _ = alarm_app()
+    with client:
+        ws, socket = listen(client)
+        try:
+            response = client.post("/api/alarms", json=FIRE, headers=bearer())
+            assert response.status_code == 201
+            message = socket.receive_json()
+            assert message["type"] == "alarm" and message["kind"] == "fire"
+            assert message["id"] == response.json()["id"]
+            assert not {"owner", "user_id", "email", "ip"} & set(message)
+        finally:
+            ws.__exit__(None, None, None)
+
+
+def test_alarm_is_recorded_with_the_account():
+    client, recorder = alarm_app()
+    with client:
+        client.post("/api/alarms", json=FIRE, headers=bearer())
+    entry = recorder.entries[0]
+    assert entry["event"] == "raised"
+    assert entry["user_id"] == "user-1" and entry["email"] == "ana@firma.ro"
+    assert entry["ip"] and entry["kind"] == "fire"
+
+
+def test_unknown_kind_is_rejected():
+    client, _ = alarm_app()
+    with client:
+        assert client.post("/api/alarms", json={**FIRE, "kind": "flood"}, headers=bearer()).status_code == 422
+        assert client.post("/api/alarms", json={**FIRE, "lat": 91}, headers=bearer()).status_code == 422
+
+
+def test_only_the_author_can_cancel():
+    client, recorder = alarm_app()
+    with client:
+        ws, socket = listen(client)
+        try:
+            alarm_id = client.post("/api/alarms", json=FIRE, headers=bearer()).json()["id"]
+            socket.receive_json()
+            assert client.post(f"/api/alarms/{alarm_id}/cancel", headers=bearer("user-2")).status_code == 403
+            assert client.post("/api/alarms/nope/cancel", headers=bearer()).status_code == 404
+            response = client.post(f"/api/alarms/{alarm_id}/cancel", headers=bearer())
+            assert response.status_code == 200 and response.json() == {"id": alarm_id}
+            assert socket.receive_json() == {"type": "alarm_cancelled", "id": alarm_id}
+        finally:
+            ws.__exit__(None, None, None)
+    entry = recorder.entries[-1]
+    assert entry["event"] == "cancelled" and entry["id"] == alarm_id
+    assert entry["user_id"] == "user-1" and entry["kind"] == "fire"
+
+
+def test_new_listener_gets_active_alarms():
+    client, _ = alarm_app()
+    with client:
+        alarm_id = client.post("/api/alarms", json=FIRE, headers=bearer()).json()["id"]
+        ws, socket = listen(client, "user-2")
+        try:
+            message = socket.receive_json()
+            assert message["type"] == "alarm" and message["id"] == alarm_id
+        finally:
+            ws.__exit__(None, None, None)
+
+
+def test_listening_needs_an_account():
+    client, _ = alarm_app()
+    with client, client.websocket_connect("/ws/alarms") as socket:
+        socket.send_json({"type": "auth", "token": "garbage"})
+        with pytest.raises(WebSocketDisconnect) as closed:
+            socket.receive_json()
+        assert closed.value.code == 4401
+
+
+def test_listening_needs_accounts_configured():
+    client = TestClient(create_app(ai_client=None, verifier=None))
+    with client, client.websocket_connect("/ws/alarms") as socket:
+        socket.send_json({"type": "auth", "token": "x"})
+        with pytest.raises(WebSocketDisconnect) as closed:
+            socket.receive_json()
+        assert closed.value.code == 4503
+
+
+def test_fourth_alarm_in_an_hour_is_refused():
+    client, _ = alarm_app()
+    with client:
+        for _ in range(3):
+            assert client.post("/api/alarms", json=FIRE, headers=bearer()).status_code == 201
+        refused = client.post("/api/alarms", json=FIRE, headers=bearer())
+        assert refused.status_code == 429 and "retry-after" in refused.headers
+        ok = client.post("/api/ai/simplify", json={"lang": "ro", "text": "salut"}, headers=bearer())
+        assert ok.status_code != 429
+
+
+def test_meeting_sockets_still_work():
+    client, _ = alarm_app()
+    with client:
+        code = client.post("/api/sessions").json()["code"]
+        with client.websocket_connect(f"/ws/{code}?role=presenter") as socket:
+            assert socket.receive_json()["type"] == "joined"
