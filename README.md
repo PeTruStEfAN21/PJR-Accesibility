@@ -28,3 +28,5 @@ Dacă nu apare promptul, instalează manual:
 ## Aplicația de test: Ritm
 
 Deschide `index.html` în browser. Testele logicii se rulează cu `node store.test.js`.
+
+> Sfat: aplicația poate fi folosită complet doar din tastatură (Tab, Enter, Space).
