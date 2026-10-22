@@ -82,6 +82,17 @@ Modelul învață din parlament, dar pragul trebuie potrivit pe laptopul și sal
 
 Fără meetinguri ținute deoparte, cifrele vin din perechi VoxPopuli și raportul spune asta. Un meeting sub țintă e marcat „sub criteriu”.
 
+## Ritmul vorbirii (antrenorul de claritate)
+
+Alerta „Vorbești prea repede pentru subtitrare” din meetingurile online numără silabele direct din sunet, fără transcriere. Analizorul din aplicație (`app/lib/features/coach/voice_activity.dart`) e portat linie cu linie în `echo_voice/speech_rate.py`; testul de paritate cere același număr de silabe pe același semnal în ambele.
+
+```
+.venv/Scripts/python -m echo_voice.speech_rate                          # pragul pentru 170 de cuvinte pe minut
+.venv/Scripts/python -m echo_voice.speech_rate --words-per-minute 150   # un prag mai strict
+```
+
+Scrie `reports/<dată>-ritm.md`: pragul în silabe detectate pe secundă (se pune în `CoachThresholds.syllablesPerSecond`) și cum se descurcă pe ferestre de 20 s de vorbire a aceluiași om, adică exact ce judecă aplicația. Detectorul se saturează la vorbire foarte rapidă, așa că pragul e ales să dea puține alerte greșite.
+
 ## Teste
 
 ```

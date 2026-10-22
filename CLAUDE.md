@@ -16,6 +16,7 @@
 | Subtitrări în lumea reală | Bonus 1 | Balon lângă fața celui care vorbește (detecție fețe + mișcarea gurii) |
 | Sunetul vizibil | Bonus 2 | Clasificare locală a sunetelor (YAMNet), 3 niveluri de alertă, alerta critică acoperă orice ecran |
 | Întreabă meetingul | Extra pentru demo | Agent AI care răspunde la întrebări despre meeting, citând replicile exacte |
+| Antrenorul de claritate | Meetinguri **online** | Colegul **auzitor** deschide Echo în Chrome pe calculatorul lui, lângă Teams / Meet. Echo îi ascultă vocea local și îi arată discret câte o alertă, ca persoana surdă să poată citi subtitrarea: vorbește prea repede, peste alt coleg (cu cod de echipă), microfonul îl prinde slab, fără pauze între idei, 5 minute fără pauză, zgomot la el. Fereastră mereu deasupra meetingului (Document Picture-in-Picture), mod demonstrație cu praguri scurte. Meetingul fizic nu se schimbă |
 
 ## Reguli care nu se negociază
 
@@ -36,7 +37,7 @@
 | `speech_to_text` | `app/` | Recunoașterea vorbirii prin motorul platformei (iOS / Chrome) pentru demo |
 | YAMNet (TFLite), ML Kit Face Detection | `app/` | Sunete și fețe, local pe telefon |
 | ReDimNet2 (amprenta vocii, ONNX) + `onnxruntime-web` | `app/web/voice/` | Recunoașterea vocii speakerului, local în Chrome |
-| Python + PyTorch (CUDA) | `ml/voice/` | Fine-tuning ReDimNet2 pe română și sală simulată, calibrare, export ONNX; evaluare pe meetinguri de test |
+| Python + PyTorch (CUDA) | `ml/voice/` | Fine-tuning ReDimNet2 pe română și sală simulată, calibrare, export ONNX; evaluare pe meetinguri de test; calibrarea ritmului vorbirii pentru antrenorul de claritate |
 | Python + FastAPI | `server/` | Sesiuni și legătura WebSocket telefon–laptop; AI pe text prin API-ul Claude; agentul „Întreabă meetingul” |
 | Docker + Compose | `docker-compose.yml` | Pornește serverul (și pagina prezentatorului) + Redis cu o comandă |
 | Supabase (Postgres + Auth) | `supabase/` | Conturi (cod pe email, Google) și meetingurile salvate ale fiecărui utilizator |
@@ -71,7 +72,7 @@ app/            Flutter (Dart): iOS + web (prezentator)
   lib/theme/      palete daltonism, mod dislexie, contrast
   lib/core/account/  login (Supabase Auth)
   lib/core/history/  meetingurile salvate și înregistrarea lor în timpul meetingului
-  lib/features/   home, participant, presenter, alerts, conversation, settings, account, history
+  lib/features/   home, participant, presenter, alerts, conversation, settings, account, history, coach (antrenorul de claritate)
   lib/l10n/       traduceri RO / EN (ARB)
 server/         Python (FastAPI): app/ (hub sesiuni, ws, auth, limite, ai, agent), tests/
 supabase/       config.toml, migrations/ (schema + RLS), templates/ (emailul cu codul)
