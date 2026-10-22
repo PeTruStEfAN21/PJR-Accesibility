@@ -239,5 +239,26 @@
   "alarmEvacuation": "Evacuation",
   "alarmSiren": "Siren or danger outside",
   "alarmMachine": "Machine hazard",
-  "alarmFromColleague": "{name} · raised by a colleague"
+  "alarmFromColleague": "{name} · raised by a colleague",
+
+  "emergencyTitle": "Emergency alarm",
+  "emergencyHomeHint": "When the app can't hear the danger",
+  "emergencyIntro": "The alarm reaches colleagues within 500 m.",
+  "emergencyAccountable": "Your name is kept with the alarm.",
+  "alarmLevelCritical": "Critical",
+  "alarmLevelWarning": "Warning",
+  "emergencyConfirm": "Send the „{name}” alarm?",
+  "emergencySend": "Send alarm",
+  "emergencyCancelDialog": "Cancel",
+  "emergencySent": "Alarm sent at {time}",
+  "emergencyCancelAlarm": "Cancel the alarm",
+  "emergencyCancelConfirm": "Cancel the alarm for everyone?",
+  "emergencyCancelled": "Alarm cancelled",
+  "emergencySending": "Sending…",
+  "emergencyErrorSignedOut": "Sign in to raise an alarm.",
+  "emergencyErrorLocation": "Allow location access in Settings so the alarm reaches people nearby.",
+  "emergencyErrorTooMany": "You've raised 3 alarms in the last hour. Try again in {minutes} min.",
+  "emergencyErrorOffline": "Can't reach the server. Check the internet and try again.",
+  "emergencyErrorFailed": "The alarm didn't go out. Try again.",
+  "emergencyErrorNotConfigured": "The server has no accounts set up. Tell the administrator."
 }
