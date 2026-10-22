@@ -17,7 +17,7 @@ import '../history/history_screen.dart';
 import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
 import '../settings/settings_screen.dart';
-import '../sounds/sounds_pill.dart';
+import '../sounds/sounds_screen.dart';
 
 /// `--dart-define=ECHO_PHONE_PREVIEW=true` shows the phone layout in Chrome, for design reviews.
 const _phonePreview = bool.fromEnvironment('ECHO_PHONE_PREVIEW');
@@ -72,6 +72,28 @@ class HomeScreen extends StatelessWidget {
         ? _MainAction(icon: Icons.co_present_outlined, title: l10n.homePresent, hint: l10n.homePresentHint, onTap: openMain, fill: fill)
         : _MainAction(icon: Icons.closed_caption_outlined, title: l10n.homeJoin, hint: l10n.homeJoinHint, onTap: openMain, fill: fill);
 
+    // Sound recognition needs the phone's microphone; the presenter's laptop does not show it.
+    Widget soundsAction() => ListenableBuilder(
+          listenable: services.soundListening,
+          builder: (context, _) {
+            final listening = services.soundListening;
+            final on = services.sounds.isAvailable && listening.wanted && !listening.paused;
+            return _MainAction(
+              icon: on ? Icons.hearing : Icons.hearing_disabled,
+              title: l10n.homeSounds,
+              hint: !services.sounds.isAvailable
+                  ? l10n.homeSoundsUnavailable
+                  : listening.paused
+                      ? l10n.homeSoundsPaused
+                      : listening.wanted
+                          ? l10n.homeSoundsOn
+                          : l10n.homeSoundsOff,
+              // The card only opens the Sounds screen, which holds the switch and says why when unavailable.
+              onTap: () => open(const SoundsScreen()),
+            );
+          },
+        );
+
     final showTip = settings.shouldShowTip(_tipId);
     Widget tip({bool inRow = false}) => _Tip(
           text: presenterFirst ? l10n.homeTipPresent : l10n.homeTipJoin,
@@ -111,8 +133,6 @@ class HomeScreen extends StatelessWidget {
                     : SignInScreen(account: account),
               ),
             ),
-          // Sound recognition needs the phone's microphone; the presenter's laptop does not show it.
-          if (!presenterFirst) ...[const Center(child: SoundsPill()), const SizedBox(width: 4)],
           IconButton(
             tooltip: l10n.settings,
             icon: Icon(Icons.settings_outlined, color: palette.brand),
@@ -156,6 +176,8 @@ class HomeScreen extends StatelessWidget {
                   mainAction(),
                 ],
                 if (!presenterFirst) ...[
+                  const SizedBox(height: 16),
+                  soundsAction(),
                   const SizedBox(height: 16),
                   _Elsewhere(
                     title: l10n.homeElsewhere,
