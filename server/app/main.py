@@ -161,7 +161,7 @@ def create_app(
         # HTTP 403, while a close after accept carries the code the app uses to stop retrying.
         await websocket.accept()
         if role not in ROLES:
-            await websocket.close(code=4400, reason="role must be presenter or participant")
+            await websocket.close(code=4400, reason="role must be presenter, participant or colleague")
             return
         joined = await hub.join(code, websocket, role)
         if joined is None:

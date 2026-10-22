@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
 MAX_MESSAGE_BYTES = 4096
-ROLES = ("presenter", "participant")
+ROLES = ("presenter", "participant", "colleague")
 
 
 class _Message(BaseModel):
@@ -43,10 +43,20 @@ class Read(_Message):
     by: Literal["voice", "speaker"]
 
 
-ClientMessage = Annotated[Caption | Notify | Seen | Read, Field(discriminator="type")]
+class Speaking(_Message):
+    """A colleague in an online meeting started or stopped speaking (clarity coach: overlap alert)."""
+
+    type: Literal["speaking"]
+    id: str = Field(max_length=64)
+    active: bool
+    ts: int
+
+
+ClientMessage = Annotated[Caption | Notify | Seen | Read | Speaking, Field(discriminator="type")]
 client_message = TypeAdapter(ClientMessage)
 
 ALLOWED = {
     "presenter": {"caption", "seen", "read"},
     "participant": {"caption", "notify"},
+    "colleague": {"speaking"},
 }

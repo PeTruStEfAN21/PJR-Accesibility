@@ -175,3 +175,35 @@ def test_hand_notify_with_empty_text_is_relayed(client):
         hand = {"type": "notify", "id": "h1", "kind": "hand", "text": "", "ts": 3}
         participant.send_json(hand)
         assert presenter.receive_json() == hand
+
+
+def speaking(active: bool) -> dict:
+    return {"type": "speaking", "id": "s1", "active": active, "ts": 5}
+
+
+def test_colleague_speaking_reaches_other_colleagues(client):
+    code = new_code(client)
+    with client.websocket_connect(f"/ws/{code}?role=colleague") as first:
+        assert first.receive_json()["role"] == "colleague"
+        with client.websocket_connect(f"/ws/{code}?role=colleague") as second:
+            second.receive_json()
+            first.receive_json()  # peer joined
+            first.send_json(speaking(True))
+            assert second.receive_json() == speaking(True)
+
+
+@pytest.mark.parametrize("role", ["presenter", "participant"])
+def test_only_colleagues_send_speaking(client, role):
+    code = new_code(client)
+    with client.websocket_connect(f"/ws/{code}?role={role}") as ws:
+        ws.receive_json()
+        ws.send_json(speaking(True))
+        assert ws.receive_json() == {"type": "error", "message": f"{role} cannot send speaking"}
+
+
+def test_speaking_needs_active(client):
+    code = new_code(client)
+    with client.websocket_connect(f"/ws/{code}?role=colleague") as ws:
+        ws.receive_json()
+        ws.send_json({"type": "speaking", "id": "s1", "ts": 5})
+        assert ws.receive_json() == {"type": "error", "message": "invalid message"}
