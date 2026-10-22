@@ -1,0 +1,15 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "8000:8000"
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      # The address the iPhone uses to reach this laptop, e.g. http://172.20.10.2:8000 on an iPhone hotspot.
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8000}
+    volumes:
+      # Presenter page: run `flutter build web` in app/ first.
+      - ./app/build/web:/srv/web:ro
+    restart: unless-stopped
