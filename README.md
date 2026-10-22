@@ -25,6 +25,14 @@ Dacă nu apare promptul, instalează manual:
 /plugin install andrej-karpathy-skills@karpathy-skills
 ```
 
+### Servere MCP
+
+`.mcp.json` declară serverele MCP ale proiectului, iar `.claude/settings.json` le aprobă automat (`enabledMcpjsonServers`):
+
+- [Playwright MCP](https://github.com/microsoft/playwright-mcp) (`@playwright/mcp@0.0.83`): Claude deschide și controlează Chrome, ca să verifice pagina prezentatorului (`flutter build web` + server pe http://localhost:8000). Necesită Node 18+ și Chrome.
+
+Dacă nu pornește singur: `claude mcp add --scope project playwright -- npx @playwright/mcp@0.0.83`.
+
 ### Adaugi un plugin nou
 
 Ca să-l aibă toată echipa, nu doar tu:
@@ -34,6 +42,8 @@ Ca să-l aibă toată echipa, nu doar tu:
 3. Adaugă-l în lista de mai sus (link + o propoziție) și în comenzile de instalare manuală.
 4. Adaugă-l în secțiunea „Mod de lucru” din `CLAUDE.md`, dacă schimbă felul în care lucrăm.
 5. Fă commit la `.claude/settings.json` și `README.md` împreună.
+
+La fel pentru un server MCP: `claude mcp add --scope project <nume> -- <comandă>` (ajunge în `.mcp.json`), cu versiune fixă, apoi numele lui în `enabledMcpjsonServers` și o linie în „Servere MCP”.
 
 ## Proiectul
 
