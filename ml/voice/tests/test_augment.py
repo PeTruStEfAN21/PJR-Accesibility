@@ -35,3 +35,13 @@ def test_synthetic_rir_decays_by_60_db_at_rt60():
 
     drop_db = 10 * np.log10(energy(0.005) / energy(0.5))
     assert 50 < drop_db < 70
+
+
+def test_far_rooms_blur_the_voice_more():
+    wave = tone(3)
+
+    def similarity(distance: float) -> float:
+        out = apply_room(wave, np.random.default_rng(3), [], distance=(distance, distance))
+        return float(np.corrcoef(out, wave)[0, 1])
+
+    assert similarity(8.0) < similarity(1.0) - 0.1
