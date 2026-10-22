@@ -50,15 +50,20 @@ void main() {
     expect(find.text('Eu prezint'), findsNothing);
   });
 
-  testWidgets('browser on a laptop: the presenter home', (tester) async {
-    tester.view.physicalSize = const Size(1366, 900);
+  testWidgets('browser on a laptop: presenting first, and everything the phone app has too', (tester) async {
+    tester.view.physicalSize = const Size(1366, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final h = await TestHarness.create();
     await tester.pumpWidget(webHome(h));
     await tester.pumpAndSettle();
     expect(find.text('Eu prezint'), findsOneWidget);
-    expect(find.text('Conectează-te la speaker'), findsNothing);
+    expect(find.text('Conectează-te la speaker'), findsOneWidget);
+    expect(find.text('Sunete'), findsOneWidget);
+    expect(find.text('Vorbesc cu cineva'), findsOneWidget);
+    expect(find.text('Sunt coleg într-un meeting online'), findsOneWidget);
+    // Joining has its own card now, so the small link is not repeated.
+    expect(find.text('Participi la meeting? Intră de aici'), findsNothing);
   });
 
   testWidgets('phone: the Sounds card says the state and opens the Sounds screen', (tester) async {
@@ -125,21 +130,6 @@ void main() {
     await tester.tap(find.text('Conectează-te la speaker'));
     await tester.pumpAndSettle();
     expect(find.byType(JoinScreen), findsOneWidget);
-  });
-
-  testWidgets('laptop: presenting is the main action, phone-only tools are hidden', (tester) async {
-    tester.view.physicalSize = const Size(1366, 768);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-    final h = await TestHarness.create();
-    await tester.pumpWidget(laptopHome(h));
-    await tester.pumpAndSettle();
-
-    expect(find.text('Eu prezint'), findsOneWidget);
-    expect(find.text(AppLocalizations.of(tester.element(find.byType(HomeScreen))).homeSounds), findsNothing);
-    expect(find.text('Participi la meeting? Intră de aici'), findsOneWidget);
-    expect(find.text('Sunete'), findsNothing);
-    expect(find.text('Vorbesc cu cineva'), findsNothing);
   });
 
   testWidgets('first-run tip: "Am înțeles" hides it for good', (tester) async {
