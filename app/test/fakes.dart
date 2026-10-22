@@ -133,6 +133,11 @@ class FakeVoiceEngine implements VoiceEngine {
 
   @override
   Future<VoiceHead> loadHead() async => head;
+
+  final played = <int>[];
+
+  @override
+  Future<void> play(Float32List samples) async => played.add(samples.length);
 }
 
 class FakeSounds implements SoundDetector {

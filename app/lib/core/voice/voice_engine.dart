@@ -19,6 +19,9 @@ abstract class VoiceEngine {
 
   /// The calibration written by training, or [VoiceHead.fallback].
   Future<VoiceHead> loadHead();
+
+  /// Plays 16 kHz mono samples on the laptop (test-meeting review).
+  Future<void> play(Float32List samples);
 }
 
 VoiceEngine createVoiceEngine() => platform.createVoiceEngine();
