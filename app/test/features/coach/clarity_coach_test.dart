@@ -169,13 +169,37 @@ void main() {
     expect(coach.current, CoachAlert.overlap);
   });
 
-  test('speaking turns on quickly and off after a short silence', () {
-    final t = talk(coach, 0, 0.2);
+  test('speaking turns on after 300 ms of voice, so a click does not flicker it, and off after a short silence', () {
+    var t = talk(coach, 0, 0.2);
+    expect(coach.speaking, isFalse);
+    t = talk(coach, t, 0.2);
     expect(coach.speaking, isTrue);
     quiet(coach, t, 0.2);
     expect(coach.speaking, isTrue);
     quiet(coach, t + 0.2, 0.3);
     expect(coach.speaking, isFalse);
+  });
+
+  test('a single loud click is not speaking', () {
+    var calls = 0;
+    coach.addListener(() => calls++);
+    final t = talk(coach, 0, 0.06);
+    quiet(coach, t, 1);
+    expect(calls, 0);
+  });
+
+  test('alerts about talking go once the colleague is quiet', () {
+    final t = talk(coach, 0, 25, rate: 8, gapEvery: 4, gap: 0.6);
+    expect(coach.current, CoachAlert.tooFast);
+    quiet(coach, t, 7);
+    expect(coach.current, isNull);
+  });
+
+  test('after 15 s of silence the earlier talk is forgotten', () {
+    var t = talk(coach, 0, 9, rate: 9, gapEvery: 4, gap: 0.6);
+    t = quiet(coach, t, 45);
+    talk(coach, t, 1.5, rate: 3);
+    expect(coach.current, isNull);
   });
 
   test('voices that are not the colleague do not count', () {

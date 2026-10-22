@@ -14,6 +14,8 @@ class CoachThresholds {
     this.minTalkForRate = 10,
     this.talkGap = 1,
     this.forgetAfter = 60,
+    this.silenceReset = 15,
+    this.recentVoice = 5,
     this.pause = 0.4,
     this.unbrokenRun = 12,
     this.unbrokenCount = 2,
@@ -28,6 +30,7 @@ class CoachThresholds {
     this.noiseHold = 5,
     this.noiseAfterSpeech = 60,
     this.overlapHold = 1.5,
+    this.speakingOn = 0.3,
     this.speakingOff = 0.4,
     this.minShown = 6,
     this.rest = 180,
@@ -45,13 +48,13 @@ class CoachThresholds {
     unbrokenWindow: 60,
     longTalk: 60,
     noiseHold: 3,
-    overlapHold: 1,
     minShown: 4,
     rest: 20,
   );
 
-  /// Above this the captions are hard to follow: 170 words a minute, in syllables the analyzer detects in
-  /// Romanian speech (ml/voice/reports/2026-10-23-ritm.md).
+  /// Above this the captions are hard to follow. Calibrated as 170 words a minute on Romanian clips; on
+  /// 20 s of one person's talk it acts at about 195, because fast syllables merge
+  /// (ml/voice/reports/2026-10-23-ritm.md): few false alarms, fast speakers caught late.
   final double syllablesPerSecond;
 
   /// Pace is measured over the last [rateWindow] s of talk, once there are [minTalkForRate] s of it.
@@ -63,6 +66,12 @@ class CoachThresholds {
 
   /// Talk older than this is forgotten.
   final double forgetAfter;
+
+  /// After this much silence all earlier talk is forgotten: a new turn starts from nothing.
+  final double silenceReset;
+
+  /// Pace, pauses and the microphone are only judged while the colleague spoke within this many seconds.
+  final double recentVoice;
 
   /// A pause between ideas; [unbrokenCount] stretches of [unbrokenRun] s without one within
   /// [unbrokenWindow] s raise "make pauses".
@@ -91,7 +100,9 @@ class CoachThresholds {
   /// Talking at the same time as someone else for this long.
   final double overlapHold;
 
-  /// "Speaking" stays on until this much silence.
+  /// "Speaking" turns on after [speakingOn] s of voice (a click or a cough does not flicker it) and stays
+  /// on until [speakingOff] s of silence.
+  final double speakingOn;
   final double speakingOff;
 
   /// An alert stays at least [minShown] s and does not come back within [rest] s.
@@ -119,6 +130,9 @@ class ClarityCoach extends ChangeNotifier {
   double? _lastOwnVoice;
   bool _speaking = false;
 
+  /// Seconds of own voice since the last silence of [CoachThresholds.speakingOff].
+  double _stretchVoice = 0;
+
   final _talk = <_TalkFrame>[];
   final _voiceLevels = <(double, double, double)>[]; // (time, db, noiseDb) of own voice frames
   double? _runStart;
@@ -143,7 +157,10 @@ class ClarityCoach extends ChangeNotifier {
     _now = frame.time;
     final voice = own && frame.voiced;
     if (voice) {
+      final last = _lastOwnVoice;
+      if (last != null && _now - last >= thresholds.silenceReset) _forgetTalk();
       _lastOwnVoice = _now;
+      _stretchVoice += 0.03;
       _voiceLevels.add((_now, frame.db, frame.noiseDb));
       _runStart ??= _now;
       _sessionStart ??= _now;
@@ -157,8 +174,9 @@ class ClarityCoach extends ChangeNotifier {
     if (sinceVoice >= thresholds.longTalkBreak) _sessionStart = null;
     _countUnbrokenRun();
     _forget();
+    if (sinceVoice >= thresholds.speakingOff) _stretchVoice = 0;
     final wasSpeaking = _speaking;
-    _speaking = sinceVoice < thresholds.speakingOff;
+    _speaking = sinceVoice < thresholds.speakingOff && _stretchVoice >= thresholds.speakingOn - 1e-9;
     _overlapSince = _speaking && _othersSpeaking ? (_overlapSince ?? _now) : null;
     if (!_decide() && _speaking != wasSpeaking) notifyListeners();
   }
@@ -184,6 +202,12 @@ class ClarityCoach extends ChangeNotifier {
     if (start == null || _runCounted || _now - start < thresholds.unbrokenRun) return;
     _runCounted = true;
     _unbrokenRuns.add(_now);
+  }
+
+  void _forgetTalk() {
+    _talk.clear();
+    _voiceLevels.clear();
+    _unbrokenRuns.clear();
   }
 
   void _forget() {
@@ -222,13 +246,16 @@ class ClarityCoach extends ChangeNotifier {
   }
 
   Set<CoachAlert> _active() {
-    final rate = _syllableRate();
+    final last = _lastOwnVoice;
+    // Alerts about how the colleague talks only while they are talking.
+    final talking = last != null && _now - last <= thresholds.recentVoice;
+    final rate = talking ? _syllableRate() : null;
     final session = _sessionStart;
     return {
       if (_overlapSince != null && _now - _overlapSince! >= thresholds.overlapHold) CoachAlert.overlap,
-      if (_weakVoice()) CoachAlert.weakMic,
+      if (talking && _weakVoice()) CoachAlert.weakMic,
       if (rate != null && rate > thresholds.syllablesPerSecond) CoachAlert.tooFast,
-      if (_unbrokenRuns.length >= thresholds.unbrokenCount) CoachAlert.noPauses,
+      if (talking && _unbrokenRuns.length >= thresholds.unbrokenCount) CoachAlert.noPauses,
       if (session != null && _now - session >= thresholds.longTalk) CoachAlert.longTalk,
       if (_noiseSince != null && _now - _noiseSince! >= thresholds.noiseHold) CoachAlert.noise,
     };

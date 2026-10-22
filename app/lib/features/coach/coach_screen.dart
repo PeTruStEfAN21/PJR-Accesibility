@@ -131,13 +131,12 @@ class _CoachScreenState extends State<CoachScreen> {
   }
 
   /// Loads the speaker model (and opens the microphone) once; null when this browser cannot run it.
+  /// Loads the speaker model and opens the microphone; null when this browser cannot run it. Starting is
+  /// idempotent and reopens the microphone the coach closes when it stops.
   Future<SpeakerLabeler?> _voiceLabeler() async {
-    if (_labeler case final labeler?) return labeler;
-    if (!_voiceStarted) {
-      if (!await _services.voice.start()) return null;
-      _voiceStarted = true;
-    }
-    return _labeler = SpeakerLabeler(_services.voice, await _services.voice.loadHead());
+    if (!await _services.voice.start()) return null;
+    _voiceStarted = true;
+    return _labeler ??= SpeakerLabeler(_services.voice, await _services.voice.loadHead());
   }
 
   Future<void> _learnVoice() async {
@@ -147,7 +146,10 @@ class _CoachScreenState extends State<CoachScreen> {
       _error = null;
     });
     final labeler = await _voiceLabeler();
-    if (!mounted) return;
+    if (!mounted) {
+      _services.voice.stop();
+      return;
+    }
     setState(() {
       _busy = false;
       if (labeler == null) {
@@ -201,6 +203,10 @@ class _CoachScreenState extends State<CoachScreen> {
     final saved = settings.coachVoiceprint;
     if (saved != null) {
       labeler = await _voiceLabeler();
+      if (!mounted) {
+        _services.voice.stop();
+        return;
+      }
       if (labeler != null && settings.coachVoiceprintModel == labeler.head.model) {
         labeler.voiceprint = Float32List.fromList(saved);
       } else {
@@ -208,7 +214,10 @@ class _CoachScreenState extends State<CoachScreen> {
       }
     }
     final microphone = await _services.coachAudio.start();
-    if (!mounted) return;
+    if (!mounted) {
+      _services.coachAudio.stop();
+      return;
+    }
     if (!microphone) {
       setState(() {
         _busy = false;
@@ -282,6 +291,7 @@ class _CoachScreenState extends State<CoachScreen> {
     final opened = await _services.alertWindow.open(
       title: l10n.coachPipTitle,
       language: Localizations.localeOf(context).languageCode,
+      textScale: MediaQuery.textScalerOf(context).scale(1),
       onClosed: () {
         if (mounted && _windowOpen) setState(() => _windowOpen = false);
       },
@@ -381,30 +391,23 @@ class _CoachScreenState extends State<CoachScreen> {
         _Panel(
           title: l10n.coachTeam,
           children: [
-            Wrap(
-              spacing: 12,
-              runSpacing: 8,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                SizedBox(
-                  width: 260,
-                  child: TextField(
-                    controller: _code,
-                    decoration: InputDecoration(labelText: l10n.coachCodeLabel),
-                    textCapitalization: TextCapitalization.characters,
-                    autocorrect: false,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
-                      LengthLimitingTextInputFormatter(6),
-                    ],
-                  ),
-                ),
-                TextButton(
-                  style: EchoButtons.link(palette),
-                  onPressed: _busy ? null : _createCode,
-                  child: Text(l10n.coachCreateCode),
-                ),
+            TextField(
+              controller: _code,
+              decoration: InputDecoration(labelText: l10n.coachCodeLabel),
+              textCapitalization: TextCapitalization.characters,
+              autocorrect: false,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp('[A-Za-z0-9]')),
+                LengthLimitingTextInputFormatter(6),
               ],
+            ),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton(
+                style: EchoButtons.link(palette, flush: true),
+                onPressed: _busy ? null : _createCode,
+                child: Text(l10n.coachCreateCode),
+              ),
             ),
             const SizedBox(height: 8),
             Text(l10n.coachCodeHint, style: muted),

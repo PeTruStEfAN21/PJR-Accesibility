@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
@@ -60,6 +62,17 @@ Future<void> start(WidgetTester tester, {String? code, bool headphones = false})
 }
 
 const tooFast = 'Vorbești prea repede pentru subtitrare';
+
+/// 21 s of a steady voice-like tone: enough for learning a voice.
+Float32List tone21() => Float32List.fromList([for (var i = 0; i < 21 * rate; i++) 0.3 * sin(2 * pi * 220 * i / rate)]);
+
+Future<void> learnVoice(WidgetTester tester, String button) async {
+  await tester.tap(find.text(button));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text('Începe'));
+  await tester.pump(const Duration(seconds: 21));
+  await tester.pumpAndSettle();
+}
 const overlap = 'Vorbești în același timp cu altcineva';
 
 void main() {
@@ -168,6 +181,61 @@ void main() {
     await start(tester);
     await hear(tester, h, talk(15, 4));
     expect(find.text('Ai vorbit un minut fără pauză: lasă loc de întrebări'), findsOneWidget);
+  });
+
+  testWidgets('after Stop, learning the voice again still hears the colleague', (tester) async {
+    final h = await harness(tester);
+    h.voice
+      ..available = true
+      ..audio = tone21();
+    await tester.pumpWidget(coachApp(h));
+    await learnVoice(tester, 'Învață-mi vocea');
+    await start(tester);
+    await tester.tap(find.text('Oprește'));
+    await tester.pumpAndSettle();
+    await learnVoice(tester, 'Învață din nou');
+    expect(find.text('Am auzit prea puțin. Citește din nou textul, cu voce normală.'), findsNothing);
+    expect(find.text('Vocea ta e învățată'), findsOneWidget);
+  });
+
+  testWidgets('leaving while the voice model loads closes the microphone', (tester) async {
+    final h = await harness(tester);
+    final loading = Completer<void>();
+    h.voice
+      ..available = true
+      ..starting = loading;
+    await tester.pumpWidget(coachApp(h, home: const SizedBox()));
+    final navigator = tester.state<NavigatorState>(find.byType(Navigator));
+    navigator.push(MaterialPageRoute<void>(builder: (_) => const CoachScreen()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Învață-mi vocea'));
+    await tester.pump();
+    navigator.pop();
+    await tester.pumpAndSettle();
+    loading.complete();
+    await tester.pumpAndSettle();
+    expect(h.voice.micOpen, isFalse);
+  });
+
+  testWidgets('at a larger text size the team code field keeps its label whole', (tester) async {
+    final h = await harness(tester);
+    // 1.5 in the test font, whose glyphs are a full em wide, is about 2.5 with a real font.
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(coachApp(h));
+    final label = tester.renderObject<RenderParagraph>(find.text('Codul echipei (opțional)'));
+    expect(label.size.width, greaterThanOrEqualTo(label.getMaxIntrinsicWidth(double.infinity) - 1));
+  });
+
+  testWidgets('the window above the meeting uses the text size the colleague chose', (tester) async {
+    final h = await harness(tester);
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(coachApp(h));
+    await start(tester);
+    await tester.tap(find.text('Arată alertele peste meeting'));
+    await tester.pumpAndSettle();
+    expect(h.alertWindow.textScale, 1.5);
   });
 
   testWidgets('microphone refused: the colleague is told why and stays on the setup', (tester) async {

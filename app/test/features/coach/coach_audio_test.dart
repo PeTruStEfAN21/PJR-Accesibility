@@ -19,6 +19,11 @@ void main() {
     expect(noiseScore(scores({494: 0.9, 500: 0.6, 507: 0.5, 509: 0.4, 514: 0.3})), 0); // Silence, small room, Noise, Static, White noise
   });
 
+  test('speech is the strongest of YAMNet\'s speech classes', () {
+    expect(speechScore(scores({0: 0.3, 2: 0.7})), 0.7); // Speech, Conversation
+    expect(speechScore(scores({132: 0.9})), 0); // Music
+  });
+
   test('scores that are not YAMNet\'s are not noise', () {
     expect(noiseScore(const []), 0);
   });

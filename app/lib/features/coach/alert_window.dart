@@ -6,9 +6,14 @@ abstract class AlertWindow {
   /// Chrome or Edge on a computer, on https or localhost.
   bool get supported;
 
-  /// Opens the window; it must follow a click. [onClosed] runs when it closes, also when the colleague
-  /// closes it. False when the browser refuses.
-  Future<bool> open({required String title, required String language, required void Function() onClosed});
+  /// Opens the window; it must follow a click. Its text is [textScale] times the normal size. [onClosed]
+  /// runs when it closes, also when the colleague closes it. False when the browser refuses.
+  Future<bool> open({
+    required String title,
+    required String language,
+    required double textScale,
+    required void Function() onClosed,
+  });
 
   /// [icon] is a symbol shown before [text]; [alert] marks it as an alert rather than the quiet state.
   void show(String text, String icon, {required bool alert});

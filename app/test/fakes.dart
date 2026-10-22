@@ -118,14 +118,25 @@ class FakeVoiceEngine implements VoiceEngine {
   final recentRequests = <Duration>[];
   final embedded = <int>[];
 
-  @override
-  Future<bool> start() async => available;
+  /// The browser's one microphone, shared with the coach's capture: closed, it hears nothing.
+  bool micOpen = true;
+
+  /// When set, starting waits for it (a model still loading).
+  Completer<void>? starting;
 
   @override
-  Future<void> stop() async {}
+  Future<bool> start() async {
+    await starting?.future;
+    micOpen = available;
+    return available;
+  }
+
+  @override
+  Future<void> stop() async => micOpen = false;
 
   @override
   Float32List recent(Duration length) {
+    if (!micOpen) return Float32List(0);
     recentRequests.add(length);
     final n = length.inMilliseconds * 16;
     return Float32List.sublistView(audio, max(0, audio.length - n));
@@ -149,6 +160,9 @@ class FakeVoiceEngine implements VoiceEngine {
 class FakeCoachAudio implements CoachAudio {
   bool available = true;
   bool started = false;
+
+  /// The microphone it shares with the voice model (as in echo_voice.js).
+  FakeVoiceEngine? sharedWith;
   final controller = StreamController<Float32List>.broadcast();
 
   /// YAMNet scores for every window; null = YAMNet cannot run.
@@ -156,7 +170,10 @@ class FakeCoachAudio implements CoachAudio {
   final windows = <int>[];
 
   @override
-  Future<bool> start() async => started = available;
+  Future<bool> start() async {
+    if (available) sharedWith?.micOpen = true;
+    return started = available;
+  }
 
   @override
   Stream<Float32List> get chunks => controller.stream;
@@ -168,18 +185,28 @@ class FakeCoachAudio implements CoachAudio {
   }
 
   @override
-  void stop() => started = false;
+  void stop() {
+    started = false;
+    sharedWith?.micOpen = false;
+  }
 }
 
 class FakeAlertWindow implements AlertWindow {
   @override
   bool supported = true;
   bool isOpen = false;
+  double? textScale;
   void Function()? _onClosed;
   final shown = <(String, String, bool)>[];
 
   @override
-  Future<bool> open({required String title, required String language, required void Function() onClosed}) async {
+  Future<bool> open({
+    required String title,
+    required String language,
+    required double textScale,
+    required void Function() onClosed,
+  }) async {
+    this.textScale = textScale;
     _onClosed = onClosed;
     return isOpen = supported;
   }
@@ -363,7 +390,9 @@ class FakeMeetingStore implements MeetingStore {
 }
 
 class TestHarness {
-  TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings);
+  TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings) {
+    coachAudio.sharedWith = voice;
+  }
 
   final AppSettings settings;
   final FakeSpeech speech;

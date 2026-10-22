@@ -6,7 +6,12 @@ class UnavailableAlertWindow implements AlertWindow {
   bool get supported => false;
 
   @override
-  Future<bool> open({required String title, required String language, required void Function() onClosed}) async =>
+  Future<bool> open({
+    required String title,
+    required String language,
+    required double textScale,
+    required void Function() onClosed,
+  }) async =>
       false;
 
   @override
