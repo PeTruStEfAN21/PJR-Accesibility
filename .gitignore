@@ -55,6 +55,12 @@ venv/
 /models/
 # Excepție: modelele mici livrate în aplicație (YAMNet are ~4 MB)
 !app/assets/models/*.tflite
+# Excepție: modelul de voce pentru pagina prezentatorului (ReDimNet2, ~50 MB)
+!app/web/voice/speaker.onnx
+
+# Antrenarea vocii: date audio (nu intră niciodată în git) și rulări
+ml/voice/data/
+ml/voice/runs/
 
 # IDE și sistem
 .idea/
