@@ -247,7 +247,7 @@
   "emergencyAccountable": "Your name is kept with the alarm.",
   "alarmLevelCritical": "Critical",
   "alarmLevelWarning": "Warning",
-  "emergencyConfirm": "Send the „{name}” alarm?",
+  "emergencyConfirm": "Send the “{name}” alarm?",
   "emergencySend": "Send alarm",
   "emergencyCancelDialog": "Cancel",
   "emergencySent": "Alarm sent at {time}",
@@ -255,10 +255,12 @@
   "emergencyCancelConfirm": "Cancel the alarm for everyone?",
   "emergencyCancelled": "Alarm cancelled",
   "emergencySending": "Sending…",
+  "emergencyCancelling": "Cancelling…",
   "emergencyErrorSignedOut": "Sign in to raise an alarm.",
   "emergencyErrorLocation": "Allow location access in Settings so the alarm reaches people nearby.",
   "emergencyErrorTooMany": "You've raised 3 alarms in the last hour. Try again in {minutes} min.",
   "emergencyErrorOffline": "Can't reach the server. Check the internet and try again.",
   "emergencyErrorFailed": "The alarm didn't go out. Try again.",
+  "emergencyErrorCancelFailed": "The alarm is no longer active or couldn't be cancelled. Check and try again.",
   "emergencyErrorNotConfigured": "The server has no accounts set up. Tell the administrator."
 }

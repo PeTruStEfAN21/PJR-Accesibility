@@ -10,6 +10,7 @@ import '../../l10n/app_localizations.dart';
 import '../alerts/alert_controller.dart';
 import '../alerts/alert_signals.dart';
 import '../alerts/sound_alert.dart';
+import 'alarm_api.dart';
 import 'alarm_logic.dart';
 import 'position_source.dart';
 
@@ -33,6 +34,10 @@ class AlarmFeed {
   final void Function(Alarm alarm) onAlarm;
   final void Function(String id) onCancelled;
   final ChannelFactory _channelFactory;
+
+  /// The alarm this phone raised last, for the emergency screen. Belongs to the signed-in
+  /// account and server, so it goes away with this feed.
+  final sentAlarm = SentAlarmMemory();
 
   final _seen = <String>{};
   final _cancelled = <String>{};
@@ -108,8 +113,15 @@ class AlarmFeed {
     }
   }
 
+  /// The whole position lookup is bounded: an alarm is never held back (or lost) waiting for it.
+  static const positionTimeout = Duration(seconds: 6);
+
   Future<void> _report(Alarm alarm) async {
-    final here = await positions.current(timeout: const Duration(seconds: 5)) ?? await positions.lastKnown();
+    // Only checks the permission: asking would put a system prompt in front of the alarm.
+    final here = await (() async =>
+            await positions.current(timeout: const Duration(seconds: 5), ask: false) ??
+            await positions.lastKnown(ask: false))()
+        .timeout(positionTimeout, onTimeout: () => null);
     if (_running && !_cancelled.contains(alarm.id) && !_own.contains(alarm.id) && inRange(alarm, here)) onAlarm(alarm);
   }
 

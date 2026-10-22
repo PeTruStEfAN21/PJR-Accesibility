@@ -23,11 +23,20 @@ class FakePositions implements PositionSource {
   /// When set, [current] waits for it, like a slow GPS fix.
   Completer<Position?>? slow;
 
-  @override
-  Future<Position?> current({Duration timeout = const Duration(seconds: 5)}) async => slow?.future ?? now;
+  /// The `ask` of every lookup: the feed must never ask for the permission.
+  final asked = <bool>[];
 
   @override
-  Future<Position?> lastKnown() async => last;
+  Future<Position?> current({Duration timeout = const Duration(seconds: 5), bool ask = true}) async {
+    asked.add(ask);
+    return slow?.future ?? now;
+  }
+
+  @override
+  Future<Position?> lastKnown({bool ask = true}) async {
+    asked.add(ask);
+    return last;
+  }
 }
 
 /// An account whose token the test changes at will.
@@ -172,6 +181,27 @@ void main() {
       expect(shown, isEmpty);
     });
 
+    test('locating never asks for the permission', () async {
+      positions.now = null;
+      feed.start();
+      channels.single.receive(alarmMessage('a1'));
+      await pumpEventQueue();
+      expect(positions.asked, [false, false]);
+      expect(shown.map((a) => a.id), ['a1']);
+    });
+
+    test('a position lookup that never ends still shows the alarm after 6 s', () {
+      fakeAsync((async) {
+        positions.slow = Completer();
+        feed.start();
+        channels.single.receive(alarmMessage('a1'));
+        async.elapse(const Duration(milliseconds: 5900));
+        expect(shown, isEmpty);
+        async.elapse(const Duration(milliseconds: 200));
+        expect(shown.map((a) => a.id), ['a1']);
+      });
+    });
+
     test('without a token it does not connect', () async {
       account.token = null;
       feed.start();
@@ -262,6 +292,18 @@ void main() {
     });
   });
 
+  group('SentAlarmMemory', () {
+    test('keeps the sent alarm for 15 minutes', () {
+      var now = DateTime(2026, 10, 23, 16);
+      final memory = SentAlarmMemory(clock: () => now);
+      memory.sent = SentAlarm(RaisedAlarm(id: 'a1', at: now), AlarmKind.fire);
+      now = now.add(const Duration(minutes: 14, seconds: 59));
+      expect(memory.sent?.alarm.id, 'a1');
+      now = now.add(const Duration(seconds: 1));
+      expect(memory.sent, isNull);
+    });
+  });
+
   group('AlarmApi', () {
     late List<http.Request> requests;
 
@@ -312,6 +354,22 @@ void main() {
       expect(tooMany.problem, AlarmProblem.tooMany);
       expect(tooMany.retryAfterSeconds, 42);
       expect((await errorFor(500)).problem, AlarmProblem.failed);
+    });
+
+    test('a request that never answers is offline after 10 s', () {
+      fakeAsync((async) {
+        final api = AlarmApi(
+          Uri.parse('https://echo.example/'),
+          token: () => 't1',
+          client: MockClient((_) => Completer<http.Response>().future),
+        );
+        AlarmError? error;
+        api.cancel('a1').catchError((Object e) => error = e as AlarmError);
+        async.elapse(const Duration(milliseconds: 9900));
+        expect(error, isNull);
+        async.elapse(const Duration(milliseconds: 200));
+        expect(error?.problem, AlarmProblem.offline);
+      });
     });
 
     test('a network error is offline', () async {

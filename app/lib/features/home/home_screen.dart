@@ -173,6 +173,7 @@ class HomeScreen extends StatelessWidget {
                             api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
                             positions: services.positions,
                             onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
+                            memory: AlarmScope.maybeOf(context)?.sentAlarm,
                           )),
                         ),
                     ],
