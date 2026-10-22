@@ -59,6 +59,21 @@ void main() {
       expect(ServerEvent.fromJson({'type': 'caption', 'id': 1}), isNull);
     });
 
+    test('read message round-trips and says who read the question', () {
+      expect(const ReadMessage(id: 'q1', by: ReadBy.speaker).toJson(), {'type': 'read', 'id': 'q1', 'by': 'speaker'});
+      final event = ServerEvent.fromJson({'type': 'read', 'id': 'q1', 'by': 'voice'});
+      expect(event, isA<ReadReceived>());
+      expect((event as ReadReceived).id, 'q1');
+      expect(event.by, ReadBy.voice);
+      expect(ServerEvent.fromJson({'type': 'read', 'id': 'q1', 'by': 'robot'}), isNull);
+    });
+
+    test('hand notify carries no text', () {
+      final event = ServerEvent.fromJson({'type': 'notify', 'id': 'h1', 'kind': 'hand', 'text': '', 'ts': 1});
+      expect((event as NotifyReceived).notify.kind, NotifyKind.hand);
+      expect(event.notify.text, '');
+    });
+
     test('joined carries the connected peers', () {
       final event = ServerEvent.fromJson({'type': 'joined', 'code': 'ABC234', 'role': 'presenter', 'peers': {'presenter': 1}});
       expect((event as Joined).peers, {'presenter': 1});
