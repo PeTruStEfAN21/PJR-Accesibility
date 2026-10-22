@@ -134,7 +134,11 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
     if (!SettingsScope.of(context).autoScroll) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scroll.hasClients) {
-        _scroll.animateTo(_scroll.position.maxScrollExtent, duration: const Duration(milliseconds: 200), curve: Curves.easeOut);
+        _scroll.animateTo(
+          _scroll.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
       }
     });
   }
@@ -221,36 +225,48 @@ class _ParticipantScreenState extends State<ParticipantScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          ListenableBuilder(
-            listenable: _connection,
-            builder: (_, _) => ConnectionBanner(
-              status: _connection.status,
-              detail: _connection.status == ConnectionStatus.connected
-                  ? (_connection.peerCount('presenter') > 0 ? l10n.presenterOnline : l10n.presenterOffline)
-                  : null,
+      // The answer card and the bottom bar get a share of the space actually left (keyboard included),
+      // so the live captions never disappear on a small phone.
+      body: LayoutBuilder(
+        builder: (context, constraints) => Column(
+          children: [
+            ListenableBuilder(
+              listenable: _connection,
+              builder: (_, _) => ConnectionBanner(
+                status: _connection.status,
+                detail: _connection.status == ConnectionStatus.connected
+                    ? (_connection.peerCount('presenter') > 0 ? l10n.presenterOnline : l10n.presenterOffline)
+                    : null,
+              ),
             ),
-          ),
-          ListenableBuilder(
-            listenable: _myQuestion,
-            builder: (_, _) => _myQuestion.state == MyQuestionState.answered
-                ? AnsweredCard(question: _myQuestion, transcript: _transcript)
-                : const SizedBox.shrink(),
-          ),
-          Expanded(
-            child: ListenableBuilder(
-              listenable: Listenable.merge([_transcript, _roomQuestions]),
-              builder: (context, _) =>
-                  _CaptionsView(transcript: _transcript, roomQuestions: _roomQuestions, scroll: _scroll),
+            ListenableBuilder(
+              listenable: _myQuestion,
+              builder: (_, _) => _myQuestion.state == MyQuestionState.answered
+                  ? ConstrainedBox(
+                      constraints: BoxConstraints(maxHeight: constraints.maxHeight * 0.25),
+                      child: AnsweredCard(question: _myQuestion, transcript: _transcript),
+                    )
+                  : const SizedBox.shrink(),
             ),
-          ),
-          _MessageBar(
-            controller: _message,
-            onSend: _sendNotify,
-            ask: AskPanel(question: _myQuestion, onHand: _sendHand, onSend: _sendQuestion),
-          ),
-        ],
+            Expanded(
+              child: ListenableBuilder(
+                listenable: Listenable.merge([_transcript, _roomQuestions]),
+                builder: (context, _) =>
+                    _CaptionsView(transcript: _transcript, roomQuestions: _roomQuestions, scroll: _scroll),
+              ),
+            ),
+            ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: constraints.maxHeight * 0.3),
+              child: _MessageBar(
+                controller: _message,
+                onSend: _sendNotify,
+                question: _myQuestion,
+                onHand: _sendHand,
+                onAsk: _sendQuestion,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -276,41 +292,53 @@ class _CaptionsView extends StatelessWidget {
     final coordinator = transcript.latest(Speaker.coordinator);
     final numbers = transcript.finalNumbers();
     final captions = transcript.captions;
-    return Column(
-      children: [
-        // The coordinator always has a fixed place at the top.
-        if (coordinator != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: CaptionTile(caption: coordinator, emphasized: true),
-          ),
-        Expanded(
-          child: Semantics(
-            liveRegion: true,
-            child: ListView.builder(
-              controller: scroll,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              itemCount: captions.length,
-              itemBuilder: (_, i) => CaptionTile(
-                caption: captions[i],
-                number: numbers[captions[i].id],
-                isQuestion: roomQuestions.isQuestion(captions[i].id),
+    return LayoutBuilder(
+      builder: (context, constraints) => Column(
+        children: [
+          // The speaker's latest line has a fixed place at the top, when there is room for it; the same
+          // line is also in the list below, so hiding it on a crowded small screen loses nothing.
+          if (coordinator != null && constraints.maxHeight >= 220)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+              child: CaptionTile(caption: coordinator, emphasized: true),
+            ),
+          Expanded(
+            child: Semantics(
+              liveRegion: true,
+              child: ListView.builder(
+                key: const Key('captions'),
+                controller: scroll,
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                itemCount: captions.length,
+                itemBuilder: (_, i) => CaptionTile(
+                  caption: captions[i],
+                  number: numbers[captions[i].id],
+                  isQuestion: roomQuestions.isQuestion(captions[i].id),
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
 
 class _MessageBar extends StatelessWidget {
-  const _MessageBar({required this.controller, required this.onSend, required this.ask});
+  const _MessageBar({
+    required this.controller,
+    required this.onSend,
+    required this.question,
+    required this.onHand,
+    required this.onAsk,
+  });
   final TextEditingController controller;
   final void Function(NotifyKind kind, String text) onSend;
 
   /// „Vreau să întreb” and the state of the participant's question.
-  final Widget ask;
+  final MyQuestion question;
+  final VoidCallback onHand;
+  final ValueChanged<String> onAsk;
 
   @override
   Widget build(BuildContext context) {
@@ -328,37 +356,40 @@ class _MessageBar extends StatelessWidget {
       elevation: 8,
       child: SafeArea(
         top: false,
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ask,
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: [
-                  for (final (kind, text, icon) in quick)
-                    ActionChip(avatar: Icon(icon), label: Text(text), onPressed: () => onSend(kind, text)),
-                ],
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: controller,
-                      decoration: InputDecoration(hintText: l10n.customMessageHint),
-                      textInputAction: TextInputAction.send,
-                      maxLength: 500,
-                      buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
-                      onSubmitted: (_) => sendCustom(),
+          child: AskPanel(
+            question: question,
+            onHand: onHand,
+            onSend: onAsk,
+            quickMessages: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    for (final (kind, text, icon) in quick)
+                      ActionChip(avatar: Icon(icon), label: Text(text), onPressed: () => onSend(kind, text)),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: controller,
+                        decoration: InputDecoration(hintText: l10n.customMessageHint),
+                        textInputAction: TextInputAction.send,
+                        maxLength: 500,
+                        buildCounter: (_, {required currentLength, required isFocused, maxLength}) => null,
+                        onSubmitted: (_) => sendCustom(),
+                      ),
                     ),
-                  ),
-                  IconButton(tooltip: l10n.send, icon: const Icon(Icons.send), onPressed: sendCustom),
-                ],
-              ),
-            ],
+                    IconButton(tooltip: l10n.send, icon: const Icon(Icons.send), onPressed: sendCustom),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

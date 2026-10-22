@@ -167,7 +167,7 @@ void main() {
     expect(find.text('Vineri la prânz.'), findsOneWidget);
     expect(find.text('#1 Termenul e vineri la prânz'), findsOneWidget);
 
-    await tester.tap(find.text('Închide'));
+    await tester.tap(find.byTooltip('Închide'));
     await tester.pump();
     expect(find.text('Ți s-a răspuns'), findsNothing);
   });
@@ -183,5 +183,32 @@ void main() {
 
     expect(find.text('Întrebare din sală'), findsOneWidget);
     expect(find.bySemanticsLabel('Din sală, Întrebare din sală: când e termenul'), findsOneWidget);
+  });
+
+  testWidgets('on a small iPhone the answer card leaves room for the live captions', (tester) async {
+    tester.view.physicalSize = const Size(375, 667);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final h = await TestHarness.create()
+      ..httpClient = aiServer(answer: {'answered': true, 'answer': 'Vineri la prânz, după ședința de buget.', 'line_ids': [1, 2]});
+    await joinMeeting(tester, h);
+    final question = await askQuestion(tester, h, 'Când e termenul pentru raportul trimestrial?');
+    h.channel.receive({'type': 'read', 'id': question['id'] as String, 'by': 'voice'});
+    h.channel.receive(caption('c1', 'coordinator', 'Termenul pentru raport e vineri la prânz'));
+    h.channel.receive(caption('c2', 'coordinator', 'adică imediat după ședința de buget'));
+    await settle(tester);
+    await tester.pump(const Duration(seconds: 3));
+    await settle(tester);
+    expect(find.text('Ți s-a răspuns'), findsOneWidget);
+
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byKey(const Key('captions'))).height, greaterThanOrEqualTo(150));
+
+    // Typing a follow-up question: the quick messages step aside, nothing overflows.
+    await tester.tap(find.text('Vreau să întreb'));
+    await tester.pump();
+    expect(find.text('Puteți repeta?'), findsNothing);
+    expect(tester.takeException(), isNull);
+    expect(tester.getSize(find.byKey(const Key('captions'))).height, greaterThanOrEqualTo(100));
   });
 }
