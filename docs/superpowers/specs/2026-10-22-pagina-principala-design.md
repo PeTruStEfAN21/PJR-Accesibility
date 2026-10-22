@@ -64,7 +64,7 @@ Stilul de ecran de aplicație `editorial-greeting` (seed 1600705491, `.taste-ski
 
 Culorile stau pe ecranele refăcute, cu o variantă pentru contrast ridicat. Aplicația are o singură temă, luminoasă. Fontul e Roboto, cerut de Denis, în locul lui Instrument Sans propus de Taste.
 
-Pentru recenzii de design: `flutter build web --dart-define=ECHO_PHONE_PREVIEW=true` arată varianta de telefon în Chrome.
+Un singur build web pentru ambele: în browser, un ecran de telefon (până la 600 px lățime, inclusiv o fereastră îngustă pe laptop) primește aplicația de telefon, unul mai lat pagina prezentatorului.
 
 ## Accesibilitate
 
