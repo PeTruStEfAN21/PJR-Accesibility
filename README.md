@@ -25,6 +25,16 @@ Dacă nu apare promptul, instalează manual:
 /plugin install andrej-karpathy-skills@karpathy-skills
 ```
 
+### Adaugi un plugin nou
+
+Ca să-l aibă toată echipa, nu doar tu:
+
+1. Instalează-l la nivel de proiect: `claude plugin install <plugin>@<marketplace> --scope project`. Comanda îl trece în `enabledPlugins` din `.claude/settings.json`.
+2. Dacă marketplace-ul nu e cel oficial (`claude-plugins-official`), adaugă-l în `extraKnownMarketplaces` din același fișier.
+3. Adaugă-l în lista de mai sus (link + o propoziție) și în comenzile de instalare manuală.
+4. Adaugă-l în secțiunea „Mod de lucru” din `CLAUDE.md`, dacă schimbă felul în care lucrăm.
+5. Fă commit la `.claude/settings.json` și `README.md` împreună.
+
 ## Proiectul
 
 Platformă care face meetingurile față în față accesibile persoanelor surde. Contextul complet e în `CLAUDE.md`, designul în `docs/superpowers/specs/`.
