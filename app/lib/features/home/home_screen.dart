@@ -71,17 +71,19 @@ class HomeScreen extends StatelessWidget {
       if (!settings.seenTips.contains(_tipId)) settings.update((s) => s.seenTips.add(_tipId));
     }
 
-    void openMain() {
+    void openFromCard(Widget screen) {
       markTipSeen();
-      open(presenterFirst ? const PresenterScreen() : const JoinScreen());
+      open(screen);
     }
 
-    Widget mainAction({bool fill = false}) => presenterFirst
-        ? _MainAction(icon: Icons.co_present_outlined, title: l10n.homePresent, hint: l10n.homePresentHint, onTap: openMain, fill: fill)
-        : _MainAction(icon: Icons.closed_caption_outlined, title: l10n.homeJoin, hint: l10n.homeJoinHint, onTap: openMain, fill: fill);
+    Widget joinAction({bool fill = false}) => _MainAction(icon: Icons.closed_caption_outlined, title: l10n.homeJoin, hint: l10n.homeJoinHint, onTap: () => openFromCard(const JoinScreen()), fill: fill);
 
-    // Sound recognition needs the phone's microphone; the presenter's laptop does not show it.
-    Widget soundsAction() => ListenableBuilder(
+    Widget mainAction({bool fill = false}) => presenterFirst
+        ? _MainAction(icon: Icons.co_present_outlined, title: l10n.homePresent, hint: l10n.homePresentHint, onTap: () => openFromCard(const PresenterScreen()), fill: fill)
+        : joinAction(fill: fill);
+
+    // Sound recognition runs on the phone (TFLite) and in the browser (TensorFlow.js), so both show it.
+    Widget soundsAction({bool fill = false}) => ListenableBuilder(
           listenable: services.soundListening,
           builder: (context, _) {
             final listening = services.soundListening;
@@ -98,8 +100,31 @@ class HomeScreen extends StatelessWidget {
                           : l10n.homeSoundsOff,
               // The card only opens the Sounds screen, which holds the switch and says why when unavailable.
               onTap: () => open(const SoundsScreen()),
+              fill: fill,
             );
           },
+        );
+
+    Widget elsewhere() => _Elsewhere(
+          title: l10n.homeElsewhere,
+          rows: [
+            _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
+            if (meetings != null)
+              _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
+            // Raising an alarm needs an account: the name is kept with it.
+            if (account?.isSignedIn == true)
+              _ToolRow(
+                icon: Icons.emergency_share,
+                title: l10n.emergencyTitle,
+                hint: l10n.emergencyHomeHint,
+                onTap: () => open(EmergencyScreen(
+                  api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
+                  positions: services.positions,
+                  onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
+                  memory: AlarmScope.maybeOf(context)?.sentAlarm,
+                )),
+              ),
+          ],
         );
 
     final showTip = settings.shouldShowTip(_tipId);
@@ -183,6 +208,29 @@ class HomeScreen extends StatelessWidget {
                   if (showTip) ...[tip(), const SizedBox(height: 16)],
                   mainAction(),
                 ],
+                // The laptop also has everything the phone app has: joining and sounds side by side.
+                if (presenterFirst) ...[
+                  const SizedBox(height: 16),
+                  if (wide)
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(child: joinAction(fill: true)),
+                          const SizedBox(width: 16),
+                          Expanded(child: soundsAction(fill: true)),
+                        ],
+                      ),
+                    )
+                  else ...[
+                    joinAction(),
+                    const SizedBox(height: 16),
+                    soundsAction(),
+                  ],
+                ] else ...[
+                  const SizedBox(height: 16),
+                  soundsAction(),
+                ],
                 // Online meetings: the hearing colleague's clarity coach runs in Chrome on their computer.
                 if (presenterFirst) ...[
                   const SizedBox(height: 16),
@@ -193,42 +241,21 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ],
+                const SizedBox(height: 16),
+                elsewhere(),
+                // The laptop shows joining as a card; the phone links to presenting.
                 if (!presenterFirst) ...[
-                  const SizedBox(height: 16),
-                  soundsAction(),
-                  const SizedBox(height: 16),
-                  _Elsewhere(
-                    title: l10n.homeElsewhere,
-                    rows: [
-                      _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
-                      if (meetings != null)
-                        _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
-                      // Raising an alarm needs an account: the name is kept with it.
-                      if (account?.isSignedIn == true)
-                        _ToolRow(
-                          icon: Icons.emergency_share,
-                          title: l10n.emergencyTitle,
-                          hint: l10n.emergencyHomeHint,
-                          onTap: () => open(EmergencyScreen(
-                            api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
-                            positions: services.positions,
-                            onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
-                            memory: AlarmScope.maybeOf(context)?.sentAlarm,
-                          )),
-                        ),
-                    ],
+                  const SizedBox(height: 24),
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: TextButton(
+                      // No side padding, so the link's text starts on the panels' left edge.
+                      style: EchoButtons.link(palette, flush: true),
+                      onPressed: () => open(const PresenterScreen()),
+                      child: Text(l10n.homeOtherPresent),
+                    ),
                   ),
                 ],
-                const SizedBox(height: 24),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: TextButton(
-                    // No side padding, so the link's text starts on the panels' left edge.
-                    style: EchoButtons.link(palette, flush: true),
-                    onPressed: () => open(presenterFirst ? const JoinScreen() : const PresenterScreen()),
-                    child: Text(presenterFirst ? l10n.homeOtherJoin : l10n.homeOtherPresent),
-                  ),
-                ),
               ],
             );
           },
