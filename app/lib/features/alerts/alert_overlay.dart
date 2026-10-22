@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/semantics.dart';
 
+import '../../core/org/org_store.dart';
+import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import 'alert_controller.dart';
@@ -113,6 +115,7 @@ class _FullScreenAlert extends StatelessWidget {
     final foreground = critical ? Colors.white : Colors.black;
     final exit = SettingsScope.of(context).emergencyExit.trim();
     final advice = alertAdvice(l10n, alert);
+    final organizations = ServicesScope.of(context).organizations;
 
     return Positioned.fill(
       child: Material(
@@ -157,6 +160,10 @@ class _FullScreenAlert extends StatelessWidget {
                         style: theme.textTheme.headlineSmall?.copyWith(color: foreground, fontWeight: FontWeight.w700),
                       ),
                     ],
+                    if (critical && (organizations?.any ?? false)) ...[
+                      const SizedBox(height: 32),
+                      _RollCall(alert: alert, color: foreground, onSafe: onDismiss),
+                    ],
                     const SizedBox(height: 40),
                     FilledButton(
                       style: FilledButton.styleFrom(
@@ -176,6 +183,89 @@ class _FullScreenAlert extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "I'm safe" / "I need help" for members of a company: the admins see who answered.
+/// "I'm safe" also closes the alert; after "I need help" the screen (and the exit) stays up.
+class _RollCall extends StatefulWidget {
+  const _RollCall({required this.alert, required this.color, required this.onSafe});
+  final SoundAlert alert;
+  final Color color;
+  final VoidCallback onSafe;
+
+  @override
+  State<_RollCall> createState() => _RollCallState();
+}
+
+class _RollCallState extends State<_RollCall> {
+  bool _sending = false;
+  bool _sent = false;
+
+  Future<void> _answer(AlarmAnswerStatus status) async {
+    final organizations = ServicesScope.of(context).organizations!;
+    final failed = AppLocalizations.of(context).orgError;
+    setState(() => _sending = true);
+    try {
+      await organizations.answerAlarm(widget.alert.kind, status);
+      if (!mounted) return;
+      if (status == AlarmAnswerStatus.safe) {
+        widget.onSafe();
+      } else {
+        setState(() => _sent = true);
+      }
+    } on Object {
+      if (mounted) SemanticsService.sendAnnouncement(View.of(context), failed, Directionality.of(context));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final style = theme.textTheme.titleMedium?.copyWith(color: widget.color, fontWeight: FontWeight.w700);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (_sent)
+          Semantics(liveRegion: true, child: Text(l10n.alertAnswerSent, textAlign: TextAlign.center, style: style))
+        else ...[
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: widget.color,
+              side: BorderSide(color: widget.color, width: 2),
+              minimumSize: const Size.fromHeight(56),
+              shape: const StadiumBorder(),
+              textStyle: style,
+            ),
+            onPressed: _sending ? null : () => _answer(AlarmAnswerStatus.safe),
+            icon: const Icon(Icons.check_circle_outline),
+            label: Text(l10n.alertSafe),
+          ),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: widget.color,
+              side: BorderSide(color: widget.color, width: 2),
+              minimumSize: const Size.fromHeight(56),
+              shape: const StadiumBorder(),
+              textStyle: style,
+            ),
+            onPressed: _sending ? null : () => _answer(AlarmAnswerStatus.needHelp),
+            icon: const Icon(Icons.sos),
+            label: Text(l10n.alertNeedHelp),
+          ),
+        ],
+        const SizedBox(height: 8),
+        Text(
+          l10n.orgRollCallNote,
+          textAlign: TextAlign.center,
+          style: theme.textTheme.bodyMedium?.copyWith(color: widget.color),
+        ),
+      ],
     );
   }
 }

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
+import 'package:pjr_accesibilitate/features/emergency/emergency_screen.dart';
 import 'package:pjr_accesibilitate/features/home/home_screen.dart';
 import 'package:pjr_accesibilitate/features/participant/join_screen.dart';
+import 'package:pjr_accesibilitate/features/sounds/sounds_screen.dart';
 import 'package:pjr_accesibilitate/l10n/app_localizations.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
 
@@ -23,6 +25,50 @@ Widget laptopHome(TestHarness h) => ServicesScope(
     );
 
 void main() {
+  testWidgets('phone: the Sounds card says the state and opens the Sounds screen', (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final h = await TestHarness.create();
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
+
+    expect(find.text(l10n.homeSoundsOff), findsOneWidget);
+    ServicesScope.of(tester.element(find.byType(HomeScreen))).soundListening.enable();
+    await tester.pumpAndSettle();
+    expect(find.text(l10n.homeSoundsOn), findsOneWidget);
+
+    await tester.tap(find.text(l10n.homeSounds));
+    await tester.pumpAndSettle();
+    expect(find.byType(SoundsScreen), findsOneWidget);
+  });
+
+  testWidgets('phone: without a detector the card says it is unavailable', (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final h = await TestHarness.create();
+    h.sounds.available = false;
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
+
+    expect(find.text(l10n.homeSoundsUnavailable), findsOneWidget);
+
+    // Wanting to listen must not make the icon look active when there is no detector.
+    // enable() refuses without a detector, so set the remembered choice directly.
+    final listening = ServicesScope.of(tester.element(find.byType(HomeScreen))).soundListening;
+    listening.wanted = true;
+    // ignore: invalid_use_of_protected_member
+    listening.notifyListeners();
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.hearing_disabled), findsOneWidget);
+    expect(find.byIcon(Icons.hearing), findsNothing);
+  });
+
   testWidgets('phone: one main action, other tools grouped, presenter as a quiet link', (tester) async {
     tester.view.physicalSize = const Size(390, 1600);
     tester.view.devicePixelRatio = 1;
@@ -34,7 +80,7 @@ void main() {
 
     expect(find.text('Conectează-te la speaker'), findsOneWidget);
     expect(find.text('În afara meetingurilor'), findsOneWidget);
-    // Visible sound is the pill in the top bar, not a row.
+    // Visible sound is its own card under the main action, not a row.
     expect(find.text('Sunetele din jur'), findsNothing);
     expect(find.text('Sunete'), findsOneWidget);
     expect(find.text('Vorbesc cu cineva'), findsOneWidget);
@@ -54,6 +100,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Eu prezint'), findsOneWidget);
+    expect(find.text(AppLocalizations.of(tester.element(find.byType(HomeScreen))).homeSounds), findsNothing);
     expect(find.text('Participi la meeting? Intră de aici'), findsOneWidget);
     expect(find.text('Sunete'), findsNothing);
     expect(find.text('Vorbesc cu cineva'), findsNothing);
@@ -121,5 +168,26 @@ void main() {
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
     expect(Theme.of(tester.element(find.text('Conectează-te la speaker'))).brightness, Brightness.light);
+  });
+
+  testWidgets('home: the emergency row appears only when signed in', (tester) async {
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    final h = await TestHarness.create(accounts: true);
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    expect(find.text('Alarmă de urgență'), findsNothing);
+
+    h.account!.signInAs('a@example.com');
+    await tester.pumpAndSettle();
+    expect(find.text('Alarmă de urgență'), findsOneWidget);
+    expect(find.text('Când aplicația nu aude pericolul'), findsOneWidget);
+    expect(find.byIcon(Icons.emergency_share), findsOneWidget);
+
+    await tester.tap(find.text('Alarmă de urgență'));
+    await tester.pumpAndSettle();
+    expect(find.byType(EmergencyScreen), findsOneWidget);
   });
 }

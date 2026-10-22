@@ -43,10 +43,13 @@ class AnswerCheck {
 
 /// HTTP calls to server/ (see the REST table in the design doc).
 class ServerApi {
-  ServerApi(this.baseUrl, {http.Client? client}) : _client = client ?? http.Client();
+  ServerApi(this.baseUrl, {http.Client? client, this.accessToken}) : _client = client ?? http.Client();
 
   final Uri baseUrl;
   final http.Client _client;
+
+  /// The signed-in user's token, read on every call; the server then applies their own AI limit.
+  final String? Function()? accessToken;
 
   Future<String> createSession() async => (await _post('/api/sessions', {}))['code'] as String;
 
@@ -97,11 +100,15 @@ class ServerApi {
   }
 
   Future<Map<String, dynamic>> _post(String path, Map<String, Object> body) async {
-    final response = await _client.post(
-      baseUrl.resolve(path),
-      headers: {'content-type': 'application/json'},
-      body: jsonEncode(body),
-    );
+    Future<http.Response> post(String? token) => _client.post(
+          baseUrl.resolve(path),
+          headers: {'content-type': 'application/json', if (token != null) 'authorization': 'Bearer $token'},
+          body: jsonEncode(body),
+        );
+    final token = accessToken?.call();
+    var response = await post(token);
+    // An expired session should not cost the user the AI: accounts are optional, so ask again anonymously.
+    if (response.statusCode == 401 && token != null) response = await post(null);
     _check(response);
     return jsonDecode(utf8.decode(response.bodyBytes)) as Map<String, dynamic>;
   }

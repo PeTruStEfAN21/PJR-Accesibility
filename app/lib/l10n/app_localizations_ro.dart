@@ -265,6 +265,14 @@ class AppLocalizationsRo extends AppLocalizations {
   String get aiError => 'AI-ul nu a putut răspunde. Încearcă din nou.';
 
   @override
+  String get aiErrorLimit =>
+      'AI-ul a primit prea multe cereri în ultima oră. Încearcă din nou mai târziu.';
+
+  @override
+  String get aiErrorOff =>
+      'AI-ul nu e pornit pe server. Subtitrările merg în continuare.';
+
+  @override
   String get simplify => 'Simplifică';
 
   @override
@@ -493,12 +501,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get soundsTitle => 'Sunetul vizibil';
 
   @override
-  String get soundsStart => 'Pornește ascultarea';
-
-  @override
-  String get soundsStop => 'Oprește ascultarea';
-
-  @override
   String get soundsListening =>
       'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.';
 
@@ -510,21 +512,21 @@ class AppLocalizationsRo extends AppLocalizations {
       'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
 
   @override
-  String get soundsPill => 'Sunete';
+  String get homeSounds => 'Sunete';
 
   @override
-  String get soundsPillOn => 'Sunetul vizibil: pornit';
+  String get homeSoundsOn =>
+      'Pornit: telefonul te alertează la alarme, claxoane și numele tău.';
 
   @override
-  String get soundsPillOff => 'Sunetul vizibil: oprit';
+  String get homeSoundsOff => 'Oprit: atinge ca să pornești alertele de sunet.';
 
   @override
-  String get soundsPillPaused =>
-      'Sunetul vizibil: în pauză cât merge subtitrarea';
+  String get homeSoundsPaused => 'Pe pauză cât rulează subtitrările.';
 
   @override
-  String get soundsPillHint =>
-      'Apasă lung pentru detalii și testarea alertelor.';
+  String get homeSoundsUnavailable =>
+      'Indisponibil pe acest dispozitiv: atinge pentru detalii.';
 
   @override
   String get soundsTest => 'Testează alertele';
@@ -532,6 +534,66 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.';
+
+  @override
+  String get soundsExplain =>
+      'Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.';
+
+  @override
+  String get soundsSwitch => 'Alerte de sunet';
+
+  @override
+  String get soundsVibrations => 'Vibrații';
+
+  @override
+  String get soundsLevelExamplesCritical => 'Alarmă de incendiu, sirenă';
+
+  @override
+  String get soundsLevelExamplesWarning => 'Claxon, sticlă spartă';
+
+  @override
+  String get soundsLevelExamplesInfo => 'Numele tău, telefon, ușă';
+
+  @override
+  String get levelCritical => 'Critic';
+
+  @override
+  String get levelWarning => 'Important';
+
+  @override
+  String get levelInfo => 'Informativ';
+
+  @override
+  String get hapticLong => 'Lungă';
+
+  @override
+  String get hapticLongHint => 'Un buzz lung și puternic';
+
+  @override
+  String get hapticStrong => 'Triplă';
+
+  @override
+  String get hapticStrongHint => 'Trei buzz-uri puternice la rând';
+
+  @override
+  String get hapticLight => 'Scurtă';
+
+  @override
+  String get hapticLightHint => 'Un buzz scurt și ușor';
+
+  @override
+  String vibrationUsedBy(String level) {
+    return 'Folosită la $level';
+  }
+
+  @override
+  String vibrationSwapped(String level, String haptic) {
+    return '$level folosește acum $haptic';
+  }
+
+  @override
+  String get vibrationCriticalRepeats =>
+      'La alertele critice vibrația se repetă până închizi alerta.';
 
   @override
   String get soundGlassBreak => 'Geam spart';
@@ -669,7 +731,7 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get accountDeleteBody =>
-      'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.';
+      'Se șterg definitiv contul, meetingurile salvate, transcrierile, rezumatele și istoricul lor. Rămân 12 luni, cu emailul tău dar fără legătură cu contul: alarmele date de tine, răspunsurile tale la alarme și, dacă ești administrator, ce meetinguri ale angajaților ai citit (pentru anchete despre alarme și ca angajații să știe cine le-a citit meetingurile). Nu se poate anula.';
 
   @override
   String get accountDeleteConfirm => 'Șterge definitiv';
@@ -914,4 +976,505 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get coachStop => 'Oprește';
+
+  @override
+  String get locSoundsTitle => 'Sunetele locației';
+
+  @override
+  String get locSoundsHint =>
+      'Învață sunetele care contează aici: alarma halei, soneria biroului. Se păstrează doar amprenta sunetului, nu înregistrarea.';
+
+  @override
+  String get locSoundsEmpty => 'Niciun sunet învățat încă.';
+
+  @override
+  String get locSoundsLearn => 'Învață un sunet';
+
+  @override
+  String get locSoundsFromCompany => 'De la companie';
+
+  @override
+  String get locSoundsShare => 'Împarte cu compania';
+
+  @override
+  String get locSoundsShared => 'Sunetul a fost trimis companiei.';
+
+  @override
+  String get locSoundsDelete => 'Șterge sunetul';
+
+  @override
+  String get learnName => 'Numele sunetului';
+
+  @override
+  String get learnNameHint => 'De exemplu: Alarma halei 2';
+
+  @override
+  String get learnLevel => 'Cât de important e';
+
+  @override
+  String get learnLevelCritical => 'Critic: ecran roșu până confirmi';
+
+  @override
+  String get learnLevelWarning => 'Atenție: ecran galben';
+
+  @override
+  String get learnLevelInfo => 'Informativ: notificare discretă';
+
+  @override
+  String get learnRecord => 'Înregistrează o mostră (3 secunde)';
+
+  @override
+  String get learnRecording => 'Ascult… redă sunetul acum.';
+
+  @override
+  String learnSamples(int count) {
+    return 'Mostre: $count din 3';
+  }
+
+  @override
+  String get learnNothingHeard =>
+      'N-am auzit nimic. Apropie telefonul de sunet și încearcă din nou.';
+
+  @override
+  String get learnSave => 'Salvează sunetul';
+
+  @override
+  String get orgError =>
+      'Nu s-a putut. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get orgLastAdmin =>
+      'Ești singurul administrator al companiei și mai sunt colegi în ea. Fă pe altcineva administrator, apoi încearcă din nou.';
+
+  @override
+  String get orgTitle => 'Compania mea';
+
+  @override
+  String get orgNone => 'Nu faci parte din nicio companie.';
+
+  @override
+  String get orgInvitesTitle => 'Invitații primite';
+
+  @override
+  String orgInviteFrom(String org) {
+    return '$org te invită să te alături';
+  }
+
+  @override
+  String get orgAccept => 'Acceptă';
+
+  @override
+  String get orgCreateTitle => 'Creează o companie';
+
+  @override
+  String get orgCreateHint =>
+      'Pentru angajator: invită angajații, împarte sunetele locației și vezi cine e în siguranță la o alarmă.';
+
+  @override
+  String get orgName => 'Numele companiei';
+
+  @override
+  String get orgCreate => 'Creează';
+
+  @override
+  String get orgRoleAdmin => 'Administrator';
+
+  @override
+  String get orgRoleEmployee => 'Angajat';
+
+  @override
+  String get orgMyNeeds => 'Nevoile mele';
+
+  @override
+  String get orgMyNeedsHint =>
+      'Compania vede doar ce bifezi aici. Fără detalii medicale.';
+
+  @override
+  String get needCaptions => 'Subtitrare la meetinguri';
+
+  @override
+  String get needVisualAlerts => 'Alerte vizuale pentru sunete';
+
+  @override
+  String get needWatchAlerts => 'Alerte pe ceas';
+
+  @override
+  String get needLargeText => 'Text mare';
+
+  @override
+  String get orgSave => 'Salvează';
+
+  @override
+  String get orgSaved => 'Salvat.';
+
+  @override
+  String get orgLeave => 'Părăsește compania';
+
+  @override
+  String orgLeaveTitle(String org) {
+    return 'Părăsești $org?';
+  }
+
+  @override
+  String get orgLeaveBody =>
+      'Compania nu va mai vedea nevoile tale și nici răspunsurile tale la alarme.';
+
+  @override
+  String get orgMembers => 'Angajați';
+
+  @override
+  String get orgMakeAdmin => 'Fă administrator';
+
+  @override
+  String get orgMakeEmployee => 'Fă angajat';
+
+  @override
+  String get orgRemove => 'Scoate din companie';
+
+  @override
+  String get orgNeedsNotShared => 'Nevoile nu sunt completate';
+
+  @override
+  String get orgInvite => 'Invită un angajat';
+
+  @override
+  String get orgEmail => 'Emailul angajatului';
+
+  @override
+  String get orgDepartment => 'Departament (opțional)';
+
+  @override
+  String get orgSendInvite => 'Trimite invitația';
+
+  @override
+  String get orgInviteSent =>
+      'Invitația a fost trimisă. Angajatul o vede după ce se autentifică cu acest email.';
+
+  @override
+  String get orgPending => 'Invitații în așteptare';
+
+  @override
+  String get orgCancelInvite => 'Anulează invitația';
+
+  @override
+  String get orgAlarms => 'Alarme în desfășurare';
+
+  @override
+  String get orgNoAlarms => 'Nicio alarmă acum.';
+
+  @override
+  String orgAlarmSafe(int count) {
+    return 'În siguranță: $count';
+  }
+
+  @override
+  String orgAlarmHelp(int count) {
+    return 'Au nevoie de ajutor: $count';
+  }
+
+  @override
+  String orgAlarmNoAnswer(int count) {
+    return 'Fără răspuns: $count';
+  }
+
+  @override
+  String get orgCloseAlarm => 'Închide alarma';
+
+  @override
+  String get orgRollCallNote => 'Lista nu înlocuiește procedura de evacuare.';
+
+  @override
+  String get alertSafe => 'Sunt în siguranță';
+
+  @override
+  String get alertNeedHelp => 'Am nevoie de ajutor';
+
+  @override
+  String get alertAnswerSent => 'Răspunsul a fost trimis companiei.';
+
+  @override
+  String get alarmFire => 'Incendiu';
+
+  @override
+  String get alarmEvacuation => 'Evacuare';
+
+  @override
+  String get alarmSiren => 'Sirenă sau pericol afară';
+
+  @override
+  String get alarmMachine => 'Pericol la un utilaj';
+
+  @override
+  String alarmFromColleague(String name) {
+    return '$name · semnalat de un coleg';
+  }
+
+  @override
+  String get emergencyTitle => 'Alarmă de urgență';
+
+  @override
+  String get emergencyHomeHint => 'Când aplicația nu aude pericolul';
+
+  @override
+  String get emergencyIntro =>
+      'Alarma ajunge la colegii aflați la cel mult 500 m.';
+
+  @override
+  String get emergencyAccountable =>
+      'Alarma se salvează cu contul tău, ora, locul și adresa IP.';
+
+  @override
+  String get alarmLevelCritical => 'Critic';
+
+  @override
+  String get alarmLevelWarning => 'Atenție';
+
+  @override
+  String emergencyConfirm(String name) {
+    return 'Trimiți alarma „$name”?';
+  }
+
+  @override
+  String get emergencySend => 'Trimite alarma';
+
+  @override
+  String get emergencyCancelDialog => 'Renunță';
+
+  @override
+  String emergencySent(String time) {
+    return 'Alarmă trimisă la $time';
+  }
+
+  @override
+  String get emergencyCancelAlarm => 'Anulează alarma';
+
+  @override
+  String get emergencyCancelConfirm => 'Anulezi alarma pentru toți colegii?';
+
+  @override
+  String get emergencyCancelled => 'Alarmă anulată';
+
+  @override
+  String get emergencySending => 'Se trimite…';
+
+  @override
+  String get emergencyCancelling => 'Se anulează…';
+
+  @override
+  String get emergencyErrorSignedOut => 'Intră în cont ca să poți da o alarmă.';
+
+  @override
+  String get emergencyErrorLocation =>
+      'Permite accesul la locație din Setări, ca alarma să ajungă la cine e aproape.';
+
+  @override
+  String emergencyErrorTooMany(int minutes) {
+    return 'Ai dat deja 3 alarme în ultima oră. Încearcă din nou peste $minutes min.';
+  }
+
+  @override
+  String get emergencyErrorOffline =>
+      'Nu ajungem la server. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get emergencyErrorFailed => 'Alarma nu a plecat. Încearcă din nou.';
+
+  @override
+  String get emergencyErrorCancelFailed =>
+      'Alarma nu mai e activă sau nu a putut fi anulată. Verifică și încearcă din nou.';
+
+  @override
+  String get emergencyErrorNotConfigured =>
+      'Serverul nu are conturi pornite. Anunță administratorul.';
+
+  @override
+  String get activityTitle => 'Istoricul meu';
+
+  @override
+  String get activityHint =>
+      'Alarmele tale, meetingurile salvate și cine le-a citit';
+
+  @override
+  String get activityEmpty =>
+      'Nu e nimic în istoric încă. Aici apar alarmele tale, meetingurile salvate și cine le-a citit.';
+
+  @override
+  String get activityCompanyEmpty => 'Nu e nimic în istoricul companiei încă.';
+
+  @override
+  String get activityLoadError =>
+      'Nu am putut încărca istoricul. Verifică internetul și încearcă din nou.';
+
+  @override
+  String get activityOlder => 'Mai vechi';
+
+  @override
+  String get activitySomeone => 'Cineva';
+
+  @override
+  String get activityNoTitle => 'fără titlu';
+
+  @override
+  String activityQuoted(String title) {
+    return '„$title”';
+  }
+
+  @override
+  String get activityStatusSafe => 'în siguranță';
+
+  @override
+  String get activityStatusNeedHelp => 'am nevoie de ajutor';
+
+  @override
+  String activityPlace(String lat, String lon, String accuracy) {
+    return 'Locul: $lat, $lon (±$accuracy m)';
+  }
+
+  @override
+  String activityAlarmRaisedMe(String kind) {
+    return 'Ai dat o alarmă: $kind';
+  }
+
+  @override
+  String activityAlarmRaised(String who, String kind) {
+    return '$who a dat o alarmă: $kind';
+  }
+
+  @override
+  String activityAlarmCancelledMe(String kind) {
+    return 'Ai anulat alarma: $kind';
+  }
+
+  @override
+  String activityAlarmCancelled(String who, String kind) {
+    return '$who a anulat alarma: $kind';
+  }
+
+  @override
+  String activityAlarmReportedMe(String kind) {
+    return 'Ai semnalat companiei alarma: $kind';
+  }
+
+  @override
+  String activityAlarmReported(String who, String kind) {
+    return '$who a semnalat companiei alarma: $kind';
+  }
+
+  @override
+  String activityAlarmAnsweredMe(String status, String kind) {
+    return 'Ai răspuns „$status” la alarma: $kind';
+  }
+
+  @override
+  String activityAlarmAnswered(String who, String status, String kind) {
+    return '$who a răspuns „$status” la alarma: $kind';
+  }
+
+  @override
+  String activityAlarmClosedMe(String kind) {
+    return 'Ai închis alarma: $kind';
+  }
+
+  @override
+  String activityAlarmClosed(String who, String kind) {
+    return '$who a închis alarma: $kind';
+  }
+
+  @override
+  String activityMeetingStartedMe(String meeting) {
+    return 'Ai început meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingStarted(String who, String meeting) {
+    return '$who a început meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingEndedMe(String meeting) {
+    return 'Ai încheiat meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingEnded(String who, String meeting) {
+    return '$who a încheiat meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingDeletedMe(String meeting) {
+    return 'Ai șters meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingDeleted(String who, String meeting) {
+    return '$who a șters meetingul $meeting';
+  }
+
+  @override
+  String activityMeetingReadMine(String who, String meeting) {
+    return '$who (administrator) a citit meetingul tău $meeting';
+  }
+
+  @override
+  String activityMeetingReadByMe(String meeting, String owner) {
+    return 'Ai citit meetingul $meeting, salvat de $owner';
+  }
+
+  @override
+  String activityMeetingRead(String who, String meeting, String owner) {
+    return '$who (administrator) a citit meetingul $meeting, salvat de $owner';
+  }
+
+  @override
+  String get orgHistory => 'Istoricul companiei';
+
+  @override
+  String get orgHistoryHint => 'Alarmele și meetingurile din companie, cu cine';
+
+  @override
+  String get orgMeetings => 'Meetingurile companiei';
+
+  @override
+  String get orgMeetingsHint =>
+      'Meetingurile salvate de angajați cât sunt în companie';
+
+  @override
+  String get orgMeetingsNotice =>
+      'Când deschizi un meeting, angajatul vede în istoricul lui că l-ai citit.';
+
+  @override
+  String get orgMeetingsEmpty =>
+      'Niciun meeting salvat pentru companie încă. Aici apar meetingurile salvate de angajați cât sunt în companie.';
+
+  @override
+  String get orgMeetingsLoadError =>
+      'Nu am putut încărca meetingurile companiei. Verifică internetul și încearcă din nou.';
+
+  @override
+  String orgMeetingReadNotice(String owner) {
+    return '$owner vede în istoricul lui că ai citit acest meeting.';
+  }
+
+  @override
+  String get orgMeetingOwnerUnknown => 'Angajatul';
+
+  @override
+  String get orgMeetingLoadError =>
+      'Nu am putut deschide meetingul. Poate nu mai e al companiei; încearcă din nou.';
+
+  @override
+  String get orgInviteNotice =>
+      'Dacă accepți, administratorii companiei pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei.';
+
+  @override
+  String get orgEmployeeNotice =>
+      'Administratorii pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei. Când un administrator îți citește un meeting, vezi asta în Istoricul meu.';
+
+  @override
+  String meetingSavingForOrg(String org) {
+    return 'Meetingul se salvează pentru $org. Administratorii îl pot citi.';
+  }
+
+  @override
+  String get meetingPickOrg => 'Alege compania';
 }

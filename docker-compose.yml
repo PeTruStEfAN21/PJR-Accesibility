@@ -11,6 +11,8 @@ services:
       PUBLIC_URL: ${PUBLIC_URL:-http://localhost:8000}
       # Live sessions and AI limits in Redis, so more server instances can run side by side.
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
+      # Colleague alarms in the activity log (role echo_audit). Empty: only in the server log.
+      AUDIT_DATABASE_URL: ${AUDIT_DATABASE_URL:-}
     volumes:
       # Presenter page: run `flutter build web` in app/ first.
       - ./app/build/web:/srv/web:ro

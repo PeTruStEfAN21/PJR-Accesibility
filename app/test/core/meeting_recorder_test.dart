@@ -95,4 +95,82 @@ void main() {
       expect(store.lines[id], hasLength(1));
     });
   });
+
+  test('saves the meeting for the company chosen when the meeting is created', () {
+    fakeAsync((async) {
+      var company = 'org1';
+      final forCompany = MeetingRecorder(
+        store: store,
+        transcript: transcript,
+        lang: 'ro-RO',
+        company: () => company,
+      )..start();
+      company = 'org2';
+      transcript.upsert(caption('a', 'unu'));
+      async.elapse(const Duration(seconds: 30));
+
+      expect(store.orgOf[forCompany.meetingId], 'org2');
+      expect(forCompany.orgId, 'org2');
+      company = 'org1';
+      transcript.upsert(caption('b', 'doi'));
+      async.elapse(const Duration(seconds: 30));
+      expect(store.meetings, hasLength(1));
+      expect(forCompany.orgId, 'org2');
+    });
+  });
+
+  test("without a company the meeting is only the user's", () {
+    fakeAsync((async) {
+      recorder.start();
+      transcript.upsert(caption('a', 'unu'));
+      async.elapse(const Duration(seconds: 30));
+      expect(store.orgOf[recorder.meetingId], isNull);
+      expect(recorder.orgId, isNull);
+    });
+  });
+
+  test('a company gone since the list was loaded: refreshes the list and saves with what is left', () {
+    fakeAsync((async) {
+      var company = 'org1';
+      var refreshes = 0;
+      store.goneOrgs.add('org1');
+      final forCompany = MeetingRecorder(
+        store: store,
+        transcript: transcript,
+        lang: 'ro-RO',
+        company: () => company,
+        refreshCompanies: () async {
+          refreshes++;
+          company = 'org2';
+        },
+      )..start();
+      transcript.upsert(caption('a', 'unu'));
+      async.elapse(const Duration(seconds: 30));
+
+      expect(refreshes, 1);
+      expect(store.orgOf[forCompany.meetingId], 'org2');
+      expect(forCompany.orgId, 'org2');
+      expect(store.lines[forCompany.meetingId], hasLength(1));
+    });
+  });
+
+  test('no company left after the refresh: the meeting is saved only for the user', () {
+    fakeAsync((async) {
+      String? company = 'org1';
+      store.goneOrgs.add('org1');
+      final forCompany = MeetingRecorder(
+        store: store,
+        transcript: transcript,
+        lang: 'ro-RO',
+        company: () => company,
+        refreshCompanies: () async => company = null,
+      )..start();
+      transcript.upsert(caption('a', 'unu'));
+      async.elapse(const Duration(seconds: 30));
+
+      expect(forCompany.meetingId, isNotNull);
+      expect(store.orgOf[forCompany.meetingId], isNull);
+      expect(forCompany.orgId, isNull);
+    });
+  });
 }

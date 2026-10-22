@@ -7,7 +7,8 @@ import 'participant_screen_test.dart' show caption, joinMeeting, settle;
 final history = find.text('Meetingurile mele', skipOffstage: false);
 
 Future<void> openHistory(WidgetTester tester) async {
-  await tester.ensureVisible(find.text('Meetingurile mele'));
+  // The Sounds card pushed the list's last rows past what the list has built.
+  await tester.scrollUntilVisible(find.text('Meetingurile mele'), 100);
   await tester.pumpAndSettle();
   await tester.tap(find.text('Meetingurile mele'));
   await tester.pumpAndSettle();

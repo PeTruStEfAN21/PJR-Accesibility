@@ -26,4 +26,20 @@ void main() {
     SharedPreferences.setMockInitialValues({'locationSounds': 'not json'});
     expect(LocationSoundStore(await SharedPreferences.getInstance()).sounds, isEmpty);
   });
+
+  test('sounds from the company are kept apart and replaced at each sync', () async {
+    SharedPreferences.setMockInitialValues({});
+    final prefs = await SharedPreferences.getInstance();
+    final store = LocationSoundStore(prefs);
+    await store.add('Cuptorul meu', AlertLevel.info, normalized([1, 0]));
+    final hall = LocationSound(id: 'org-1', label: 'Alarma halei', level: AlertLevel.critical, print: normalized([0, 1]));
+
+    await store.replaceShared([hall]);
+    expect(store.sounds.map((s) => s.label), ['Cuptorul meu', 'Alarma halei']);
+    expect(store.learned.single.label, 'Cuptorul meu');
+    expect(LocationSoundStore(prefs).shared.single.label, 'Alarma halei');
+
+    await store.replaceShared([]);
+    expect(store.sounds.single.label, 'Cuptorul meu');
+  });
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -6,6 +7,9 @@ import 'app.dart';
 import 'core/account/account_service.dart';
 import 'core/account/supabase_config.dart';
 import 'core/history/meeting_store.dart';
+import 'core/org/activity_store.dart';
+import 'core/org/org_store.dart';
+import 'core/org/organizations.dart';
 import 'core/services.dart';
 import 'core/speech/mic_sharing_speech.dart';
 import 'core/speech/speech_service.dart';
@@ -25,11 +29,15 @@ Future<void> main() async {
   // Accounts are optional: without SUPABASE_URL / SUPABASE_ANON_KEY nothing is signed in or saved.
   AccountService? account;
   MeetingStore? meetings;
+  OrgStore? orgStore;
+  ActivityStore? activity;
   if (SupabaseConfig.isConfigured) {
     await Supabase.initialize(url: SupabaseConfig.url, publishableKey: SupabaseConfig.anonKey);
     final client = Supabase.instance.client;
     account = SupabaseAccountService(client);
     meetings = SupabaseMeetingStore(client);
+    orgStore = SupabaseOrgStore(client);
+    activity = SupabaseActivityStore(client);
   }
 
   // YAMNet runs on the device: TFLite on iPhone / Android, TensorFlow.js in the browser.
@@ -45,6 +53,15 @@ Future<void> main() async {
     wanted: prefs.getBool(_alwaysListenKey) ?? false,
     onWantedChanged: (on) => prefs.setBool(_alwaysListenKey, on),
   );
+  // Companies of the signed-in user; their shared sounds join the detector's list.
+  final organizations = account != null && orgStore != null
+      ? (Organizations(
+          store: orgStore,
+          account: account,
+          sounds: locationSounds,
+          model: kIsWeb ? SoundModel.tfjs : SoundModel.tflite,
+        )..refresh())
+      : null;
   final services = AppServices(
     speech: MicSharingSpeech(PlatformSpeechService(), takeMic: listening.hold, giveBackMic: listening.release),
     sounds: sounds,
@@ -53,6 +70,8 @@ Future<void> main() async {
     locationSounds: locationSounds,
     account: account,
     meetings: meetings,
+    organizations: organizations,
+    activity: activity,
   );
   runApp(EchoApp(settings: settings, services: services));
   listening.autoStart();
