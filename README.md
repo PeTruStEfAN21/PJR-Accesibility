@@ -27,3 +27,11 @@ Fără pașii de mai jos aplicația merge anonim, ca înainte. Detalii în `docs
 5. În `.env`: `SUPABASE_URL`. Pentru aplicație creează `app/supabase.env.json` (ignorat de git) cu `{"SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "<cheia publishable>"}`, apoi `flutter run --dart-define-from-file=supabase.env.json` (la fel pentru `flutter build web`).
 
 Local, fără cloud: `npx supabase start` (cere Docker), iar emailurile apar în Mailpit pe http://localhost:54324.
+
+### Alarma dată de un coleg
+
+Un coleg intrat în cont dă o alarmă de urgență din aplicație („Alarmă de urgență” pe ecranul principal); o primesc cei intrați în cont aflați la cel mult 500 m. Cere conturile de mai sus. Detalii în `docs/specs/2026-10-22-alarma-manuala-design.md`.
+
+- Serverul: `POST /api/alarms`, `POST /api/alarms/{id}/cancel` (cu cont, cel mult 3 alarme pe oră) și `/ws/alarms` pentru ascultare.
+- Cine a dat alarma ajunge la `AlarmRecorder` (`server/app/alarms.py`). Deocamdată se scrie doar în logul serverului (`docker compose logs server`); salvarea în baza de date se adaugă acolo.
+- Pe Mac, după `git pull`: `cd app/ios && pod install` (pachetul de locație `geolocator`).
