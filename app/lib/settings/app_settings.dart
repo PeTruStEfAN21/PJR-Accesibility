@@ -21,10 +21,18 @@ class AppSettings extends ChangeNotifier {
   bool dyslexiaMode = false;
   RolePaletteKind palette = RolePaletteKind.standard;
   bool highContrast = false;
-  ThemeMode themeMode = ThemeMode.system;
+  ThemeMode themeMode = ThemeMode.light;
   bool autoScroll = true;
   String emergencyExit = '';
   String serverUrl = '';
+
+  /// In-app onboarding: false once the user taps "Skip" on any tip.
+  bool tipsEnabled = true;
+
+  /// Ids of the tips the user has already dismissed.
+  Set<String> seenTips = {};
+
+  bool shouldShowTip(String id) => tipsEnabled && !seenTips.contains(id);
 
   static const minTextScale = 1.0;
   static const maxTextScale = 2.0;
@@ -45,6 +53,8 @@ class AppSettings extends ChangeNotifier {
     autoScroll = _prefs.getBool('autoScroll') ?? autoScroll;
     emergencyExit = _prefs.getString('emergencyExit') ?? emergencyExit;
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;
+    tipsEnabled = _prefs.getBool('tipsEnabled') ?? tipsEnabled;
+    seenTips = (_prefs.getStringList('seenTips') ?? const []).toSet();
   }
 
   void update(void Function(AppSettings s) change) {
@@ -69,7 +79,9 @@ class AppSettings extends ChangeNotifier {
       ..setString('themeMode', themeMode.name)
       ..setBool('autoScroll', autoScroll)
       ..setString('emergencyExit', emergencyExit)
-      ..setString('serverUrl', serverUrl);
+      ..setString('serverUrl', serverUrl)
+      ..setBool('tipsEnabled', tipsEnabled)
+      ..setStringList('seenTips', seenTips.toList());
   }
 }
 

@@ -12,33 +12,63 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Echo';
 
   @override
-  String get homeTitle => 'What would you like to do?';
+  String get homeTitle => 'Hi! Where do we start?';
 
   @override
-  String get homeJoin => 'Join a meeting';
+  String get homeJoin => 'I\'m in a meeting';
 
   @override
   String get homeJoinHint =>
-      'See captions by role and send questions to the presenter';
+      'See everything that\'s said, and who\'s saying it.';
 
   @override
   String get homePresent => 'I\'m presenting';
 
   @override
-  String get homePresentHint =>
-      'Keep the laptop in front of you and show the code to participants';
+  String get homePresentHint => 'Start the meeting and show everyone the code.';
 
   @override
-  String get homeSounds => 'Visible sound';
+  String get homeSounds => 'Sounds around you';
 
   @override
-  String get homeSoundsHint => 'Alerts for alarms, horns and your name';
+  String get homeSoundsHint =>
+      'We\'ll tell you when there\'s an alarm, a horn, or someone calls your name.';
 
   @override
-  String get homeConversation => 'Conversation';
+  String get homeConversation => 'I\'m talking with someone';
 
   @override
-  String get homeConversationHint => 'Captions next to each speaker\'s face';
+  String get homeConversationHint =>
+      'See what each person says, right next to their face.';
+
+  @override
+  String get homeElsewhere => 'Outside meetings';
+
+  @override
+  String get homeOtherPresent => 'Presenting? Open presenter mode';
+
+  @override
+  String get homeOtherJoin => 'Joining a meeting? Start here';
+
+  @override
+  String get tipTitle => 'First time here?';
+
+  @override
+  String get homeTipJoin =>
+      'Start here. Ask the presenter for the code and follow the meeting on screen.';
+
+  @override
+  String get homeTipPresent =>
+      'Start here. Start the meeting and Echo gives you a code to show everyone.';
+
+  @override
+  String get tipGotIt => 'Got it';
+
+  @override
+  String get tipSkip => 'Skip';
+
+  @override
+  String get tipSkipLabel => 'Skip all tips';
 
   @override
   String get settings => 'Settings';
@@ -54,6 +84,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinTitle => 'Join a meeting';
+
+  @override
+  String get joinIntro => 'Type the code shown on the presenter\'s screen.';
+
+  @override
+  String get joinServerChange => 'Change';
 
   @override
   String get joinCodeLabel => 'Code shown on the presenter\'s screen';
