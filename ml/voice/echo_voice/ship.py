@@ -35,7 +35,7 @@ from echo_voice.model import SAMPLE_RATE, embed, load_base, load_candidate
 MIN_SPEAKER_HIT = 0.95
 MIN_ROOM_REJECT = 0.85
 # Read by the presenter page (app/lib/core/voice/voice_head.dart).
-PAGE_SETTINGS = {"min_voiced_ms": 1000, "enroll_min_voiced_ms": 10000, "window_ms": 3000}
+PAGE_SETTINGS = {"min_voiced_ms": 500, "enroll_min_voiced_ms": 10000, "window_ms": 3000}
 APP_VOICE = ROOT.parent.parent / "app" / "web" / "voice"
 BASE_ID = "redimnet2-b6-vb2+vox2_v0-lm"
 

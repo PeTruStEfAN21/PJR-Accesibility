@@ -213,7 +213,14 @@ class _PresenterScreenState extends State<PresenterScreen> {
       final speaker = judged?.speaker ?? labeler?.current ?? Speaker.coordinator;
       if (!mounted) return;
       if (judged != null) {
-        _testMeeting?.add(id: segment.id, text: segment.text, predicted: speaker, score: judged.score, clip: judged.clip);
+        _testMeeting?.add(
+          id: segment.id,
+          text: segment.text,
+          predicted: speaker,
+          score: judged.score,
+          reason: judged.reason.name,
+          clip: judged.clip,
+        );
       }
       if (segment.isFinal) _lastDecision = _describe(labeler, judged, speaker);
       final caption = Caption(
@@ -242,14 +249,22 @@ class _PresenterScreenState extends State<PresenterScreen> {
 
   String _describe(SpeakerLabeler? labeler, Judgement? judged, Speaker speaker) {
     final l10n = AppLocalizations.of(context);
-    if (labeler == null) return l10n.voiceDiagOff;
-    if (!labeler.enrolled) return l10n.voiceDiagNotLearned;
-    if (labeler.forceSpeaker) return l10n.voiceDiagForced;
-    final score = judged?.score;
-    if (score == null) return l10n.voiceDiagShort;
+    if (labeler == null || judged == null) return l10n.voiceDiagOff;
+    switch (judged.reason) {
+      case JudgeReason.notEnrolled:
+        return l10n.voiceDiagNotLearned;
+      case JudgeReason.forced:
+        return l10n.voiceDiagForced;
+      case JudgeReason.tooShort:
+        return l10n.voiceDiagShort;
+      case JudgeReason.modelError:
+        return l10n.voiceDiagError;
+      case JudgeReason.judged:
+        break;
+    }
     final number = NumberFormat('0.00', Localizations.localeOf(context).toString());
     return l10n.voiceDiagScore(
-      number.format(score),
+      number.format(judged.score!),
       number.format(labeler.head.cosineThreshold),
       speakerLabel(l10n, speaker),
     );

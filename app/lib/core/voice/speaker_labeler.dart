@@ -7,9 +7,12 @@ import 'voice_head.dart';
 
 enum EnrollResult { ok, tooLittleSpeech, failed }
 
-/// The decision for one final caption: who said it, how sure (null when not judged by voice), and the
+/// Why a line got its label: judged by voice, or not judged (and why).
+enum JudgeReason { judged, tooShort, notEnrolled, forced, modelError }
+
+/// The decision for one final caption: who said it, how sure (null when not judged by voice), why, and the
 /// audio it was decided on.
-typedef Judgement = ({Speaker speaker, double? score, Float32List clip});
+typedef Judgement = ({Speaker speaker, double? score, JudgeReason reason, Float32List clip});
 
 const _rate = 16000;
 
@@ -87,21 +90,24 @@ class SpeakerLabeler {
   }
 
   Future<Judgement> _judge(Float32List clip) async {
-    if (!enrolled || forceSpeaker) return (speaker: Speaker.coordinator, score: null, clip: clip);
+    if (!enrolled) return (speaker: Speaker.coordinator, score: null, reason: JudgeReason.notEnrolled, clip: clip);
+    if (forceSpeaker) return (speaker: Speaker.coordinator, score: null, reason: JudgeReason.forced, clip: clip);
     final voiced = voicedOnly(clip).length;
-    if (voiced < head.minVoicedMs * _rate ~/ 1000) return (speaker: current, score: null, clip: clip);
+    if (voiced < head.minVoicedMs * _rate ~/ 1000) {
+      return (speaker: current, score: null, reason: JudgeReason.tooShort, clip: clip);
+    }
     final Float32List vector;
     try {
       vector = await engine.embed(clip);
     } on Object {
-      return (speaker: current, score: null, clip: clip);
+      return (speaker: current, score: null, reason: JudgeReason.modelError, clip: clip);
     }
     final score = cosine(vector, voiceprint!);
     _current = head.isSpeaker(score) ? Speaker.coordinator : Speaker.public;
     if (head.probability(score) >= head.adaptThreshold && voiced >= head.adaptMinVoicedMs * _rate ~/ 1000) {
       _adapt(vector);
     }
-    return (speaker: current, score: score, clip: clip);
+    return (speaker: current, score: score, reason: JudgeReason.judged, clip: clip);
   }
 
   /// Moves the learned voice a little toward a line that is clearly the speaker's: the room, the distance

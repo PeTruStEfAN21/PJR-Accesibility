@@ -100,7 +100,7 @@ void main() {
     expect(await labeler.labelFinal(t0), Speaker.public);
     final embedded = engine.embedded.length;
 
-    engine.audio = join([silence(3), tone(0.6), silence(1)]);
+    engine.audio = join([silence(3), tone(0.3), silence(1)]);
     expect(await labeler.labelFinal(t0.add(const Duration(seconds: 5))), Speaker.public);
     expect(engine.embedded.length, embedded);
   });
@@ -143,7 +143,7 @@ void main() {
     expect(await labeler.labelFinal(t0), Speaker.public);
     final embedded = engine.embedded.length;
 
-    engine.audio = withNoise(join([silence(3), tone(0.6), silence(1)]));
+    engine.audio = withNoise(join([silence(3), tone(0.3), silence(1)]));
     expect(await labeler.labelFinal(t0.add(const Duration(seconds: 5))), Speaker.public);
     expect(engine.embedded.length, embedded);
   });
@@ -226,5 +226,32 @@ void main() {
       await labeler.labelFinal(t0.add(Duration(seconds: 5 * i)));
     }
     expect(cosine(labeler.voiceprint!, axis(0)), greaterThanOrEqualTo(0.95 - 1e-6));
+  });
+
+  test('a line with half a second of voice is judged, not inherited', () async {
+    await enrollSpeaker();
+    engine
+      ..audio = join([silence(2), tone(0.7), silence(1)])
+      ..vectorFor = (_) => axis(1);
+    final judged = await labeler.judgeFinal(t0);
+    expect(judged.reason, JudgeReason.judged);
+    expect(judged.speaker, Speaker.public);
+  });
+
+  test('every decision says why', () async {
+    engine.audio = tone(4);
+    expect((await labeler.judgeFinal(t0)).reason, JudgeReason.notEnrolled);
+
+    await enrollSpeaker();
+    engine.audio = join([silence(3), tone(0.3), silence(1)]);
+    expect((await labeler.judgeFinal(t0.add(const Duration(seconds: 5)))).reason, JudgeReason.tooShort);
+
+    engine.audio = tone(4);
+    labeler.forceSpeaker = true;
+    expect((await labeler.judgeFinal(t0.add(const Duration(seconds: 10)))).reason, JudgeReason.forced);
+    labeler.forceSpeaker = false;
+
+    engine.vectorFor = (_) => throw StateError('WebGPU lost');
+    expect((await labeler.judgeFinal(t0.add(const Duration(seconds: 15)))).reason, JudgeReason.modelError);
   });
 }

@@ -392,6 +392,10 @@ class AppLocalizationsRo extends AppLocalizations {
       'Replică prea scurtă: păstrează eticheta de dinainte';
 
   @override
+  String get voiceDiagError =>
+      'Eroare la modelul de voce: păstrează eticheta de dinainte';
+
+  @override
   String voiceDiagScore(String similarity, String threshold, String label) {
     return 'Asemănare cu vocea ta: $similarity (prag $threshold) → $label';
   }
