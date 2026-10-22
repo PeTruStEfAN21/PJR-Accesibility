@@ -25,23 +25,28 @@ def _pink_noise(n: int, rng: np.random.Generator) -> np.ndarray:
     return np.fft.irfft(spectrum / np.sqrt(freqs), n)
 
 
-def _in_room(wave: np.ndarray, rng: np.random.Generator) -> np.ndarray:
+def _in_room(wave: np.ndarray, rng: np.random.Generator, distance: tuple[float, float]) -> np.ndarray:
     rir = synthetic_rir(rng.uniform(0.2, 0.8), SAMPLE_RATE, rng)
-    # Direct-to-reverberant ratio: about +10 dB at 1 m, falling ~6 dB per doubling of distance (1–4 m).
-    drr_db = 10.0 - 6.0 * np.log2(rng.uniform(1.0, 4.0))
+    # Direct-to-reverberant ratio: about +10 dB at 1 m, falling ~6 dB per doubling of distance.
+    drr_db = 10.0 - 6.0 * np.log2(rng.uniform(*distance))
     tail_energy = max(float(np.sum(rir[1:] ** 2)), 1e-12)
     rir[1:] *= np.sqrt(10 ** (-drr_db / 10) / tail_energy)
     return fftconvolve(wave, rir)[: wave.size]
 
 
-def apply_room(wave: np.ndarray, rng: np.random.Generator, noise_pool: list[np.ndarray]) -> np.ndarray:
-    """The clip as a laptop across the room would hear it, with another voice or noise at 5–20 dB SNR."""
+def apply_room(
+    wave: np.ndarray,
+    rng: np.random.Generator,
+    noise_pool: list[np.ndarray],
+    distance: tuple[float, float] = (1.0, 10.0),
+) -> np.ndarray:
+    """The clip as a laptop [distance] metres away would hear it, with another voice or noise at 5–20 dB SNR."""
     n = wave.size
-    wet = _in_room(np.asarray(wave, dtype=np.float64), rng)
+    wet = _in_room(np.asarray(wave, dtype=np.float64), rng, distance)
     if noise_pool and rng.random() < 0.5:
         other = noise_pool[int(rng.integers(len(noise_pool)))]
         start = int(rng.integers(max(other.size, 1)))
-        noise = _in_room(np.resize(np.roll(other, -start), n).astype(np.float64), rng)
+        noise = _in_room(np.resize(np.roll(other, -start), n).astype(np.float64), rng, distance)
     else:
         noise = _pink_noise(n, rng)
     snr_db = rng.uniform(5.0, 20.0)
