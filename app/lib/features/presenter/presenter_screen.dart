@@ -85,13 +85,16 @@ class _PresenterScreenState extends State<PresenterScreen> {
   }
 
   Future<void> _startVoice() async {
-    final saved = SettingsScope.of(context).voiceprint;
+    final settings = SettingsScope.of(context);
+    final saved = settings.voiceprint;
     if (!await _voice.start()) {
       if (mounted) setState(() => _voiceStage = _VoiceStage.unavailable);
       return;
     }
     final labeler = SpeakerLabeler(_voice, await _voice.loadHead())..forceSpeaker = _forceSpeaker;
-    if (saved != null) labeler.voiceprint = Float32List.fromList(saved);
+    if (saved != null && settings.voiceprintModel == labeler.head.model) {
+      labeler.voiceprint = Float32List.fromList(saved);
+    }
     if (!mounted) return;
     setState(() {
       _labeler = labeler;
@@ -108,7 +111,10 @@ class _PresenterScreenState extends State<PresenterScreen> {
     final result = await labeler.enroll(samples);
     if (!mounted) return;
     if (result == EnrollResult.ok) {
-      settings.update((s) => s.voiceprint = labeler.voiceprint!.toList());
+      settings.update((s) {
+        s.voiceprint = labeler.voiceprint!.toList();
+        s.voiceprintModel = labeler.head.model;
+      });
       _enrollmentAudio = samples;
       _testMeeting?.setEnrollment(samples);
     }
