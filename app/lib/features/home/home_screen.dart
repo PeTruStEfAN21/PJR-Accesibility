@@ -21,6 +21,9 @@ import '../settings/settings_screen.dart';
 import '../sounds/sounds_screen.dart';
 import 'phone_shell.dart';
 
+/// The clarity coach's entry on the laptop home; off until the team decides to show it again.
+const showOnlineCoach = false;
+
 /// One obvious main action per device: joining on the phone, presenting on the laptop.
 ///
 /// The browser build holds both apps: a phone-sized screen (a phone's browser, or a narrow window) gets
@@ -149,10 +152,31 @@ class HomeScreen extends StatelessWidget {
     final wideBar = MediaQuery.sizeOf(context).width >= _wideFrom;
     final barSide = wideBar ? 24.0 : 12.0;
 
-    return Scaffold(
-      backgroundColor: palette.ground,
+    return Stack(
+      children: [
+        Positioned.fill(child: ColoredBox(color: palette.ground)),
+        // A faint cyan glow behind the greeting, echoing the logo; none in high contrast.
+        if (!SettingsScope.of(context).highContrast)
+          Positioned(
+            top: -150,
+            left: -130,
+            child: IgnorePointer(
+              child: Container(
+                width: 460,
+                height: 460,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [EchoLogo.brandColor.withValues(alpha: 0.16), EchoLogo.brandColor.withValues(alpha: 0)],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        backgroundColor: palette.ground,
+        backgroundColor: Colors.transparent,
         foregroundColor: palette.text,
         surfaceTintColor: Colors.transparent,
         scrolledUnderElevation: 0,
@@ -187,13 +211,15 @@ class HomeScreen extends StatelessWidget {
           SizedBox(width: barSide - 8),
         ],
       ),
+      // The bottom inset goes inside the list, so content scrolls under the phone's glass bar.
       body: SafeArea(
+        bottom: false,
         child: LayoutBuilder(
           builder: (context, constraints) {
             final wide = constraints.maxWidth >= _wideFrom;
             final side = wide ? _sideMargin(constraints.maxWidth) : 20.0;
             return ListView(
-              padding: EdgeInsets.fromLTRB(side, wide ? 56 : 12, side, 32),
+              padding: EdgeInsets.fromLTRB(side, wide ? 56 : 12, side, 32 + MediaQuery.paddingOf(context).bottom),
               children: [
                 Semantics(
                   header: true,
@@ -244,7 +270,8 @@ class HomeScreen extends StatelessWidget {
                   soundsAction(),
                 ],
                 // Online meetings: the hearing colleague's clarity coach runs in Chrome on their computer.
-                if (presenterFirst) ...[
+                // Hidden for now (the team decides whether it stays); the coach itself is unchanged.
+                if (presenterFirst && showOnlineCoach) ...[
                   const SizedBox(height: 16),
                   _Elsewhere(
                     title: l10n.homeOnline,
@@ -273,6 +300,8 @@ class HomeScreen extends StatelessWidget {
           },
         ),
       ),
+    ),
+      ],
     );
   }
 }
@@ -294,32 +323,51 @@ class _MainAction extends StatelessWidget {
     final theme = Theme.of(context);
     final palette = EchoPalette.of(context);
     final highContrast = SettingsScope.of(context).highContrast;
+    final shape = BorderRadius.circular(26);
     return Pressable(
       child: MergeSemantics(
       child: Semantics(
         button: true,
-        child: Material(
-          color: palette.accentTint,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(22),
-            side: highContrast ? BorderSide(color: palette.border, width: 2) : BorderSide.none,
+        // A soft cyan gradient with a light top edge and a gentle shadow; flat in high contrast.
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: shape,
+            boxShadow: highContrast
+                ? null
+                : [BoxShadow(color: const Color(0xFF0B3A46).withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 10))],
           ),
+          child: Material(
+          color: Colors.transparent,
+          shape: RoundedRectangleBorder(borderRadius: shape),
           clipBehavior: Clip.antiAlias,
-          child: InkWell(
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: shape,
+              color: highContrast ? palette.accentTint : null,
+              gradient: highContrast
+                  ? null
+                  : const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Color(0xFFEAF8FB), Color(0xFFD5EFF5)],
+                    ),
+              border: Border.all(color: highContrast ? palette.border : Colors.white, width: highContrast ? 2 : 1.5),
+            ),
+            child: InkWell(
             onTap: onTap,
             splashFactory: NoSplash.splashFactory,
             highlightColor: palette.text.withValues(alpha: 0.05),
             hoverColor: palette.text.withValues(alpha: 0.03),
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(22),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
-                      Icon(icon, size: 32, color: palette.brand),
+                      _Chip(size: 52, child: Icon(icon, size: 28, color: palette.accent)),
                       const Spacer(),
-                      Icon(Icons.arrow_forward, color: palette.text),
+                      _Chip(size: 40, round: true, child: Icon(Icons.arrow_forward, size: 20, color: palette.text)),
                     ],
                   ),
                   if (fill) const Spacer() else const SizedBox(height: 32),
@@ -330,9 +378,39 @@ class _MainAction extends StatelessWidget {
               ),
             ),
           ),
+          ),
+          ),
         ),
       ),
       ),
+    );
+  }
+}
+
+/// A frosted rounded chip holding an icon: the small premium accent on Echo's cards.
+class _Chip extends StatelessWidget {
+  const _Chip({required this.size, required this.child, this.round = false});
+
+  final double size;
+  final Widget child;
+  final bool round;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = EchoPalette.of(context);
+    final highContrast = SettingsScope.of(context).highContrast;
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: highContrast ? palette.raised : Colors.white.withValues(alpha: 0.78),
+        borderRadius: BorderRadius.circular(round ? size / 2 : size * 0.34),
+        border: Border.all(color: highContrast ? palette.border : Colors.white, width: highContrast ? 2 : 1),
+        boxShadow: highContrast
+            ? null
+            : [BoxShadow(color: const Color(0xFF0B3A46).withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+      ),
+      child: Center(child: child),
     );
   }
 }
@@ -399,7 +477,12 @@ class _ToolRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               child: Row(
                 children: [
-                  Icon(icon, size: 24, color: palette.muted),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(color: palette.accentTint, borderRadius: BorderRadius.circular(12)),
+                    child: Icon(icon, size: 22, color: palette.accent),
+                  ),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(

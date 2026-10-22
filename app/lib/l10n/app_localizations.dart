@@ -2677,6 +2677,66 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.'**
   String get alarmAccountsOff;
+
+  /// No description provided for @meetingTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meeting'**
+  String get meetingTitle;
+
+  /// No description provided for @meetingModeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cum iei parte la meeting?'**
+  String get meetingModeLabel;
+
+  /// No description provided for @meetingModeJoin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Particip'**
+  String get meetingModeJoin;
+
+  /// No description provided for @meetingModePresent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Prezint'**
+  String get meetingModePresent;
+
+  /// No description provided for @presentIntroTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Tu ții meetingul'**
+  String get presentIntroTitle;
+
+  /// No description provided for @presentIntroBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Echo ascultă sala de pe acest dispozitiv și face subtitrarea în timp ce vorbești.'**
+  String get presentIntroBody;
+
+  /// No description provided for @presentPointCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Participanții intră cu codul sau cu QR-ul de pe ecran'**
+  String get presentPointCode;
+
+  /// No description provided for @presentPointQuestions.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebările lor îți apar în liniște, iar Echo le poate citi cu voce tare'**
+  String get presentPointQuestions;
+
+  /// No description provided for @presentPointVoice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pe laptop, Echo îți învață vocea și știe când vorbești tu'**
+  String get presentPointVoice;
+
+  /// No description provided for @presentStart.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pornește meetingul'**
+  String get presentStart;
 }
 
 class _AppLocalizationsDelegate

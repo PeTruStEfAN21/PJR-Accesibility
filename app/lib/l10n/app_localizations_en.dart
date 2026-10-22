@@ -1509,4 +1509,38 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get alarmAccountsOff =>
       'Accounts are not turned on for this server, so the emergency alarm cannot be sent from here.';
+
+  @override
+  String get meetingTitle => 'Meeting';
+
+  @override
+  String get meetingModeLabel => 'How are you taking part?';
+
+  @override
+  String get meetingModeJoin => 'Joining';
+
+  @override
+  String get meetingModePresent => 'Presenting';
+
+  @override
+  String get presentIntroTitle => 'You run the meeting';
+
+  @override
+  String get presentIntroBody =>
+      'Echo listens to the room on this device and captions you as you speak.';
+
+  @override
+  String get presentPointCode =>
+      'Participants join with the code or the QR code on screen';
+
+  @override
+  String get presentPointQuestions =>
+      'Their questions reach you silently, and Echo can read them aloud';
+
+  @override
+  String get presentPointVoice =>
+      'On a laptop, Echo learns your voice and knows when it\'s you speaking';
+
+  @override
+  String get presentStart => 'Start the meeting';
 }

@@ -461,5 +461,15 @@
   "navAlarm": "Alarm",
   "navSettings": "Settings",
   "alarmNeedsAccount": "The emergency alarm needs an account: your name goes with the alarm, so colleagues know who raised it.",
-  "alarmAccountsOff": "Accounts are not turned on for this server, so the emergency alarm cannot be sent from here."
+  "alarmAccountsOff": "Accounts are not turned on for this server, so the emergency alarm cannot be sent from here.",
+  "meetingTitle": "Meeting",
+  "meetingModeLabel": "How are you taking part?",
+  "meetingModeJoin": "Joining",
+  "meetingModePresent": "Presenting",
+  "presentIntroTitle": "You run the meeting",
+  "presentIntroBody": "Echo listens to the room on this device and captions you as you speak.",
+  "presentPointCode": "Participants join with the code or the QR code on screen",
+  "presentPointQuestions": "Their questions reach you silently, and Echo can read them aloud",
+  "presentPointVoice": "On a laptop, Echo learns your voice and knows when it's you speaking",
+  "presentStart": "Start the meeting"
 }
