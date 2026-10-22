@@ -19,6 +19,12 @@ int round(double seconds) => (seconds * rate).round();
 
 Float32List join(List<Float32List> parts) => Float32List.fromList([for (final p in parts) ...p]);
 
+/// Room noise at about -50 dBFS under everything, like a laptop across a real room hears it.
+Float32List withNoise(Float32List clip, {int seed = 1}) {
+  final random = Random(seed);
+  return Float32List.fromList([for (final x in clip) x + 0.0045 * (random.nextDouble() * 2 - 1)]);
+}
+
 /// A vector pointing along axis [i] of a 3-dimensional space.
 Float32List axis(int i) => Float32List.fromList([for (var j = 0; j < 3; j++) j == i ? 1.0 : 0.0]);
 
@@ -77,8 +83,9 @@ void main() {
     engine.audio = tone(5);
 
     engine.vectorFor = (_) => Float32List.fromList([0.9, 0.43589, 0]);
-    expect(await labeler.labelFinal(t0), Speaker.coordinator);
-    expect(labeler.lastScore, closeTo(0.9, 1e-4));
+    final judged = await labeler.judgeFinal(t0);
+    expect(judged.speaker, Speaker.coordinator);
+    expect(judged.score, closeTo(0.9, 1e-4));
 
     engine.vectorFor = (_) => axis(1);
     expect(await labeler.labelFinal(t0.add(const Duration(seconds: 5))), Speaker.public);
@@ -126,5 +133,98 @@ void main() {
     expect(cosine(axis(0), axis(0)), closeTo(1, 1e-9));
     expect(cosine(axis(0), Float32List.fromList([-2, 0, 0])), closeTo(-1, 1e-9));
     expect(cosine(axis(0), axis(1)), closeTo(0, 1e-9));
+  });
+
+  test('a short "da" in room noise keeps the previous label', () async {
+    await enrollSpeaker();
+    engine
+      ..audio = withNoise(tone(4))
+      ..vectorFor = (_) => axis(1);
+    expect(await labeler.labelFinal(t0), Speaker.public);
+    final embedded = engine.embedded.length;
+
+    engine.audio = withNoise(join([silence(3), tone(0.6), silence(1)]));
+    expect(await labeler.labelFinal(t0.add(const Duration(seconds: 5))), Speaker.public);
+    expect(engine.embedded.length, embedded);
+  });
+
+  test('enrollment in room noise still needs ten seconds of real voice', () async {
+    expect(await labeler.enroll(withNoise(join([tone(6), silence(14)]))), EnrollResult.tooLittleSpeech);
+  });
+
+  test('an error of the model keeps the line, with the previous label', () async {
+    await enrollSpeaker();
+    engine.audio = tone(4);
+    engine.vectorFor = (_) => throw StateError('WebGPU lost');
+
+    final judged = await labeler.judgeFinal(t0);
+
+    expect(judged.speaker, Speaker.coordinator);
+    expect(judged.score, isNull);
+    expect(judged.clip, isNotEmpty);
+  });
+
+  test('two final lines close together are judged in order, each on its own audio', () async {
+    await enrollSpeaker();
+    engine.audio = tone(4, amplitude: 0.3);
+    engine.vectorFor = (samples) => samples.length > 40000 ? axis(0) : axis(1);
+
+    final first = labeler.judgeFinal(t0);
+    engine.audio = tone(2, amplitude: 0.3);
+    final second = labeler.judgeFinal(t0.add(const Duration(seconds: 2)));
+
+    expect((await first).speaker, Speaker.coordinator);
+    expect((await second).speaker, Speaker.public);
+    expect((await first).clip.length, greaterThan((await second).clip.length));
+  });
+
+  test('after the laptop speaks, the next line is judged only on what came after', () async {
+    await enrollSpeaker();
+    engine.audio = tone(30);
+    await labeler.labelFinal(t0);
+    engine.recentRequests.clear();
+
+    labeler.startWindowAt(t0.add(const Duration(seconds: 6)));
+    await labeler.labelFinal(t0.add(const Duration(seconds: 9)));
+
+    expect(engine.recentRequests, [const Duration(seconds: 3)]);
+  });
+
+  test('confident speaker lines refine the learned voice', () async {
+    await enrollSpeaker();
+    engine
+      ..audio = tone(4)
+      ..vectorFor = (_) => Float32List.fromList([0.95, 0.31225, 0]);
+
+    await labeler.labelFinal(t0);
+
+    expect(labeler.voiceprint![1], greaterThan(0.01)); // moved toward the voice heard in the room
+    expect(labeler.voiceprint![0], greaterThan(0.99));
+  });
+
+  test('uncertain or short lines do not change the learned voice', () async {
+    await enrollSpeaker();
+    final before = Float32List.fromList(labeler.voiceprint!);
+    engine
+      ..audio = tone(4)
+      ..vectorFor = (_) => Float32List.fromList([0.5, 0.866, 0]); // speaker, but not confidently
+    await labeler.labelFinal(t0);
+    engine
+      ..audio = tone(1.5)
+      ..vectorFor = (_) => Float32List.fromList([0.95, 0.31225, 0]); // confident, but under 2 s
+    await labeler.labelFinal(t0.add(const Duration(seconds: 3)));
+
+    expect(labeler.voiceprint, before);
+  });
+
+  test('adaptation never drifts far from the enrolled voice', () async {
+    await enrollSpeaker();
+    engine
+      ..audio = tone(4)
+      ..vectorFor = (_) => Float32List.fromList([0.9, 0.43589, 0]);
+    for (var i = 0; i < 200; i++) {
+      await labeler.labelFinal(t0.add(Duration(seconds: 5 * i)));
+    }
+    expect(cosine(labeler.voiceprint!, axis(0)), greaterThanOrEqualTo(0.95 - 1e-6));
   });
 }

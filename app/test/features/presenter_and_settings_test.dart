@@ -315,4 +315,43 @@ void main() {
     await tester.pump();
     expect(h.voice.played, hasLength(1));
   });
+
+  testWidgets('a voice that never finishes gives up after a while: captioning and the buttons come back', (tester) async {
+    final h = await openPresenter(tester);
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.tts.autoFinish = false;
+    await receiveQuestion(tester, h, 'Când e termenul?');
+
+    await tester.tap(find.text('Citește cu voce tare'));
+    await tester.pump();
+    expect(h.speech.state.value, SpeechState.idle);
+
+    await tester.pump(const Duration(seconds: 30));
+    await tester.pump();
+    expect(h.speech.state.value, SpeechState.listening);
+    expect(tester.widget<OutlinedButton>(find.widgetWithText(OutlinedButton, 'Am citit-o eu')).onPressed, isNotNull);
+    expect(find.text('Nu am putut citi întrebarea; citește-o tu'), findsOneWidget);
+  });
+
+  testWidgets('after the laptop reads a question, the next line is judged only on what came after', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+    await enroll(tester, h, voiceAudio(20));
+    await tester.ensureVisible(find.text('Pornește subtitrarea'));
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    await receiveQuestion(tester, h, 'Când e termenul?');
+    await tester.pump(const Duration(seconds: 5));
+
+    await tester.tap(find.text('Citește cu voce tare'));
+    await tester.pump();
+    await tester.pump();
+    h.voice.recentRequests.clear();
+    await tester.pump(const Duration(seconds: 3));
+    h.speech.say('s1', 'Termenul e vineri');
+    await tester.pump();
+    await tester.pump();
+
+    expect(h.voice.recentRequests, [const Duration(seconds: 3)]);
+  });
 }

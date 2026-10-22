@@ -11,6 +11,10 @@ class VoiceHead {
     this.minVoicedMs = 1000,
     this.enrollMinVoicedMs = 10000,
     this.windowMs = 3000,
+    this.adaptThreshold = 0.98,
+    this.adaptRate = 0.1,
+    this.adaptMinCosine = 0.95,
+    this.adaptMinVoicedMs = 2000,
   });
 
   /// Used until a calibrated file loads: speaker when the cosine is at least 0.35.
@@ -24,6 +28,10 @@ class VoiceHead {
         minVoicedMs: (json['min_voiced_ms'] as num?)?.toInt() ?? 1000,
         enrollMinVoicedMs: (json['enroll_min_voiced_ms'] as num?)?.toInt() ?? 10000,
         windowMs: (json['window_ms'] as num?)?.toInt() ?? 3000,
+        adaptThreshold: (json['adapt_threshold'] as num?)?.toDouble() ?? 0.98,
+        adaptRate: (json['adapt_rate'] as num?)?.toDouble() ?? 0.1,
+        adaptMinCosine: (json['adapt_min_cosine'] as num?)?.toDouble() ?? 0.95,
+        adaptMinVoicedMs: (json['adapt_min_voiced_ms'] as num?)?.toInt() ?? 2000,
       );
 
   final String model;
@@ -39,6 +47,13 @@ class VoiceHead {
 
   /// Enrollment is cut into windows of this length; their embeddings are averaged.
   final int windowMs;
+
+  /// Learning during the meeting: a line at least this likely to be the speaker's, with enough voice,
+  /// moves the learned voice by [adaptRate] toward it, never further than [adaptMinCosine] from enrollment.
+  final double adaptThreshold;
+  final double adaptRate;
+  final double adaptMinCosine;
+  final int adaptMinVoicedMs;
 
   double probability(double cosine) => 1 / (1 + exp(-(scale * cosine + bias)));
 
