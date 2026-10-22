@@ -36,3 +36,16 @@ def test_meeting_report_counts(tmp_path):
     report = meeting_report(lambda enrollment, clip: cosine_by_length[len(clip)], folder, head)
 
     assert report == {"speaker_hit": 0.75, "room_reject": 0.5, "n_speaker": 4, "n_room": 2}
+
+
+def test_far_version_is_the_same_for_the_same_clip_and_differs_from_clean():
+    from pathlib import Path
+
+    from echo_voice.evaluate import far_version
+    from tests.helpers import tone
+
+    wave = tone(3)
+    first = far_version(Path("vp-1/a.wav"), wave)
+    assert np.array_equal(first, far_version(Path("vp-1/a.wav"), wave))
+    assert not np.array_equal(first, far_version(Path("vp-1/b.wav"), wave))
+    assert not np.allclose(first, wave, atol=1e-3)

@@ -99,6 +99,7 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--trials", type=int, default=2000)
     parser.add_argument("--size", default="b6")
     parser.add_argument("--dataset", default="vb2+vox2_v0")
+    parser.add_argument("--val-clean", action="store_true", help="validate on clean pairs instead of 5–10 m away")
     parser.add_argument("--smoke", action="store_true", help="two steps on the CPU, no validation")
     args = parser.parse_args(argv)
     if args.smoke:
@@ -131,7 +132,8 @@ def main(argv: list[str] | None = None) -> None:
 
     args.out.mkdir(parents=True, exist_ok=True)
     log = (args.out / "log.jsonl").open("a", encoding="utf-8")
-    base_eer = trials_eer(model.eval(), trials) if trials else math.nan
+    far = not args.val_clean
+    base_eer = trials_eer(model.eval(), trials, far=far) if trials else math.nan
     print(f"{len(train_speakers)} speakers, {len(items)} clips; base EER {100 * base_eer:.2f}%", flush=True)
     log.write(json.dumps({"epoch": 0, "eer": base_eer}) + "\n")
     best = math.inf
@@ -154,7 +156,7 @@ def main(argv: list[str] | None = None) -> None:
             if args.smoke and step >= 2:
                 break
         model.eval()
-        val = trials_eer(model, trials) if trials else math.nan
+        val = trials_eer(model, trials, far=far) if trials else math.nan
         print(f"epoch {epoch}: loss {total / max(step, 1):.3f}, EER {100 * val:.2f}% (base {100 * base_eer:.2f}%)", flush=True)
         log.write(json.dumps({"epoch": epoch, "loss": total / max(step, 1), "eer": val}) + "\n")
         log.flush()

@@ -19,7 +19,16 @@ import torch
 
 from echo_voice.calibrate import fit_head
 from echo_voice.data import DEFAULT_HELDOUT, meeting_dirs, split_speakers
-from echo_voice.evaluate import MAX_CLIP_SECONDS, ROOT, ScoreFn, eer, make_score_fn, speaker_probability, speaker_trials
+from echo_voice.evaluate import (
+    MAX_CLIP_SECONDS,
+    ROOT,
+    ScoreFn,
+    eer,
+    far_version,
+    make_score_fn,
+    speaker_probability,
+    speaker_trials,
+)
 from echo_voice.export import export_onnx, write_parity_fixture
 from echo_voice.model import SAMPLE_RATE, embed, load_base, load_candidate
 
@@ -149,20 +158,22 @@ def ship(
     return winner["candidate"].name
 
 
-def model_candidate(name: str, model_id: str, model: torch.nn.Module) -> Candidate:
-    vectors: dict[Path, np.ndarray] = {}
+def model_candidate(name: str, model_id: str, model: torch.nn.Module, far: bool = True) -> Candidate:
+    """Pairs compare a clean clip (standing for enrollment) with one heard 5–10 m away, unless not [far]."""
+    vectors: dict[tuple[Path, bool], np.ndarray] = {}
 
-    def vector(path: Path) -> np.ndarray:
-        if path not in vectors:
+    def vector(path: Path, distant: bool = False) -> np.ndarray:
+        if (path, distant) not in vectors:
             wave, _ = sf.read(path, dtype="float32")
-            vectors[path] = embed(model, wave[: MAX_CLIP_SECONDS * SAMPLE_RATE])
-        return vectors[path]
+            wave = wave[: MAX_CLIP_SECONDS * SAMPLE_RATE]
+            vectors[(path, distant)] = embed(model, far_version(path, wave) if distant else wave)
+        return vectors[(path, distant)]
 
     def export(path: Path) -> None:
         export_onnx(model, path)
         write_parity_fixture(path)
 
-    return Candidate(name, model_id, lambda a, b: float(vector(a) @ vector(b)), make_score_fn(model), export)
+    return Candidate(name, model_id, lambda a, b: float(vector(a) @ vector(b, far)), make_score_fn(model), export)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -170,13 +181,15 @@ def main(argv: list[str] | None = None) -> None:
     parser.add_argument("--speakers", type=Path, default=ROOT / "data" / "speakers")
     parser.add_argument("--meetings", type=Path, default=ROOT / "data" / "meetings")
     parser.add_argument("--trials", type=int, default=4000)
+    parser.add_argument("--clean", action="store_true", help="compare on clean pairs instead of 5–10 m away")
     args = parser.parse_args(argv)
 
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    candidates = [model_candidate("base", BASE_ID, load_base().to(device))]
+    far = not args.clean
+    candidates = [model_candidate("base", BASE_ID, load_base().to(device), far)]
     for run in sorted((ROOT / "runs").glob("*/best.pt")):
         model = load_candidate(str(run)).to(device)
-        candidates.append(model_candidate(run.parent.name, f"{BASE_ID}+{run.parent.name}", model))
+        candidates.append(model_candidate(run.parent.name, f"{BASE_ID}+{run.parent.name}", model, far))
     winner = ship(candidates, args.speakers, args.meetings, APP_VOICE, ROOT / "reports", args.trials)
     print(f"winner: {winner}")
     print((ROOT / "reports" / f"{datetime.date.today().isoformat()}-ship.md").read_text(encoding="utf-8"))
