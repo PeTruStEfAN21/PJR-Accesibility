@@ -24,5 +24,8 @@
     "taste-skill@taste-skill": true,
     "caveman@caveman": true,
     "andrej-karpathy-skills@karpathy-skills": true
-  }
+  },
+  "enabledMcpjsonServers": [
+    "playwright"
+  ]
 }
