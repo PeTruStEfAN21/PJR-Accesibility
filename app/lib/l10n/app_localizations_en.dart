@@ -278,6 +278,39 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get presenterHand => 'The person using Echo wants to ask a question';
+
+  @override
+  String get presenterQuestionTitle => 'Question from the person using Echo';
+
+  @override
+  String get presenterReadAloud => 'Read it aloud';
+
+  @override
+  String get presenterReadMyself => 'I read it myself';
+
+  @override
+  String get presenterRead => 'Read out';
+
+  @override
+  String get presenterReading => 'Reading the question…';
+
+  @override
+  String get presenterNoVoice =>
+      'This laptop has no voice for this language; read it yourself';
+
+  @override
+  String get presenterReadFailed =>
+      'Couldn\'t read the question; read it yourself';
+
+  @override
+  String get presenterForceSpeaker => 'I\'m speaking';
+
+  @override
+  String get presenterForceSpeakerHint =>
+      'Everything heard shows as said by you';
+
+  @override
   String get presenterCreateError =>
       'Could not create the meeting. Check that the server is running.';
 

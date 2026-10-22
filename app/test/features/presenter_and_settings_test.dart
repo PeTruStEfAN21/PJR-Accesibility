@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
+import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
 
 import '../fakes.dart';
 
@@ -15,6 +16,7 @@ Widget presenterApp(TestHarness h) => EchoApp(
       services: AppServices(
         speech: h.speech,
         sounds: h.sounds,
+        tts: h.tts,
         channelFactory: (uri) => h.channel..uri = uri,
         httpClient: MockClient((request) async => switch (request.url.path) {
               '/api/sessions' => http.Response(jsonEncode({'code': 'ABC234'}), 201),
@@ -32,6 +34,29 @@ Future<void> tapVisible(WidgetTester tester, Finder finder) async {
   await tester.tap(finder);
   await tester.pumpAndSettle();
 }
+
+/// Opens the presenter page on a wide window, connected to the session.
+Future<TestHarness> openPresenter(WidgetTester tester) async {
+  tester.view.physicalSize = const Size(1400, 1000);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+  final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000'});
+  await tester.pumpWidget(presenterApp(h));
+  await tester.tap(find.text('Prezint'));
+  await tester.pumpAndSettle();
+  h.channel.receive({'type': 'joined', 'code': 'ABC234', 'role': 'presenter', 'peers': {'presenter': 1}});
+  await tester.pump();
+  await tester.pump();
+  return h;
+}
+
+Future<void> receiveQuestion(WidgetTester tester, TestHarness h, String text) async {
+  h.channel.receive({'type': 'notify', 'id': 'q1', 'kind': 'question', 'text': text, 'ts': 1});
+  await tester.pump();
+  await tester.pump();
+}
+
+Iterable<Map<String, dynamic>> readMessages(TestHarness h) => h.channel.sink.sent.where((m) => m['type'] == 'read');
 
 void main() {
   testWidgets('presenter shows the code, captions speech and marks messages as seen', (tester) async {
@@ -59,10 +84,10 @@ void main() {
     expect(caption['speaker'], 'coordinator');
     expect(caption['text'], 'Bun venit');
 
-    h.channel.receive({'type': 'notify', 'id': 'n1', 'kind': 'question', 'text': 'Am o întrebare', 'ts': 1});
+    h.channel.receive({'type': 'notify', 'id': 'n1', 'kind': 'repeat', 'text': 'Puteți repeta?', 'ts': 1});
     await tester.pump();
     await tester.pump();
-    expect(find.text('Am o întrebare'), findsOneWidget);
+    expect(find.text('Puteți repeta?'), findsOneWidget);
 
     await tester.tap(find.text('Am văzut'));
     await tester.pump();
@@ -89,5 +114,77 @@ void main() {
     await tester.tap(find.text('English').first);
     await tester.pumpAndSettle();
     expect(find.text('Settings'), findsOneWidget);
+  });
+
+  testWidgets('a raised hand shows a big alert with an icon', (tester) async {
+    final h = await openPresenter(tester);
+    h.channel.receive({'type': 'notify', 'id': 'h1', 'kind': 'hand', 'text': '', 'ts': 1});
+    await tester.pump();
+    await tester.pump();
+
+    expect(find.text('Persoana care folosește Echo vrea să pună o întrebare'), findsOneWidget);
+    expect(find.byIcon(Icons.front_hand), findsWidgets);
+  });
+
+  testWidgets('the question is read aloud by the laptop and the phone is told', (tester) async {
+    final h = await openPresenter(tester);
+    await receiveQuestion(tester, h, 'Când e termenul?');
+    expect(find.text('Când e termenul?'), findsOneWidget);
+
+    await tester.tap(find.text('Citește cu voce tare'));
+    await tester.pump();
+    await tester.pump();
+
+    expect(h.tts.spoken, ['Când e termenul?']);
+    expect(readMessages(h).single, {'type': 'read', 'id': 'q1', 'by': 'voice'});
+    expect(find.text('Citită'), findsOneWidget);
+  });
+
+  testWidgets('the speaker can read the question themselves', (tester) async {
+    final h = await openPresenter(tester);
+    await receiveQuestion(tester, h, 'Când e termenul?');
+
+    await tester.tap(find.text('Am citit-o eu'));
+    await tester.pump();
+
+    expect(h.tts.spoken, isEmpty);
+    expect(readMessages(h).single, {'type': 'read', 'id': 'q1', 'by': 'speaker'});
+  });
+
+  testWidgets('captioning pauses while the laptop speaks and resumes even when the voice fails', (tester) async {
+    final h = await openPresenter(tester);
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    expect(h.speech.state.value, SpeechState.listening);
+    h.tts.autoFinish = false;
+    await receiveQuestion(tester, h, 'Când e termenul?');
+
+    await tester.tap(find.text('Citește cu voce tare'));
+    await tester.pump();
+    expect(h.speech.state.value, SpeechState.idle);
+
+    h.tts.finish(false);
+    await tester.pump();
+    await tester.pump();
+    expect(h.speech.state.value, SpeechState.listening);
+    expect(readMessages(h), isEmpty);
+    expect(find.text('Nu am putut citi întrebarea; citește-o tu'), findsOneWidget);
+  });
+
+  testWidgets('read aloud is disabled when the laptop has no voice for the language', (tester) async {
+    final h = await openPresenter(tester);
+    h.tts.available = false;
+    await receiveQuestion(tester, h, 'Când e termenul?');
+
+    final button = tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Citește cu voce tare'));
+    expect(button.onPressed, isNull);
+    expect(find.text('Laptopul nu are o voce în limba asta; citește-o tu'), findsOneWidget);
+  });
+
+  testWidgets('„Vorbesc eu” is a switch', (tester) async {
+    await openPresenter(tester);
+    await tester.tap(find.text('Vorbesc eu'));
+    await tester.pump();
+    expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isTrue);
   });
 }

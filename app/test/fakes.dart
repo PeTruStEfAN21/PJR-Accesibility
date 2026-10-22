@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
+import 'package:pjr_accesibilitate/core/tts/tts_service.dart';
 import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
@@ -74,6 +75,29 @@ class FakeSpeech implements SpeechService {
   void dispose() {}
 }
 
+/// Voice synthesis the test controls: [finish] ends a pending [speak] when [autoFinish] is off.
+class FakeTts implements TtsService {
+  bool available = true;
+  bool autoFinish = true;
+  final spoken = <String>[];
+  Completer<bool>? _pending;
+
+  void finish(bool ok) => _pending?.complete(ok);
+
+  @override
+  bool canSpeak(String localeId) => available;
+
+  @override
+  Future<bool> speak(String text, String localeId) {
+    spoken.add(text);
+    if (autoFinish) return Future.value(true);
+    return (_pending = Completer<bool>()).future;
+  }
+
+  @override
+  void cancel() {}
+}
+
 class FakeSounds implements SoundDetector {
   final controller = StreamController<SoundAlert>.broadcast();
 
@@ -98,6 +122,7 @@ class TestHarness {
 
   final AppSettings settings;
   final FakeSpeech speech;
+  final tts = FakeTts();
   final FakeSounds sounds;
   final FakeChannel channel;
   final AlertController alerts;
@@ -122,6 +147,7 @@ class TestHarness {
         services: AppServices(
           speech: speech,
           sounds: sounds,
+          tts: tts,
           httpClient: httpClient,
           channelFactory: (uri) => channel..uri = uri,
         ),
