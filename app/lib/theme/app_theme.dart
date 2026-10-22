@@ -9,17 +9,17 @@ const dyslexiaFont = 'OpenDyslexic';
 /// The app's one typeface, bundled in assets/fonts.
 const textFont = 'Roboto';
 
-ThemeData buildTheme(AppSettings settings, Brightness brightness) {
-  final dark = brightness == Brightness.dark;
-  var scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FDB), brightness: brightness);
+/// Echo has one theme, light.
+ThemeData buildTheme(AppSettings settings) {
+  var scheme = ColorScheme.fromSeed(seedColor: const Color(0xFF2F6FDB));
   if (settings.highContrast) {
     scheme = scheme.copyWith(
-      surface: dark ? Colors.black : Colors.white,
-      onSurface: dark ? Colors.white : Colors.black,
-      onSurfaceVariant: dark ? Colors.white : Colors.black,
-      outline: dark ? Colors.white : Colors.black,
-      primary: dark ? const Color(0xFFB8D4FF) : const Color(0xFF00337A),
-      onPrimary: dark ? Colors.black : Colors.white,
+      surface: Colors.white,
+      onSurface: Colors.black,
+      onSurfaceVariant: Colors.black,
+      outline: Colors.black,
+      primary: const Color(0xFF00337A),
+      onPrimary: Colors.white,
     );
   }
 
@@ -41,7 +41,7 @@ ThemeData buildTheme(AppSettings settings, Brightness brightness) {
     // stutters on Retina screens; a short fade is far cheaper. Phones keep their native transition.
     pageTransitionsTheme: kIsWeb ? _webTransitions : null,
     visualDensity: VisualDensity.standard,
-    extensions: [RolePalette.resolve(settings.palette, brightness, highContrast: settings.highContrast)],
+    extensions: [RolePalette.resolve(settings.palette, highContrast: settings.highContrast)],
   );
 }
 

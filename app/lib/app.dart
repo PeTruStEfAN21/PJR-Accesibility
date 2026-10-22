@@ -64,9 +64,7 @@ class _EchoAppState extends State<EchoApp> {
                 locale: settings.locale,
                 supportedLocales: AppLocalizations.supportedLocales,
                 localizationsDelegates: AppLocalizations.localizationsDelegates,
-                theme: buildTheme(settings, Brightness.light),
-                darkTheme: buildTheme(settings, Brightness.dark),
-                themeMode: settings.themeMode,
+                theme: buildTheme(settings),
                 builder: (context, child) {
                   // The user's text size multiplies the system setting instead of replacing it.
                   final system = MediaQuery.textScalerOf(context).scale(1);

@@ -420,18 +420,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsHighContrast => 'High contrast';
 
   @override
-  String get settingsTheme => 'Theme';
-
-  @override
-  String get themeSystem => 'Same as system';
-
-  @override
-  String get themeLight => 'Light';
-
-  @override
-  String get themeDark => 'Dark';
-
-  @override
   String get settingsAutoScroll => 'Auto-scroll captions';
 
   @override

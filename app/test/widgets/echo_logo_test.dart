@@ -2,23 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/widgets/echo_logo.dart';
 
-import '../fakes.dart';
-
 void main() {
-  testWidgets('the logo is drawn at its size and is decorative for screen readers', (tester) async {
+  testWidgets('the wordmark keeps its proportions and is read as its name', (tester) async {
+    final handle = tester.ensureSemantics();
     await tester.pumpWidget(const Directionality(
       textDirection: TextDirection.ltr,
-      child: Center(child: EchoLogo(size: 40)),
+      child: Center(child: EchoLogo(height: 46, semanticLabel: 'Echo')),
     ));
 
-    expect(tester.getSize(find.byType(EchoLogo)), const Size(40, 40));
-    final handle = tester.ensureSemantics();
-    expect(find.bySemanticsLabel(RegExp('.')), findsNothing);
+    final size = tester.getSize(find.byType(EchoLogo));
+    expect(size.height, 46);
+    expect(size.width, closeTo(46 * 300 / 154, 0.01));
+    expect(find.bySemanticsLabel('Echo'), findsOneWidget);
     handle.dispose();
-  });
-
-  testWidgets('the app opens in light mode unless the user picks otherwise', (tester) async {
-    final h = await TestHarness.create();
-    expect(h.settings.themeMode, ThemeMode.light);
   });
 }

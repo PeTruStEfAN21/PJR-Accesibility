@@ -110,4 +110,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
   });
+
+  testWidgets('the app is always light, whatever the system theme', (tester) async {
+    tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+    final h = await TestHarness.create();
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    expect(Theme.of(tester.element(find.text('Sunt la un meeting'))).brightness, Brightness.light);
+  });
 }
