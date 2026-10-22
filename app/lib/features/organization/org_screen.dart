@@ -4,10 +4,13 @@ import 'package:flutter/material.dart';
 
 import '../../core/org/org_store.dart';
 import '../../core/org/organizations.dart';
+import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
+import '../activity/activity_screen.dart';
 import '../alerts/alert_overlay.dart';
 import '../alerts/sound_alert.dart';
+import 'company_meetings_screen.dart';
 
 /// "My company": invitations and creating a company when the user has none;
 /// the employee's needs; for admins, employees, invitations and alarm roll calls.
@@ -45,15 +48,32 @@ Widget _header(BuildContext context, String text) => Padding(
       child: Semantics(header: true, child: Text(text, style: Theme.of(context).textTheme.titleLarge)),
     );
 
+/// What the company sees about an employee, said before and after joining (GDPR art. 13).
+Widget _privacyNote(BuildContext context, String text) => Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const ExcludeSemantics(child: Icon(Icons.info_outline)),
+          const SizedBox(width: 8),
+          Expanded(child: Text(text)),
+        ],
+      ),
+    );
+
 String _roleText(AppLocalizations l10n, OrgRole role) => role == OrgRole.admin ? l10n.orgRoleAdmin : l10n.orgRoleEmployee;
 
 /// Runs a call against the database and reports a failure in a snack bar.
 Future<bool> _attempt(BuildContext context, Future<void> Function() action) async {
   final messenger = ScaffoldMessenger.of(context);
-  final failed = AppLocalizations.of(context).orgError;
+  final l10n = AppLocalizations.of(context);
+  final failed = l10n.orgError;
   try {
     await action();
     return true;
+  } on LastAdminException {
+    messenger.showSnackBar(SnackBar(content: Text(l10n.orgLastAdmin)));
+    return false;
   } on Object {
     messenger.showSnackBar(SnackBar(content: Text(failed)));
     return false;
@@ -81,6 +101,7 @@ class _Invites extends StatelessWidget {
                   Text(l10n.orgInviteFrom(invite.orgName), style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 4),
                   Text(_roleText(l10n, invite.role)),
+                  _privacyNote(context, l10n.orgInviteNotice),
                   const SizedBox(height: 12),
                   FilledButton(
                     style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
@@ -214,6 +235,7 @@ class _EmployeeViewState extends State<_EmployeeView> {
       children: [
         Text(widget.membership.orgName, style: theme.textTheme.headlineSmall),
         Text(_roleText(l10n, widget.membership.role)),
+        _privacyNote(context, l10n.orgEmployeeNotice),
         _header(context, l10n.orgMyNeeds),
         Text(l10n.orgMyNeedsHint),
         SwitchListTile(
@@ -350,12 +372,15 @@ class _AdminViewState extends State<_AdminView> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final me = widget.organizations.account.user?.id;
+    final activity = ServicesScope.of(context).activity;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(widget.membership.orgName, style: theme.textTheme.headlineSmall),
         Text(_roleText(l10n, widget.membership.role)),
+        // Admins' own meetings saved for the company are readable by the other admins too.
+        _privacyNote(context, l10n.orgEmployeeNotice),
 
         _header(context, l10n.orgAlarms),
         if (_alarms.isEmpty) Text(l10n.orgNoAlarms),
@@ -424,6 +449,35 @@ class _AdminViewState extends State<_AdminView> {
                 onPressed: () => _change(() => _store.cancelInvite(invite.id)),
               ),
             ),
+        ],
+
+        if (activity != null) ...[
+          const SizedBox(height: 16),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.history),
+            title: Text(l10n.orgHistory),
+            subtitle: Text(l10n.orgHistoryHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => ActivityScreen(
+                title: l10n.orgHistory,
+                empty: l10n.activityCompanyEmpty,
+                me: me,
+                load: (before, rows) => activity.companyActivity(_orgId, beforeId: before, maxRows: rows),
+              ),
+            )),
+          ),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.description_outlined),
+            title: Text(l10n.orgMeetings),
+            subtitle: Text(l10n.orgMeetingsHint),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context).push(MaterialPageRoute(
+              builder: (_) => CompanyMeetingsScreen(store: activity, orgId: _orgId, me: me),
+            )),
+          ),
         ],
       ],
     );

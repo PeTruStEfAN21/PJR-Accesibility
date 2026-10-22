@@ -16,7 +16,17 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
 from app import agent, ai
-from app.alarms import Alarm, AlarmFeed, AlarmIn, AlarmRecorder, LocalAlarmFeed, LogRecorder, RedisAlarmFeed
+from app.alarms import (
+    Alarm,
+    AlarmFeed,
+    AlarmIn,
+    AlarmRecorder,
+    DatabaseRecorder,
+    LocalAlarmFeed,
+    RedisAlarmFeed,
+    purge_daily,
+    recorder_from_env,
+)
 from app.auth import AccountCaller, Caller, InvalidToken, TokenVerifier, verifier_from_env
 from app.hub import Hub, LocalHub, RedisHub
 from app.limits import Limiter, MemoryLimiter, RedisLimiter
@@ -43,7 +53,7 @@ def _default_ai_client() -> anthropic.AsyncAnthropic | None:
     return anthropic.AsyncAnthropic()
 
 
-# Same logger as LogRecorder, so an entry the recorder lost still ends up in the logs.
+# Same logger as LogRecorder, so an entry the recorder could not save still ends up in the logs.
 alarm_log = logging.getLogger("echo.alarms")
 
 
@@ -85,7 +95,8 @@ def create_app(
     hub = hub or (RedisHub(redis) if redis else LocalHub())
     limiter = limiter or (RedisLimiter(redis) if redis else MemoryLimiter())
     alarm_feed = alarm_feed or (RedisAlarmFeed(redis) if redis else LocalAlarmFeed())
-    recorder = recorder or LogRecorder()
+    # AUDIT_DATABASE_URL set: alarms go to the activity log in the database. Unset: to the server log.
+    recorder = recorder or recorder_from_env()
     verifier: TokenVerifier | None = verifier_from_env() if verifier is _DEFAULT else verifier
     user_limit = _limit("AI_REQUESTS_PER_HOUR", 120)
     anonymous_limit = _limit("AI_ANONYMOUS_REQUESTS_PER_HOUR", 60)
@@ -94,9 +105,17 @@ def create_app(
     async def lifespan(_: FastAPI):
         await hub.start()
         await alarm_feed.start()
+        purge = asyncio.create_task(purge_daily(recorder)) if isinstance(recorder, DatabaseRecorder) else None
         try:
             yield
         finally:
+            if purge is not None:
+                purge.cancel()
+                try:
+                    await purge
+                except asyncio.CancelledError:
+                    pass
+                await recorder.close()
             await alarm_feed.close()
             await hub.close()
             if redis is not None:

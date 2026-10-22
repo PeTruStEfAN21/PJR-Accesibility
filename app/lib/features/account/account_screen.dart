@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 import '../../core/account/account_service.dart';
 import '../../core/history/meeting_store.dart';
+import '../../core/org/org_store.dart';
 import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
+import '../activity/activity_screen.dart';
 import '../history/history_screen.dart';
 import '../organization/org_screen.dart';
 
@@ -23,13 +25,13 @@ class _AccountScreenState extends State<AccountScreen> {
   Future<void> _leave(Future<void> Function() action) async {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
-    final failed = AppLocalizations.of(context).accountError;
+    final l10n = AppLocalizations.of(context);
     setState(() => _busy = true);
     try {
       await action();
       navigator.pop();
-    } on Object {
-      messenger.showSnackBar(SnackBar(content: Text(failed)));
+    } on Object catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(e is LastAdminException ? l10n.orgLastAdmin : l10n.accountError)));
       if (mounted) setState(() => _busy = false);
     }
   }
@@ -39,6 +41,8 @@ class _AccountScreenState extends State<AccountScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
+        // The text is long; at large text sizes the whole dialog scrolls to its buttons.
+        scrollable: true,
         icon: const Icon(Icons.warning_amber),
         title: Text(l10n.accountDeleteTitle),
         content: Text(l10n.accountDeleteBody),
@@ -63,7 +67,9 @@ class _AccountScreenState extends State<AccountScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final email = widget.account.user?.email ?? '';
-    final organizations = ServicesScope.of(context).organizations;
+    final services = ServicesScope.of(context);
+    final organizations = services.organizations;
+    final activity = services.activity;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.account)),
@@ -81,6 +87,21 @@ class _AccountScreenState extends State<AccountScreen> {
                 MaterialPageRoute(builder: (_) => HistoryScreen(meetings: widget.meetings)),
               ),
             ),
+            if (activity != null)
+              ListTile(
+                leading: const Icon(Icons.manage_history),
+                title: Text(l10n.activityTitle),
+                subtitle: Text(l10n.activityHint),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => ActivityScreen(
+                    title: l10n.activityTitle,
+                    empty: l10n.activityEmpty,
+                    me: widget.account.user?.id,
+                    load: (before, rows) => activity.myActivity(beforeId: before, maxRows: rows),
+                  ),
+                )),
+              ),
             if (organizations != null)
               ListTile(
                 leading: const Icon(Icons.business),

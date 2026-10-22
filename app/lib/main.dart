@@ -7,6 +7,7 @@ import 'app.dart';
 import 'core/account/account_service.dart';
 import 'core/account/supabase_config.dart';
 import 'core/history/meeting_store.dart';
+import 'core/org/activity_store.dart';
 import 'core/org/org_store.dart';
 import 'core/org/organizations.dart';
 import 'core/services.dart';
@@ -29,12 +30,14 @@ Future<void> main() async {
   AccountService? account;
   MeetingStore? meetings;
   OrgStore? orgStore;
+  ActivityStore? activity;
   if (SupabaseConfig.isConfigured) {
     await Supabase.initialize(url: SupabaseConfig.url, publishableKey: SupabaseConfig.anonKey);
     final client = Supabase.instance.client;
     account = SupabaseAccountService(client);
     meetings = SupabaseMeetingStore(client);
     orgStore = SupabaseOrgStore(client);
+    activity = SupabaseActivityStore(client);
   }
 
   // YAMNet runs on the device: TFLite on iPhone / Android, TensorFlow.js in the browser.
@@ -68,6 +71,7 @@ Future<void> main() async {
     account: account,
     meetings: meetings,
     organizations: organizations,
+    activity: activity,
   );
   runApp(EchoApp(settings: settings, services: services));
   listening.autoStart();

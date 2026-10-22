@@ -5,10 +5,22 @@ import 'package:pjr_accesibilitate/features/alerts/location_sounds.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/features/alerts/yamnet_logic.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../fakes.dart';
 
 void main() {
+  test('the database error "this organization needs an admin" becomes LastAdminException', () async {
+    await expectLater(
+      guardLastAdmin(Future<void>.error(const PostgrestException(message: 'needs an admin', code: 'EA001'))),
+      throwsA(isA<LastAdminException>()),
+    );
+    await expectLater(
+      guardLastAdmin(Future<void>.error(const PostgrestException(message: 'denied', code: '42501'))),
+      throwsA(isA<PostgrestException>()),
+    );
+  });
+
   late FakeAccountService account;
   late FakeOrgStore store;
   late LocationSoundStore sounds;

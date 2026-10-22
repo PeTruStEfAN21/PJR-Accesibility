@@ -3,6 +3,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../protocol.dart';
 import '../server_api.dart';
 
+/// The meeting was to be saved for a company the user is no longer in (removed, or the
+/// company deleted) since the list of companies was loaded.
+class CompanyGoneException implements Exception {
+  const CompanyGoneException();
+}
+
 class SavedMeeting {
   const SavedMeeting({required this.id, this.title, required this.startedAt, this.endedAt});
 
@@ -50,8 +56,10 @@ class SavedLine {
 /// The signed-in user's saved meetings (tables in supabase/migrations/).
 /// Every call acts as that user: Row Level Security hides everyone else's rows.
 abstract class MeetingStore {
-  /// Returns the new meeting's id.
-  Future<String> createMeeting({String? sessionCode, required String lang, String? title});
+  /// Returns the new meeting's id. With [orgId] the meeting is saved for that company
+  /// (one the user is in), and its admins can read it; this is chosen once, here.
+  /// Throws [CompanyGoneException] when the user is no longer in that company.
+  Future<String> createMeeting({String? sessionCode, required String lang, String? title, String? orgId});
 
   /// Saves lines, skipping any already saved (same caption id), so a batch can be resent.
   Future<void> saveLines(String meetingId, List<SavedLine> lines);
@@ -82,13 +90,19 @@ class SupabaseMeetingStore implements MeetingStore {
   static const _meetingColumns = 'id, title, started_at, ended_at';
 
   @override
-  Future<String> createMeeting({String? sessionCode, required String lang, String? title}) async {
-    final row = await _client
-        .from('meetings')
-        .insert({'lang': lang, 'session_code': sessionCode, 'title': title})
-        .select('id')
-        .single();
-    return row['id'] as String;
+  Future<String> createMeeting({String? sessionCode, required String lang, String? title, String? orgId}) async {
+    try {
+      final row = await _client
+          .from('meetings')
+          .insert({'lang': lang, 'session_code': sessionCode, 'title': title, 'org_id': ?orgId})
+          .select('id')
+          .single();
+      return row['id'] as String;
+    } on PostgrestException catch (e) {
+      // foreign_key_violation on (org_id, owner_id) → org_members: not in that company any more.
+      if (orgId != null && e.code == '23503') throw const CompanyGoneException();
+      rethrow;
+    }
   }
 
   @override

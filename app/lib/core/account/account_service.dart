@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../org/org_store.dart';
 import 'supabase_config.dart';
 
 class AccountUser {
@@ -76,7 +77,7 @@ class SupabaseAccountService extends AccountService {
 
   @override
   Future<void> deleteAccount() async {
-    await _client.rpc('delete_my_account');
+    await guardLastAdmin(_client.rpc('delete_my_account'));
     // The session's user no longer exists; clear it locally only.
     await _client.auth.signOut(scope: SignOutScope.local);
   }

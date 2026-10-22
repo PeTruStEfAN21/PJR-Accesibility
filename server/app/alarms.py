@@ -2,21 +2,26 @@
 
 An alarm is a point in space and time: kind, position, accuracy. Sockets only ever
 see Alarm.public(); who raised it (owner, email, ip) stays on the server and goes
-to the AlarmRecorder. A socket subscribes with the listener's user id, so nobody is sent
+to the AlarmRecorder (the activity log in the database, or the server log). A socket subscribes with the listener's user id, so nobody is sent
 their own alarm (live or in the active list). LocalAlarmFeed keeps alarms in this process; RedisAlarmFeed
 keeps them in Redis and relays through pub/sub, like RedisHub, so every instance
 reaches its own sockets. An alarm counts as active for 15 minutes unless cancelled.
 """
 
 import asyncio
+import ipaddress
 import json
 import logging
+import os
 import secrets
 import time
-from collections.abc import Callable
+import uuid
+from collections.abc import Awaitable, Callable
 from dataclasses import asdict, dataclass, field
+from datetime import datetime, timezone
 from typing import Any, Literal, Protocol
 
+import psycopg
 from pydantic import BaseModel, Field
 
 from app.hub import Send, send_json
@@ -75,6 +80,115 @@ class LogRecorder:
 
     async def record(self, entry: dict) -> None:
         self._log.warning(json.dumps(entry, ensure_ascii=False))
+
+
+def _ip_or_none(value: str | None) -> str | None:
+    try:
+        return str(ipaddress.ip_address(value or ""))
+    except ValueError:
+        return None
+
+
+async def _connect(url: str) -> Any:
+    return await psycopg.AsyncConnection.connect(url, autocommit=True, connect_timeout=5)
+
+
+class DatabaseRecorder:
+    """Writes each entry to the activity log through record_colleague_alarm(), as the echo_audit role.
+
+    One connection, opened on first use and replaced when it breaks. A failure raises: the caller
+    logs the entry instead, so it is never lost.
+    """
+
+    # Explicit casts: Python floats arrive as double precision, and p_accuracy is real.
+    RECORD = (
+        "select public.record_colleague_alarm(%s::text, %s::text, %s::text, %s::timestamptz,"
+        " %s::float8, %s::float8, %s::real, %s::uuid, %s::text, %s::inet)"
+    )
+    PURGE = "select public.purge_activity_log()"
+
+    def __init__(
+        self, url: str, connect: Callable[[str], Awaitable[Any]] = _connect, timeout: float = 5
+    ) -> None:
+        self._url = url
+        self._connect = connect
+        self._conn: Any = None
+        self._lock = asyncio.Lock()
+        # The sender waits for the recording: a database that stops answering must not hold them.
+        self._timeout = timeout
+
+    async def record(self, entry: dict) -> None:
+        at, user = entry.get("at"), entry.get("user_id")
+        await self._call(self.RECORD, (
+            entry["event"],
+            entry.get("id"),
+            entry.get("kind"),
+            datetime.fromtimestamp(at, timezone.utc) if at is not None else None,
+            entry.get("lat"),
+            entry.get("lon"),
+            entry.get("accuracy_m"),
+            uuid.UUID(user) if user else None,
+            entry.get("email"),
+            _ip_or_none(entry.get("ip")),
+        ))
+
+    async def purge(self) -> int:
+        """Deletes activity older than 12 months; returns how many rows went."""
+        return await self._call(self.PURGE)
+
+    async def close(self) -> None:
+        async with self._lock:
+            await self._drop()
+
+    async def _call(self, sql: str, params: tuple = ()) -> Any:
+        try:
+            return await asyncio.wait_for(self._call_once(sql, params), self._timeout)
+        except TimeoutError:
+            # Whatever the connection was doing is unknown now: the next call starts a fresh one.
+            conn, self._conn = self._conn, None
+            if conn is not None:
+                asyncio.ensure_future(conn.close())
+            raise
+
+    async def _call_once(self, sql: str, params: tuple) -> Any:
+        async with self._lock:
+            # Twice at most: a connection that broke since the last call gets one fresh replacement.
+            for attempt in range(2):
+                if self._conn is None:
+                    self._conn = await self._connect(self._url)
+                try:
+                    return (await (await self._conn.execute(sql, params)).fetchone())[0]
+                except psycopg.OperationalError:
+                    await self._drop()
+                    if attempt:
+                        raise
+
+    async def _drop(self) -> None:
+        conn, self._conn = self._conn, None
+        if conn is not None:
+            try:
+                await conn.close()
+            except Exception:
+                pass
+
+
+def recorder_from_env() -> "AlarmRecorder":
+    """AUDIT_DATABASE_URL set: the activity log in the database. Unset: the server log."""
+    url = os.environ.get("AUDIT_DATABASE_URL")
+    return DatabaseRecorder(url) if url else LogRecorder()
+
+
+async def purge_daily(recorder: DatabaseRecorder, first: float = 60, every: float = 86400) -> None:
+    """Purges the activity log shortly after startup, then once a day; failures are only logged."""
+    await asyncio.sleep(first)
+    while True:
+        try:
+            gone = await recorder.purge()
+            if gone:
+                log.info("activity log purge: %d rows older than 12 months deleted", gone)
+        except Exception:
+            log.exception("activity log purge failed")
+        await asyncio.sleep(every)
 
 
 class AlarmFeed(Protocol):

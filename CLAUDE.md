@@ -27,6 +27,8 @@
 6. **Prezentatorul nu are nevoie de cont.**
 7. **Secrete doar în `.env`** (ignorat de git; model în `.env.example`). Cheia API Claude stă doar pe server, niciodată în aplicația de telefon.
 8. **Commit-uri ca `selimayann`, fără `Co-Authored-By: Claude`** sau altă atribuire Claude.
+9. **Orice funcționalitate nouă care produce date le salvează în baza de date**: migrație nouă, RLS, drepturi doar pe coloanele alese de om (Supabase dă implicit totul lui `authenticated`, deci întâi `revoke all`), test în `server/tests/test_database.py`. Acțiunile importante ale oamenilor intră în `activity_log`. Ce rămâne doar pe telefon (amprenta vocii, modelele) se spune explicit în design, cu motivul.
+10. **GDPR în tot ce facem**: fiecare design are temei legal, informarea omului înainte (în interfață), minimizare (coloane fixe, fără text liber, fără date de care nu e nevoie), termen de păstrare și ce se întâmplă la ștergerea contului. Model: `docs/superpowers/specs/2026-10-23-istoric-activitate-design.md` §11.
 
 ## Stack
 
@@ -46,8 +48,9 @@
 
 - **Contul e opțional.** Fără `SUPABASE_URL` / `SUPABASE_ANON_KEY` aplicația și serverul merg exact ca înainte, anonim. Prezentatorul nu are niciodată cont.
 - **Login fără parolă**: cod de 6 cifre pe email și Google. Fără Apple deocamdată (decizie de echipă). Fără CAPTCHA și fără coduri dictate prin apel (utilizatori surzi).
-- **Ce se salvează**: doar replicile finale (text), rezumatul și setările, în contul participantului. Niciodată audio sau video.
-- **Row Level Security pe fiecare tabel**: fiecare utilizator vede doar rândurile lui. Aplicația vorbește direct cu Supabase cu cheia `anon` (publică) + tokenul utilizatorului. Serverul doar verifică tokenul (JWKS sau `SUPABASE_JWT_SECRET`) și **nu folosește cheia `service_role`**.
+- **Ce se salvează**: doar replicile finale (text), rezumatul și setările, în contul participantului, plus istoricul activității (alarme și meetinguri, `activity_log`). Niciodată audio sau video.
+- **Row Level Security pe fiecare tabel**: fiecare utilizator vede doar rândurile lui. Excepție: adminii unei companii văd istoricul companiei și meetingurile salvate pentru ea, doar prin funcții (`company_activity`, `company_meeting`) care înregistrează citirea în istoricul angajatului.
+- **Istoricul activității** (`supabase/migrations/…_activity_log.sql`): se adaugă doar rânduri, nimeni nu modifică sau șterge din aplicație; IP-ul nu ajunge niciodată în aplicație; 12 luni, apoi se șterge; la ștergerea contului pleacă meetingurile, alarmele rămân fără legătura cu contul. Alarmele colegilor le scrie serverul cu rolul `echo_audit` (`AUDIT_DATABASE_URL`), care poate doar să adauge. Aplicația vorbește direct cu Supabase cu cheia `anon` (publică) + tokenul utilizatorului. Serverul doar verifică tokenul (JWKS sau `SUPABASE_JWT_SECRET`) și **nu folosește cheia `service_role`**.
 - **Schema se schimbă doar prin migrații noi** în `supabase/migrations/` (niciodată editând una deja aplicată), cu test în `server/tests/test_database.py`.
 - **Companii** (`supabase/migrations/…_organizations.sql`, `app/lib/core/org/`, `app/lib/features/organization/`): angajatul intră doar acceptând o invitație pe emailul lui; despre el se salvează **nevoi, nu diagnostic** (coloane fixe, fără text liber), scrise doar de el; angajații se văd doar pe ei, adminii văd tot din compania lor; compania păstrează mereu un admin. Sunetele comune păstrează doar amprenta și modelul (`tflite` telefon / `tfjs` browser, nu se potrivesc între ele). Aceeași schemă pe Supabase-ul nostru sau instalat la companie.
 - **Sesiunile live nu se salvează în Postgres**: stau în Redis (`REDIS_URL`) sau în memorie dacă lipsește. Codul expiră după 12 h fără activitate.

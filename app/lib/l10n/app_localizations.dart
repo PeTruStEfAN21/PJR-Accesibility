@@ -1385,7 +1385,7 @@ abstract class AppLocalizations {
   /// No description provided for @accountDeleteBody.
   ///
   /// In ro, this message translates to:
-  /// **'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.'**
+  /// **'Se șterg definitiv contul, meetingurile salvate, transcrierile, rezumatele și istoricul lor. Rămân 12 luni, cu emailul tău dar fără legătură cu contul: alarmele date de tine, răspunsurile tale la alarme și, dacă ești administrator, ce meetinguri ale angajaților ai citit (pentru anchete despre alarme și ca angajații să știe cine le-a citit meetingurile). Nu se poate anula.'**
   String get accountDeleteBody;
 
   /// No description provided for @accountDeleteConfirm.
@@ -1609,6 +1609,12 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Nu s-a putut. Verifică internetul și încearcă din nou.'**
   String get orgError;
+
+  /// No description provided for @orgLastAdmin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ești singurul administrator al companiei și mai sunt colegi în ea. Fă pe altcineva administrator, apoi încearcă din nou.'**
+  String get orgLastAdmin;
 
   /// No description provided for @orgTitle.
   ///
@@ -1925,7 +1931,7 @@ abstract class AppLocalizations {
   /// No description provided for @emergencyAccountable.
   ///
   /// In ro, this message translates to:
-  /// **'Numele tău se păstrează odată cu alarma.'**
+  /// **'Alarma se salvează cu contul tău, ora, locul și adresa IP.'**
   String get emergencyAccountable;
 
   /// No description provided for @alarmLevelCritical.
@@ -2035,6 +2041,276 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Serverul nu are conturi pornite. Anunță administratorul.'**
   String get emergencyErrorNotConfigured;
+
+  /// No description provided for @activityTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Istoricul meu'**
+  String get activityTitle;
+
+  /// No description provided for @activityHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmele tale, meetingurile salvate și cine le-a citit'**
+  String get activityHint;
+
+  /// No description provided for @activityEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu e nimic în istoric încă. Aici apar alarmele tale, meetingurile salvate și cine le-a citit.'**
+  String get activityEmpty;
+
+  /// No description provided for @activityCompanyEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu e nimic în istoricul companiei încă.'**
+  String get activityCompanyEmpty;
+
+  /// No description provided for @activityLoadError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut încărca istoricul. Verifică internetul și încearcă din nou.'**
+  String get activityLoadError;
+
+  /// No description provided for @activityOlder.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mai vechi'**
+  String get activityOlder;
+
+  /// No description provided for @activitySomeone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cineva'**
+  String get activitySomeone;
+
+  /// No description provided for @activityNoTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'fără titlu'**
+  String get activityNoTitle;
+
+  /// No description provided for @activityQuoted.
+  ///
+  /// In ro, this message translates to:
+  /// **'„{title}”'**
+  String activityQuoted(String title);
+
+  /// No description provided for @activityStatusSafe.
+  ///
+  /// In ro, this message translates to:
+  /// **'în siguranță'**
+  String get activityStatusSafe;
+
+  /// No description provided for @activityStatusNeedHelp.
+  ///
+  /// In ro, this message translates to:
+  /// **'am nevoie de ajutor'**
+  String get activityStatusNeedHelp;
+
+  /// No description provided for @activityPlace.
+  ///
+  /// In ro, this message translates to:
+  /// **'Locul: {lat}, {lon} (±{accuracy} m)'**
+  String activityPlace(String lat, String lon, String accuracy);
+
+  /// No description provided for @activityAlarmRaisedMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai dat o alarmă: {kind}'**
+  String activityAlarmRaisedMe(String kind);
+
+  /// No description provided for @activityAlarmRaised.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a dat o alarmă: {kind}'**
+  String activityAlarmRaised(String who, String kind);
+
+  /// No description provided for @activityAlarmCancelledMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai anulat alarma: {kind}'**
+  String activityAlarmCancelledMe(String kind);
+
+  /// No description provided for @activityAlarmCancelled.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a anulat alarma: {kind}'**
+  String activityAlarmCancelled(String who, String kind);
+
+  /// No description provided for @activityAlarmReportedMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai semnalat companiei alarma: {kind}'**
+  String activityAlarmReportedMe(String kind);
+
+  /// No description provided for @activityAlarmReported.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a semnalat companiei alarma: {kind}'**
+  String activityAlarmReported(String who, String kind);
+
+  /// No description provided for @activityAlarmAnsweredMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai răspuns „{status}” la alarma: {kind}'**
+  String activityAlarmAnsweredMe(String status, String kind);
+
+  /// No description provided for @activityAlarmAnswered.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a răspuns „{status}” la alarma: {kind}'**
+  String activityAlarmAnswered(String who, String status, String kind);
+
+  /// No description provided for @activityAlarmClosedMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai închis alarma: {kind}'**
+  String activityAlarmClosedMe(String kind);
+
+  /// No description provided for @activityAlarmClosed.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a închis alarma: {kind}'**
+  String activityAlarmClosed(String who, String kind);
+
+  /// No description provided for @activityMeetingStartedMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai început meetingul {meeting}'**
+  String activityMeetingStartedMe(String meeting);
+
+  /// No description provided for @activityMeetingStarted.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a început meetingul {meeting}'**
+  String activityMeetingStarted(String who, String meeting);
+
+  /// No description provided for @activityMeetingEndedMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai încheiat meetingul {meeting}'**
+  String activityMeetingEndedMe(String meeting);
+
+  /// No description provided for @activityMeetingEnded.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a încheiat meetingul {meeting}'**
+  String activityMeetingEnded(String who, String meeting);
+
+  /// No description provided for @activityMeetingDeletedMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai șters meetingul {meeting}'**
+  String activityMeetingDeletedMe(String meeting);
+
+  /// No description provided for @activityMeetingDeleted.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} a șters meetingul {meeting}'**
+  String activityMeetingDeleted(String who, String meeting);
+
+  /// No description provided for @activityMeetingReadMine.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} (administrator) a citit meetingul tău {meeting}'**
+  String activityMeetingReadMine(String who, String meeting);
+
+  /// No description provided for @activityMeetingReadByMe.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai citit meetingul {meeting}, salvat de {owner}'**
+  String activityMeetingReadByMe(String meeting, String owner);
+
+  /// No description provided for @activityMeetingRead.
+  ///
+  /// In ro, this message translates to:
+  /// **'{who} (administrator) a citit meetingul {meeting}, salvat de {owner}'**
+  String activityMeetingRead(String who, String meeting, String owner);
+
+  /// No description provided for @orgHistory.
+  ///
+  /// In ro, this message translates to:
+  /// **'Istoricul companiei'**
+  String get orgHistory;
+
+  /// No description provided for @orgHistoryHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmele și meetingurile din companie, cu cine'**
+  String get orgHistoryHint;
+
+  /// No description provided for @orgMeetings.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingurile companiei'**
+  String get orgMeetings;
+
+  /// No description provided for @orgMeetingsHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingurile salvate de angajați cât sunt în companie'**
+  String get orgMeetingsHint;
+
+  /// No description provided for @orgMeetingsNotice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Când deschizi un meeting, angajatul vede în istoricul lui că l-ai citit.'**
+  String get orgMeetingsNotice;
+
+  /// No description provided for @orgMeetingsEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Niciun meeting salvat pentru companie încă. Aici apar meetingurile salvate de angajați cât sunt în companie.'**
+  String get orgMeetingsEmpty;
+
+  /// No description provided for @orgMeetingsLoadError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut încărca meetingurile companiei. Verifică internetul și încearcă din nou.'**
+  String get orgMeetingsLoadError;
+
+  /// No description provided for @orgMeetingReadNotice.
+  ///
+  /// In ro, this message translates to:
+  /// **'{owner} vede în istoricul lui că ai citit acest meeting.'**
+  String orgMeetingReadNotice(String owner);
+
+  /// No description provided for @orgMeetingOwnerUnknown.
+  ///
+  /// In ro, this message translates to:
+  /// **'Angajatul'**
+  String get orgMeetingOwnerUnknown;
+
+  /// No description provided for @orgMeetingLoadError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut deschide meetingul. Poate nu mai e al companiei; încearcă din nou.'**
+  String get orgMeetingLoadError;
+
+  /// No description provided for @orgInviteNotice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Dacă accepți, administratorii companiei pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei.'**
+  String get orgInviteNotice;
+
+  /// No description provided for @orgEmployeeNotice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Administratorii pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei. Când un administrator îți citește un meeting, vezi asta în Istoricul meu.'**
+  String get orgEmployeeNotice;
+
+  /// No description provided for @meetingSavingForOrg.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingul se salvează pentru {org}. Administratorii îl pot citi.'**
+  String meetingSavingForOrg(String org);
+
+  /// No description provided for @meetingPickOrg.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alege compania'**
+  String get meetingPickOrg;
 }
 
 class _AppLocalizationsDelegate

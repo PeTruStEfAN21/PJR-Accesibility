@@ -112,7 +112,7 @@ void main() {
     }
     expect(find.text('Critic'), findsNWidgets(3));
     expect(find.text('Atenție'), findsOneWidget);
-    expect(find.text('Numele tău se păstrează odată cu alarma.'), findsOneWidget);
+    expect(find.text('Alarma se salvează cu contul tău, ora, locul și adresa IP.'), findsOneWidget);
     expect(find.text('Alarma ajunge la colegii aflați la cel mult 500 m.'), findsOneWidget);
   });
 
@@ -317,6 +317,19 @@ void main() {
     // At least its first lines are in view; the kinds come after it, below the fold.
     expect(tester.getRect(error).top, lessThan(844 - 120));
     expect(find.text('Incendiu'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('at 2x text the first kind is on screen and opens the confirmation', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await pumpScreen(tester, textScale: 2);
+
+    expect(tester.getRect(find.text('Incendiu')).bottom, lessThan(844));
+    await tester.tap(find.text('Incendiu'));
+    await tester.pumpAndSettle();
+    expect(find.text('Trimiți alarma „Incendiu”?'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
