@@ -41,6 +41,50 @@ void main() {
     });
   });
 
+  test('each level vibrates with the chosen vibration', () {
+    final haptics = <Haptic>[];
+    const chosen = {
+      AlertLevel.critical: Haptic.light,
+      AlertLevel.warning: Haptic.long,
+      AlertLevel.info: Haptic.strong,
+    };
+    final controller = AlertController(haptic: haptics.add, hapticFor: (level) => chosen[level]!);
+    controller.show(alert(SoundKind.horn));
+    expect(haptics.first, Haptic.long);
+    controller.dismiss();
+    controller.show(alert(SoundKind.name));
+    expect(haptics.last, Haptic.strong);
+    controller.dispose();
+  });
+
+  test('critical repeats when the chosen pattern ends', () {
+    fakeAsync((async) {
+      final haptics = <Haptic>[];
+      final controller = AlertController(haptic: haptics.add, hapticFor: (_) => Haptic.strong);
+      controller.show(alert(SoundKind.fireAlarm));
+      async.elapse(const Duration(milliseconds: 1549));
+      expect(haptics.length, 1);
+      async.elapse(const Duration(milliseconds: 2));
+      expect(haptics.length, 2);
+      async.elapse(const Duration(milliseconds: 1550));
+      expect(haptics.length, 3);
+      controller.dispose();
+    });
+  });
+
+  test('a new choice applies from the next repeat', () {
+    fakeAsync((async) {
+      final haptics = <Haptic>[];
+      var chosen = Haptic.long;
+      final controller = AlertController(haptic: haptics.add, hapticFor: (_) => chosen);
+      controller.show(alert(SoundKind.fireAlarm));
+      chosen = Haptic.light;
+      async.elapse(const Duration(milliseconds: 500));
+      expect(haptics.last, Haptic.light);
+      controller.dispose();
+    });
+  });
+
   test('warnings and info dismiss themselves', () {
     fakeAsync((async) {
       final controller = AlertController(haptic: (_) {});
