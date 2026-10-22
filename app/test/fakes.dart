@@ -41,13 +41,21 @@ class FakeChannel implements WebSocketChannel {
   final FakeSink sink = FakeSink();
   Uri? uri;
 
+  int? _closeCode;
+
   void receive(Map<String, Object> message) => _incoming.add(jsonEncode(message));
+
+  /// The server closes the socket with [code].
+  void closeWith(int code) {
+    _closeCode = code;
+    _incoming.close();
+  }
 
   @override
   Stream get stream => _incoming.stream;
 
   @override
-  int? get closeCode => null;
+  int? get closeCode => _closeCode;
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
