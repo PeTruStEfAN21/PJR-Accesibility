@@ -13,7 +13,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
 from app import agent, ai
-from app.auth import Caller, InvalidToken, TokenVerifier, verifier_from_env
+from app.auth import AccountCaller, Caller, InvalidToken, TokenVerifier, verifier_from_env
 from app.hub import Hub, LocalHub, RedisHub
 from app.limits import Limiter, MemoryLimiter, RedisLimiter
 from app.protocol import ALLOWED, MAX_MESSAGE_BYTES, ROLES, client_message
@@ -109,6 +109,23 @@ def create_app(
                 headers={"WWW-Authenticate": "Bearer"},
             ) from exc
 
+    async def account_caller(request: Request) -> AccountCaller:
+        """Like `caller`, but the caller must be signed in."""
+        if verifier is None:
+            raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Accounts are not configured on this server")
+        ip = request.client.host if request.client else "unknown"
+        header = request.headers.get("authorization", "")
+        unauthorized = {"WWW-Authenticate": "Bearer"}
+        if not header.lower().startswith("bearer "):
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Sign in to use alarms", headers=unauthorized)
+        try:
+            who = await verifier.identity(header[7:].strip())
+        except InvalidToken as exc:
+            raise HTTPException(
+                status.HTTP_401_UNAUTHORIZED, "Invalid or expired session, sign in again", headers=unauthorized
+            ) from exc
+        return AccountCaller(user_id=who.user_id, email=who.email, ip=ip)
+
     async def ai_caller(who: Caller = Depends(caller)) -> Caller:
         retry_after = await limiter.hit(who.key, user_limit if who.user_id else anonymous_limit)
         if retry_after is not None:
@@ -130,6 +147,10 @@ def create_app(
     @app.get("/api/me")
     async def me(who: Caller = Depends(caller)) -> dict:
         return {"user_id": who.user_id}
+
+    @app.post("/api/alarms", status_code=status.HTTP_201_CREATED)
+    async def raise_alarm(who: AccountCaller = Depends(account_caller)) -> dict:
+        raise NotImplementedError  # Filled in by the alarm routes task.
 
     @app.post("/api/sessions", status_code=status.HTTP_201_CREATED)
     async def create_session() -> dict:
