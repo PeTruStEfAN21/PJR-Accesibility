@@ -68,6 +68,14 @@ void main() {
       expect(ServerEvent.fromJson({'type': 'read', 'id': 'q1', 'by': 'robot'}), isNull);
     });
 
+    test('speaking messages round-trip', () {
+      expect(const SpeakingMessage(id: 's1', active: true, ts: 5).toJson(), {'type': 'speaking', 'id': 's1', 'active': true, 'ts': 5});
+      final event = ServerEvent.fromJson({'type': 'speaking', 'id': 's1', 'active': false, 'ts': 5});
+      expect(event, isA<SpeakingReceived>());
+      expect((event as SpeakingReceived).id, 's1');
+      expect(event.active, isFalse);
+    });
+
     test('hand notify carries no text', () {
       final event = ServerEvent.fromJson({'type': 'notify', 'id': 'h1', 'kind': 'hand', 'text': '', 'ts': 1});
       expect((event as NotifyReceived).notify.kind, NotifyKind.hand);

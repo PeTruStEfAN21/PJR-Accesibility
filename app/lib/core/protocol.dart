@@ -72,6 +72,18 @@ class ReadMessage {
   Map<String, Object> toJson() => {'type': 'read', 'id': id, 'by': by.name};
 }
 
+/// A colleague in an online meeting started or stopped speaking (clarity coach).
+class SpeakingMessage {
+  const SpeakingMessage({required this.id, required this.active, required this.ts});
+
+  /// The sending page's id, stable for the whole meeting.
+  final String id;
+  final bool active;
+  final int ts;
+
+  Map<String, Object> toJson() => {'type': 'speaking', 'id': id, 'active': active, 'ts': ts};
+}
+
 /// Everything a device can receive from the server.
 sealed class ServerEvent {
   const ServerEvent();
@@ -88,6 +100,7 @@ sealed class ServerEvent {
         'caption' => CaptionReceived(Caption.fromJson(json)),
         'notify' => NotifyReceived(Notify.fromJson(json)),
         'seen' => SeenReceived(json['id'] as String),
+        'speaking' => SpeakingReceived(json['id'] as String, json['active'] as bool),
         'read' => ReadReceived(json['id'] as String, ReadBy.values.byName(json['by'] as String)),
         'error' => ServerError(json['message'] as String),
         _ => null,
@@ -129,6 +142,12 @@ class ReadReceived extends ServerEvent {
   const ReadReceived(this.id, this.by);
   final String id;
   final ReadBy by;
+}
+
+class SpeakingReceived extends ServerEvent {
+  const SpeakingReceived(this.id, this.active);
+  final String id;
+  final bool active;
 }
 
 class ServerError extends ServerEvent {
