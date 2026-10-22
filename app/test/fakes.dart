@@ -328,6 +328,9 @@ class TestHarness {
   final voice = FakeVoiceEngine();
   final FakeSounds sounds;
   final FakeChannel channel;
+
+  /// The colleague-alarm feed's own socket, opened while someone is signed in.
+  final alarmChannel = FakeChannel();
   final AlertController alerts;
   final FakeAccountService? account;
   final FakeMeetingStore? meetings;
@@ -361,7 +364,7 @@ class TestHarness {
           tts: tts,
           voice: voice,
           httpClient: httpClient,
-          channelFactory: (uri) => channel..uri = uri,
+          channelFactory: (uri) => (uri.path == '/ws/alarms' ? alarmChannel : channel)..uri = uri,
           account: account,
           meetings: meetings,
         ),
