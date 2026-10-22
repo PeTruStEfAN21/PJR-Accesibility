@@ -85,9 +85,9 @@ class _LearnSoundScreenState extends State<LearnSoundScreen> {
               child: Column(
                 children: [
                   for (final (level, label) in [
-                    (AlertLevel.critical, l10n.levelCritical),
-                    (AlertLevel.warning, l10n.levelWarning),
-                    (AlertLevel.info, l10n.levelInfo),
+                    (AlertLevel.critical, l10n.learnLevelCritical),
+                    (AlertLevel.warning, l10n.learnLevelWarning),
+                    (AlertLevel.info, l10n.learnLevelInfo),
                   ])
                     RadioListTile<AlertLevel>(value: level, title: Text(label)),
                 ],
