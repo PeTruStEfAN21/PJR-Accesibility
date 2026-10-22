@@ -376,6 +376,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get testDownload => 'Download';
 
   @override
+  String get voiceDiagOff =>
+      'Voice recognition is off: everything shows as “Speaker”';
+
+  @override
+  String get voiceDiagNotLearned =>
+      'Your voice is not learned: everything shows as “Speaker”';
+
+  @override
+  String get voiceDiagForced =>
+      '“I\'m speaking” is on: everything shows as “Speaker”';
+
+  @override
+  String get voiceDiagShort => 'Line too short: keeps the previous label';
+
+  @override
+  String voiceDiagScore(String similarity, String threshold, String label) {
+    return 'Similarity with your voice: $similarity (threshold $threshold) → $label';
+  }
+
+  @override
   String get presenterCreateError =>
       'Could not create the meeting. Check that the server is running.';
 

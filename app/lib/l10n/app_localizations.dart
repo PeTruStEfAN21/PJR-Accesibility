@@ -752,6 +752,36 @@ abstract class AppLocalizations {
   /// **'Descarcă'**
   String get testDownload;
 
+  /// No description provided for @voiceDiagOff.
+  ///
+  /// In ro, this message translates to:
+  /// **'Recunoașterea vocii e oprită: totul apare ca „Speaker”'**
+  String get voiceDiagOff;
+
+  /// No description provided for @voiceDiagNotLearned.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vocea ta nu e învățată: totul apare ca „Speaker”'**
+  String get voiceDiagNotLearned;
+
+  /// No description provided for @voiceDiagForced.
+  ///
+  /// In ro, this message translates to:
+  /// **'„Vorbesc eu” e pornit: totul apare ca „Speaker”'**
+  String get voiceDiagForced;
+
+  /// No description provided for @voiceDiagShort.
+  ///
+  /// In ro, this message translates to:
+  /// **'Replică prea scurtă: păstrează eticheta de dinainte'**
+  String get voiceDiagShort;
+
+  /// No description provided for @voiceDiagScore.
+  ///
+  /// In ro, this message translates to:
+  /// **'Asemănare cu vocea ta: {similarity} (prag {threshold}) → {label}'**
+  String voiceDiagScore(String similarity, String threshold, String label);
+
   /// No description provided for @presenterCreateError.
   ///
   /// In ro, this message translates to:

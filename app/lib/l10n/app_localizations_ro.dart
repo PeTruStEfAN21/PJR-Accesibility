@@ -376,6 +376,27 @@ class AppLocalizationsRo extends AppLocalizations {
   String get testDownload => 'Descarcă';
 
   @override
+  String get voiceDiagOff =>
+      'Recunoașterea vocii e oprită: totul apare ca „Speaker”';
+
+  @override
+  String get voiceDiagNotLearned =>
+      'Vocea ta nu e învățată: totul apare ca „Speaker”';
+
+  @override
+  String get voiceDiagForced =>
+      '„Vorbesc eu” e pornit: totul apare ca „Speaker”';
+
+  @override
+  String get voiceDiagShort =>
+      'Replică prea scurtă: păstrează eticheta de dinainte';
+
+  @override
+  String voiceDiagScore(String similarity, String threshold, String label) {
+    return 'Asemănare cu vocea ta: $similarity (prag $threshold) → $label';
+  }
+
+  @override
   String get presenterCreateError =>
       'Nu pot crea meetingul. Verifică dacă serverul rulează.';
 

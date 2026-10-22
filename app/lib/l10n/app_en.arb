@@ -123,6 +123,12 @@
   "@testPredicted": {"placeholders": {"label": {"type": "String"}, "score": {"type": "String"}}},
   "testListen": "Listen",
   "testDownload": "Download",
+  "voiceDiagOff": "Voice recognition is off: everything shows as “Speaker”",
+  "voiceDiagNotLearned": "Your voice is not learned: everything shows as “Speaker”",
+  "voiceDiagForced": "“I'm speaking” is on: everything shows as “Speaker”",
+  "voiceDiagShort": "Line too short: keeps the previous label",
+  "voiceDiagScore": "Similarity with your voice: {similarity} (threshold {threshold}) → {label}",
+  "@voiceDiagScore": {"placeholders": {"similarity": {"type": "String"}, "threshold": {"type": "String"}, "label": {"type": "String"}}},
   "presenterCreateError": "Could not create the meeting. Check that the server is running.",
 
   "soundFireAlarm": "FIRE ALARM",

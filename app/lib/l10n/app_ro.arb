@@ -123,6 +123,12 @@
   "@testPredicted": {"placeholders": {"label": {"type": "String"}, "score": {"type": "String"}}},
   "testListen": "Ascultă",
   "testDownload": "Descarcă",
+  "voiceDiagOff": "Recunoașterea vocii e oprită: totul apare ca „Speaker”",
+  "voiceDiagNotLearned": "Vocea ta nu e învățată: totul apare ca „Speaker”",
+  "voiceDiagForced": "„Vorbesc eu” e pornit: totul apare ca „Speaker”",
+  "voiceDiagShort": "Replică prea scurtă: păstrează eticheta de dinainte",
+  "voiceDiagScore": "Asemănare cu vocea ta: {similarity} (prag {threshold}) → {label}",
+  "@voiceDiagScore": {"placeholders": {"similarity": {"type": "String"}, "threshold": {"type": "String"}, "label": {"type": "String"}}},
   "presenterCreateError": "Nu pot crea meetingul. Verifică dacă serverul rulează.",
 
   "soundFireAlarm": "ALARMĂ DE INCENDIU",
