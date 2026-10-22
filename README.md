@@ -14,6 +14,7 @@ Pe lângă pluginuri, `.claude/skills/` conține skilluri care se încarcă auto
 
 - cele 50 de skilluri de QA din [qa-skills](https://github.com/petrkindlmann/qa-skills) (licență MIT, în `.claude/skills/QA-SKILLS-LICENSE`);
 - cele 15 skilluri de design și animație ale lui Emil Kowalski din [emilkowalski/skills](https://github.com/emilkowalski/skills) (licență MIT, în `.claude/skills/EMIL-SKILLS-LICENSE`), de exemplu `emil-design-eng`, `animate`, `review-animations`, `break-ui`, `apple-design`. Pentru o versiune nouă: `npx skills@latest add emilkowalski/skills` sau copiezi din nou folderul `skills/`.
+- skillul `web-design-guidelines` din [vercel-labs/agent-skills](https://github.com/vercel-labs/agent-skills) (licență MIT, în `.claude/skills/VERCEL-GUIDELINES-LICENSE`): verifică interfața după [Web Interface Guidelines](https://vercel.com/design/guidelines). Varianta adaptată pentru Flutter, pe care o urmăm, e în `docs/reguli-frontend.md`. Pentru o versiune nouă: `npx skills add https://github.com/vercel-labs/agent-skills --skill web-design-guidelines`.
 
 După `git pull`, pornește `claude` în folderul proiectului și acceptă marketplace-urile și pluginurile când ești întrebat.
 
@@ -78,3 +79,11 @@ Fără pașii de mai jos aplicația merge anonim, ca înainte. Detalii în `docs
 5. În `.env`: `SUPABASE_URL`. Pentru aplicație creează `app/supabase.env.json` (ignorat de git) cu `{"SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "<cheia publishable>"}`, apoi `flutter run --dart-define-from-file=supabase.env.json` (la fel pentru `flutter build web`).
 
 Local, fără cloud: `npx supabase start` (cere Docker), iar emailurile apar în Mailpit pe http://localhost:54324.
+
+### Alarma dată de un coleg
+
+Un coleg intrat în cont dă o alarmă de urgență din aplicație („Alarmă de urgență” pe ecranul principal); o primesc cei intrați în cont aflați la cel mult 500 m. Cere conturile de mai sus. Detalii în `docs/superpowers/specs/2026-10-22-alarma-manuala-design.md`.
+
+- Serverul: `POST /api/alarms`, `POST /api/alarms/{id}/cancel` (cu cont, cel mult 3 alarme pe oră) și `/ws/alarms` pentru ascultare.
+- Cine a dat alarma ajunge la `AlarmRecorder` (`server/app/alarms.py`). Deocamdată se scrie doar în logul serverului (`docker compose logs server`); salvarea în baza de date se adaugă acolo.
+- Pe Mac, după `git pull`: `cd app/ios && pod install` (pachetul de locație `geolocator`).
