@@ -484,5 +484,13 @@
   "orgEmployeeNotice": "Administratorii pot citi meetingurile pe care le salvezi cât ești în companie, iar alarmele tale apar în istoricul companiei. Când un administrator îți citește un meeting, vezi asta în Istoricul meu.",
   "meetingSavingForOrg": "Meetingul se salvează pentru {org}. Administratorii îl pot citi.",
   "@meetingSavingForOrg": {"placeholders": {"org": {"type": "String"}}},
-  "meetingPickOrg": "Alege compania"
+  "meetingPickOrg": "Alege compania",
+  "navLabel": "Navigare principală",
+  "navHome": "Acasă",
+  "navMeeting": "Meeting",
+  "navSounds": "Sunete",
+  "navAlarm": "Alarmă",
+  "navSettings": "Setări",
+  "alarmNeedsAccount": "Alarma de urgență cere un cont: numele tău pleacă împreună cu alarma, ca colegii să știe cine a dat-o.",
+  "alarmAccountsOff": "Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici."
 }

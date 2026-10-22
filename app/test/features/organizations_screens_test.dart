@@ -32,8 +32,7 @@ Future<void> openSounds(WidgetTester tester) async {
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpAndSettle();
-  await tester.tap(find.text('Sunete'));
-  await tester.pumpAndSettle();
+  await openTab(tester, 'Sunete');
 }
 
 Float32List print(double x) => normalized([x, 1]);
@@ -41,6 +40,9 @@ Float32List print(double x) => normalized([x, 1]);
 /// Scrolls the target into view first: on the test screen many buttons start below the fold.
 Future<void> tapShown(WidgetTester tester, Finder finder) async {
   await tester.ensureVisible(finder);
+  await tester.pumpAndSettle();
+  // Centred, so it is not under the phone's floating bar.
+  await Scrollable.ensureVisible(tester.element(finder), alignment: 0.5);
   await tester.pumpAndSettle();
   await tester.tap(finder);
   await tester.pumpAndSettle();

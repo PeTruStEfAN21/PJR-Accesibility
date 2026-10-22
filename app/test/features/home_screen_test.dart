@@ -81,7 +81,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(l10n.homeSoundsOn), findsOneWidget);
 
-    await tester.tap(find.text(l10n.homeSounds));
+    await tester.tap(find.descendant(of: find.byType(HomeScreen), matching: find.text(l10n.homeSounds)));
     await tester.pumpAndSettle();
     expect(find.byType(SoundsScreen), findsOneWidget);
   });
@@ -123,7 +123,7 @@ void main() {
     expect(find.text('În afara meetingurilor'), findsOneWidget);
     // Visible sound is its own card under the main action, not a row.
     expect(find.text('Sunetele din jur'), findsNothing);
-    expect(find.text('Sunete'), findsOneWidget);
+    expect(find.descendant(of: find.byType(HomeScreen), matching: find.text('Sunete')), findsOneWidget);
     expect(find.text('Vorbesc cu cineva'), findsOneWidget);
     expect(find.text('Tu prezinți? Deschide modul prezentator'), findsOneWidget);
 

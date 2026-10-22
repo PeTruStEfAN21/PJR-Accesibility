@@ -12,7 +12,7 @@ void main() {
 
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
-    await tester.tap(find.byTooltip('Setări'));
+    await tester.tap(inBar('Setări'));
     await tester.pumpAndSettle();
     expect(find.byType(SettingsScreen), findsOneWidget);
 

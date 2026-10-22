@@ -1483,4 +1483,30 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meetingPickOrg => 'Choose the company';
+
+  @override
+  String get navLabel => 'Main navigation';
+
+  @override
+  String get navHome => 'Home';
+
+  @override
+  String get navMeeting => 'Meeting';
+
+  @override
+  String get navSounds => 'Sounds';
+
+  @override
+  String get navAlarm => 'Alarm';
+
+  @override
+  String get navSettings => 'Settings';
+
+  @override
+  String get alarmNeedsAccount =>
+      'The emergency alarm needs an account: your name goes with the alarm, so colleagues know who raised it.';
+
+  @override
+  String get alarmAccountsOff =>
+      'Accounts are not turned on for this server, so the emergency alarm cannot be sent from here.';
 }

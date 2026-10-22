@@ -2629,6 +2629,54 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Alege compania'**
   String get meetingPickOrg;
+
+  /// No description provided for @navLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Navigare principală'**
+  String get navLabel;
+
+  /// No description provided for @navHome.
+  ///
+  /// In ro, this message translates to:
+  /// **'Acasă'**
+  String get navHome;
+
+  /// No description provided for @navMeeting.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meeting'**
+  String get navMeeting;
+
+  /// No description provided for @navSounds.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunete'**
+  String get navSounds;
+
+  /// No description provided for @navAlarm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmă'**
+  String get navAlarm;
+
+  /// No description provided for @navSettings.
+  ///
+  /// In ro, this message translates to:
+  /// **'Setări'**
+  String get navSettings;
+
+  /// No description provided for @alarmNeedsAccount.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarma de urgență cere un cont: numele tău pleacă împreună cu alarma, ca colegii să știe cine a dat-o.'**
+  String get alarmNeedsAccount;
+
+  /// No description provided for @alarmAccountsOff.
+  ///
+  /// In ro, this message translates to:
+  /// **'Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.'**
+  String get alarmAccountsOff;
 }
 
 class _AppLocalizationsDelegate

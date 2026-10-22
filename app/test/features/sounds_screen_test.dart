@@ -17,8 +17,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Sunete'));
-    await tester.pumpAndSettle();
+    await openTab(tester, 'Sunete');
   }
 
   AppLocalizations l10nOf(WidgetTester tester) => AppLocalizations.of(tester.element(find.byType(SoundsScreen)));
@@ -34,9 +33,9 @@ void main() {
     await tester.pumpAndSettle();
     expect(h.sounds.listening, isTrue);
 
-    tester.state<NavigatorState>(find.byType(Navigator)).pop();
-    await tester.pumpAndSettle();
-    await openSounds(tester);
+    // Leaves Sunete for another screen of the bar, then comes back.
+    await openTab(tester, 'Acasă');
+    await openTab(tester, 'Sunete');
 
     expect(h.sounds.listening, isTrue);
     expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);

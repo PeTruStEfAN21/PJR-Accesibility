@@ -453,5 +453,13 @@
   "orgInviteNotice": "If you accept, the company's admins can read the meetings you save while in the company, and your alarms show up in the company history.",
   "orgEmployeeNotice": "Admins can read the meetings you save while in the company, and your alarms show up in the company history. When an admin reads one of your meetings, you see it in My history.",
   "meetingSavingForOrg": "The meeting is being saved for {org}. Its admins can read it.",
-  "meetingPickOrg": "Choose the company"
+  "meetingPickOrg": "Choose the company",
+  "navLabel": "Main navigation",
+  "navHome": "Home",
+  "navMeeting": "Meeting",
+  "navSounds": "Sounds",
+  "navAlarm": "Alarm",
+  "navSettings": "Settings",
+  "alarmNeedsAccount": "The emergency alarm needs an account: your name goes with the alarm, so colleagues know who raised it.",
+  "alarmAccountsOff": "Accounts are not turned on for this server, so the emergency alarm cannot be sent from here."
 }

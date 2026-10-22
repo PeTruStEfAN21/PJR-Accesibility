@@ -1487,4 +1487,30 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get meetingPickOrg => 'Alege compania';
+
+  @override
+  String get navLabel => 'Navigare principală';
+
+  @override
+  String get navHome => 'Acasă';
+
+  @override
+  String get navMeeting => 'Meeting';
+
+  @override
+  String get navSounds => 'Sunete';
+
+  @override
+  String get navAlarm => 'Alarmă';
+
+  @override
+  String get navSettings => 'Setări';
+
+  @override
+  String get alarmNeedsAccount =>
+      'Alarma de urgență cere un cont: numele tău pleacă împreună cu alarma, ca colegii să știe cine a dat-o.';
+
+  @override
+  String get alarmAccountsOff =>
+      'Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.';
 }
