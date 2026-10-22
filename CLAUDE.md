@@ -43,7 +43,7 @@
 - Verifică mereu `stop_reason == "refusal"` înainte de a citi răspunsul.
 - Rezumat și sarcini: un singur apel cu ieșire structurată (Pydantic). Nu e nevoie de agent acolo.
 - **Agentul „Întreabă meetingul”** e scris de noi: buclă proprie de maxim 6 pași, unelte `search_transcript` și `read_lines` peste transcrierea trimisă de telefon. Răspunsul citează replicile ca `[#id]`. Modelul nu inventează: dacă nu găsește în transcriere, spune asta.
-- Nu antrenăm modele de limbaj. Partea antrenată de noi (după demo) e clasificatorul de sunete pe locație peste embeddings YAMNet.
+- Nu antrenăm modele de limbaj. Partea antrenată de noi e detectorul de sunete periculoase peste embeddings YAMNet (`tools/train_danger_sounds.py` → `app/assets/models/danger_head*.json`, câte unul pentru telefon și browser) și, pe dispozitiv, amprentele sunetelor locației. Demo fără UI: `tools/sound_demo.py`.
 - Codul AI se testează cu un client fals; testele nu apelează API-ul real.
 
 ## Structura repo-ului
@@ -57,6 +57,7 @@ app/            Flutter (Dart): iOS + web (prezentator)
   lib/l10n/       traduceri RO / EN (ARB)
 server/         Python (FastAPI): app/ (sesiuni, ws, ai, agent), tests/
 docs/           prezentare (LaTeX), specificații și planuri superpowers
+tools/          scripturi: refacerea modelului YAMNet, antrenarea detectorului de sunete, demo în terminal
 docker-compose.yml
 ```
 
