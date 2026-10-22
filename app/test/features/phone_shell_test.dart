@@ -131,9 +131,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(bar('Sunete'));
     await tester.pumpAndSettle();
-    await tester.drag(find.byType(Scrollable).last, const Offset(0, -5000));
+    final item = find.text('Învață un sunet');
+    final list = find.descendant(of: find.byType(SoundsScreen), matching: find.byType(Scrollable)).first;
+    await tester.drag(list, const Offset(0, -5000));
+    await tester.pumpAndSettle();
+    await tester.drag(list, const Offset(0, -5000));
     await tester.pumpAndSettle();
     final barTop = tester.getTopLeft(find.byKey(PhoneShell.barKey)).dy;
-    expect(tester.getBottomLeft(find.text('Învață un sunet')).dy, lessThanOrEqualTo(barTop));
+    expect(tester.getBottomLeft(item).dy, lessThanOrEqualTo(barTop));
   });
 }
