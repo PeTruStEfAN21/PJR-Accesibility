@@ -140,4 +140,15 @@ void main() {
     final barTop = tester.getTopLeft(find.byKey(PhoneShell.barKey)).dy;
     expect(tester.getBottomLeft(item).dy, lessThanOrEqualTo(barTop));
   });
+
+  testWidgets('at 200% text the bar labels stay whole and all the same size', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    tester.platformDispatcher.textScaleFactorTestValue = 2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    final heights = {for (final label in ['Acasă', 'Meeting', 'Sunete', 'Alarmă', 'Setări']) tester.getRect(bar(label)).height.round()};
+    expect(heights, hasLength(1));
+    expect(tester.takeException(), isNull);
+  });
 }

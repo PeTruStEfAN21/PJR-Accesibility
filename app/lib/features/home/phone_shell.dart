@@ -37,17 +37,17 @@ class _PhoneShellState extends State<PhoneShell> {
   late final _visited = <EchoTab>{widget.initial};
 
   void _select(EchoTab tab) => setState(() {
-        _tab = tab;
-        _visited.add(tab);
-      });
+    _tab = tab;
+    _visited.add(tab);
+  });
 
   Widget _screen(EchoTab tab) => switch (tab) {
-        EchoTab.home => const HomeScreen(presenterFirst: false),
-        EchoTab.meeting => const JoinScreen(replaceOnJoin: false),
-        EchoTab.sounds => const SoundsScreen(),
-        EchoTab.alarm => const _AlarmTab(),
-        EchoTab.settings => const SettingsScreen(),
-      };
+    EchoTab.home => const HomeScreen(presenterFirst: false),
+    EchoTab.meeting => const JoinScreen(replaceOnJoin: false),
+    EchoTab.sounds => const SoundsScreen(),
+    EchoTab.alarm => const _AlarmTab(),
+    EchoTab.settings => const SettingsScreen(),
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -98,35 +98,68 @@ class _FloatingBar extends StatelessWidget {
       (EchoTab.alarm, Icons.emergency_share_outlined, Icons.emergency_share, l10n.navAlarm),
       (EchoTab.settings, Icons.settings_outlined, Icons.settings, l10n.navSettings),
     ];
-    return SafeArea(
-      minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-      child: Semantics(
-        container: true,
-        label: l10n.navLabel,
-        child: DecoratedBox(
-          key: PhoneShell.barKey,
-          decoration: BoxDecoration(
-            color: palette.raised,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: highContrast ? palette.border : palette.border, width: highContrast ? 2 : 1),
-            boxShadow: highContrast
-                ? null
-                : [BoxShadow(color: palette.text.withValues(alpha: 0.10), blurRadius: 24, offset: const Offset(0, 8))],
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Row(
-              children: [
-                for (final (tab, icon, selectedIcon, label) in items)
-                  Expanded(
-                    child: _BarItem(
-                      icon: tab == current ? selectedIcon : icon,
-                      label: label,
-                      selected: tab == current,
-                      onTap: () => onSelect(tab),
-                    ),
-                  ),
-              ],
+    // Five labels share a phone's width: like iOS tab bars, they grow with the text size only up to
+    // 130%, so all five stay whole and the same size. The screens above keep growing to 200%.
+    return MediaQuery.withClampedTextScaling(
+      maxScaleFactor: 1.3,
+      child: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: Semantics(
+          container: true,
+          label: l10n.navLabel,
+          child: DecoratedBox(
+            key: PhoneShell.barKey,
+            decoration: BoxDecoration(
+              color: palette.raised,
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(color: highContrast ? palette.border : palette.border, width: highContrast ? 2 : 1),
+              boxShadow: highContrast
+                  ? null
+                  : [
+                      BoxShadow(
+                        color: palette.text.withValues(alpha: 0.10),
+                        blurRadius: 24,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(6),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // One size for all five labels: the largest at which the longest one fits its slot.
+                  final style = _labelStyle(context, selected: true);
+                  final scaler = MediaQuery.textScalerOf(context);
+                  final slot = constraints.maxWidth / items.length - 4;
+                  var widest = 0.0;
+                  for (final (_, _, _, label) in items) {
+                    final painter = TextPainter(
+                      text: TextSpan(text: label, style: style),
+                      textScaler: scaler,
+                      textDirection: Directionality.of(context),
+                      maxLines: 1,
+                    )..layout();
+                    if (painter.width > widest) widest = painter.width;
+                    painter.dispose();
+                  }
+                  final fit = widest > slot ? slot / widest : 1.0;
+                  final labelScaler = TextScaler.linear(scaler.scale(1) * fit);
+                  return Row(
+                    children: [
+                      for (final (tab, icon, selectedIcon, label) in items)
+                        Expanded(
+                          child: _BarItem(
+                            icon: tab == current ? selectedIcon : icon,
+                            label: label,
+                            labelScaler: labelScaler,
+                            selected: tab == current,
+                            onTap: () => onSelect(tab),
+                          ),
+                        ),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -135,18 +168,34 @@ class _FloatingBar extends StatelessWidget {
   }
 }
 
+TextStyle? _labelStyle(BuildContext context, {required bool selected}) {
+  final palette = EchoPalette.of(context);
+  return Theme.of(context).textTheme.labelMedium?.copyWith(
+    color: selected ? palette.text : palette.muted,
+    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+  );
+}
+
 class _BarItem extends StatelessWidget {
-  const _BarItem({required this.icon, required this.label, required this.selected, required this.onTap});
+  const _BarItem({
+    required this.icon,
+    required this.label,
+    required this.labelScaler,
+    required this.selected,
+    required this.onTap,
+  });
 
   final IconData icon;
   final String label;
+
+  /// The same for the five labels (see [_FloatingBar]).
+  final TextScaler labelScaler;
   final bool selected;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final palette = EchoPalette.of(context);
-    final theme = Theme.of(context);
     final reduceMotion = MediaQuery.disableAnimationsOf(context);
     return Semantics(
       button: true,
@@ -166,7 +215,9 @@ class _BarItem extends StatelessWidget {
             // Selection shows by more than colour: filled icon, bold label and the pill behind them.
             color: selected ? palette.accentTint : Colors.transparent,
             borderRadius: BorderRadius.circular(22),
-            border: selected && SettingsScope.of(context).highContrast ? Border.all(color: palette.border, width: 2) : null,
+            border: selected && SettingsScope.of(context).highContrast
+                ? Border.all(color: palette.border, width: 2)
+                : null,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -174,17 +225,12 @@ class _BarItem extends StatelessWidget {
             children: [
               Icon(icon, size: 24, color: selected ? palette.accent : palette.muted),
               const SizedBox(height: 2),
-              // Big text sizes shrink the label to fit instead of cutting it.
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    color: selected ? palette.text : palette.muted,
-                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-                  ),
-                ),
+              Text(
+                label,
+                maxLines: 1,
+                softWrap: false,
+                textScaler: labelScaler,
+                style: _labelStyle(context, selected: selected),
               ),
             ],
           ),
@@ -209,7 +255,11 @@ class _AlarmTab extends StatelessWidget {
         if (!account.isSignedIn) return const _AlarmUnavailable(signIn: true);
         final settings = SettingsScope.of(context);
         return EmergencyScreen(
-          api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
+          api: AlarmApi(
+            defaultServer(settings),
+            client: services.httpClient,
+            token: () => services.account?.accessToken,
+          ),
           positions: services.positions,
           onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
           memory: AlarmScope.maybeOf(context)?.sentAlarm,
@@ -248,7 +298,8 @@ class _AlarmUnavailable extends StatelessWidget {
               Align(
                 alignment: AlignmentDirectional.centerStart,
                 child: FilledButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => SignInScreen(account: account))),
+                  onPressed: () =>
+                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => SignInScreen(account: account))),
                   child: Text(l10n.signIn),
                 ),
               ),

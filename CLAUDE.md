@@ -73,7 +73,7 @@
 app/            Flutter (Dart): iOS + web (prezentator)
   lib/core/       protocol, client WebSocket, API, recunoaștere vorbire, transcriere
   lib/settings/   setări de accesibilitate (persistente)
-  lib/theme/      palete daltonism, mod dislexie, contrast
+  lib/theme/      culorile și forma Echo dintr-o singură sursă (EchoPalette → tema Material), palete daltonism, mod dislexie, contrast
   lib/core/account/  login (Supabase Auth)
   lib/core/history/  meetingurile salvate și înregistrarea lor în timpul meetingului
   lib/features/   home, participant, presenter, alerts, conversation, settings, account, history, coach (antrenorul de claritate)
@@ -111,6 +111,7 @@ cd ml/voice && .venv/Scripts/python -m echo_voice.ship                 # alege �
 
 - **Superpowers**: `brainstorming` → design în `docs/superpowers/specs/` → `writing-plans` → implementare cu `test-driven-development` → `verification-before-completion`. Nu se scrie cod de produs nou fără design aprobat.
 - **Karpathy Skills**: modificări mici și chirurgicale, cel mai simplu cod care merge, criterii de reușită verificabile.
+- **Designul aplicației:** `docs/superpowers/specs/2026-10-23-redesign-design.md`. Un singur build web: până la 600 px lățime aplicația de telefon cu bara plutitoare (Acasă, Meeting, Sunete, Alarmă, Setări, în `features/home/phone_shell.dart`), peste, pagina de laptop. Culorile noi se adaugă doar în `EchoPalette`; textul trebuie să aibă contrast ≥ 7:1 (testat în `test/theme/theme_contrast_test.dart`).
 - **Taste** (`taste-skill:design-taste-frontend`) pentru direcția vizuală; regulile de accesibilitate de mai sus au prioritate. Cere Node 22+ și Chrome / Edge.
 - **Impeccable** (`/impeccable audit`, `/impeccable critique`, `/impeccable polish`) și **skillurile lui Emil Kowalski** (`emil-design-eng`, `review-animations`, `break-ui`) pentru verificarea și finisarea interfeței, după Taste. Aceleași reguli de accesibilitate au prioritate.
 - **Reguli de frontend**: `docs/reguli-frontend.md` (Web Interface Guidelines de la Vercel, adaptate pentru Flutter) se aplică la orice ecran nou sau modificat; skillul `web-design-guidelines` verifică codul după ele. Regulile de mai sus au prioritate.
