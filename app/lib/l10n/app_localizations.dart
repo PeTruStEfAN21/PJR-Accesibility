@@ -113,13 +113,13 @@ abstract class AppLocalizations {
   /// No description provided for @homeJoin.
   ///
   /// In ro, this message translates to:
-  /// **'Particip la un meeting'**
+  /// **'Conectează-te la speaker'**
   String get homeJoin;
 
   /// No description provided for @homeJoinHint.
   ///
   /// In ro, this message translates to:
-  /// **'Vezi subtitrările pe roluri și trimite întrebări prezentatorului'**
+  /// **'Vezi ce se spune în sală și pune întrebări speakerului'**
   String get homeJoinHint;
 
   /// No description provided for @homePresent.
@@ -185,13 +185,13 @@ abstract class AppLocalizations {
   /// No description provided for @joinTitle.
   ///
   /// In ro, this message translates to:
-  /// **'Intră în meeting'**
+  /// **'Conectează-te la speaker'**
   String get joinTitle;
 
   /// No description provided for @joinCodeLabel.
   ///
   /// In ro, this message translates to:
-  /// **'Codul de pe ecranul prezentatorului'**
+  /// **'Codul de pe laptopul speakerului'**
   String get joinCodeLabel;
 
   /// No description provided for @joinServerLabel.
@@ -275,13 +275,13 @@ abstract class AppLocalizations {
   /// No description provided for @speakerCoordinator.
   ///
   /// In ro, this message translates to:
-  /// **'Coordonator'**
+  /// **'Speaker'**
   String get speakerCoordinator;
 
   /// No description provided for @speakerPublic.
   ///
   /// In ro, this message translates to:
-  /// **'Public'**
+  /// **'Din sală'**
   String get speakerPublic;
 
   /// No description provided for @captionsEmpty.
@@ -337,6 +337,78 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Prezentatorul a văzut: {text}'**
   String messageSeen(String text);
+
+  /// No description provided for @myQuestionButton.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vreau să întreb'**
+  String get myQuestionButton;
+
+  /// No description provided for @myQuestionHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie întrebarea'**
+  String get myQuestionHint;
+
+  /// No description provided for @myQuestionSend.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite întrebarea'**
+  String get myQuestionSend;
+
+  /// No description provided for @myQuestionHandSent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Speakerul știe că vrei să întrebi'**
+  String get myQuestionHandSent;
+
+  /// No description provided for @myQuestionSent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimisă, așteaptă să fie citită'**
+  String get myQuestionSent;
+
+  /// No description provided for @myQuestionRead.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citită, se așteaptă răspunsul'**
+  String get myQuestionRead;
+
+  /// No description provided for @myQuestionNotFound.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am găsit încă un răspuns'**
+  String get myQuestionNotFound;
+
+  /// No description provided for @myQuestionRetry.
+  ///
+  /// In ro, this message translates to:
+  /// **'Caută răspunsul'**
+  String get myQuestionRetry;
+
+  /// No description provided for @answeredTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ți s-a răspuns'**
+  String get answeredTitle;
+
+  /// No description provided for @answeredQuestion.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebarea ta: {text}'**
+  String answeredQuestion(String text);
+
+  /// No description provided for @answeredAnnouncement.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ți s-a răspuns: {answer}'**
+  String answeredAnnouncement(String answer);
+
+  /// No description provided for @roomQuestion.
+  ///
+  /// In ro, this message translates to:
+  /// **'Întrebare din sală'**
+  String get roomQuestion;
 
   /// No description provided for @listenRoom.
   ///
