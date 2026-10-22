@@ -15,6 +15,7 @@ extension type _EchoVoice._(JSObject _) implements JSObject {
   external JSFloat32Array recent(double seconds);
   external JSPromise<JSFloat32Array> embed(JSFloat32Array samples);
   external JSPromise<JSString> headJson();
+  external JSPromise<JSAny?> play(JSFloat32Array samples);
 }
 
 class WebVoiceEngine implements VoiceEngine {
@@ -38,6 +39,9 @@ class WebVoiceEngine implements VoiceEngine {
 
   @override
   Future<Float32List> embed(Float32List samples) async => (await _echoVoice!.embed(samples.toJS).toDart).toDart;
+
+  @override
+  Future<void> play(Float32List samples) async => _echoVoice?.play(samples.toJS).toDart;
 
   @override
   Future<VoiceHead> loadHead() async {

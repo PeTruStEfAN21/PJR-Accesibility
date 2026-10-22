@@ -19,6 +19,8 @@ import '../../settings/app_settings.dart';
 import '../../widgets/caption_tile.dart';
 import '../../widgets/connection_banner.dart';
 import 'enroll_view.dart';
+import 'test_meeting.dart';
+import 'test_meeting_review.dart';
 
 /// Runs on the speaker's laptop (Chrome): learns the speaker's voice, creates the meeting,
 /// shows the join code, captions the room labelling each line by voice (speaker or room),
@@ -53,6 +55,12 @@ class _PresenterScreenState extends State<PresenterScreen> {
   _VoiceStage _voiceStage = _VoiceStage.checking;
   String? _enrollMessage;
   bool _justEnrolled = false;
+
+  /// The last enrollment recording of this session (a test meeting archive starts with it).
+  Float32List? _enrollmentAudio;
+
+  /// On while a test meeting is being recorded.
+  TestMeetingRecorder? _testMeeting;
   StreamSubscription<ServerEvent>? _events;
   StreamSubscription<SpeechSegment>? _segments;
   final _messages = <_ReceivedMessage>[];
@@ -96,9 +104,14 @@ class _PresenterScreenState extends State<PresenterScreen> {
     final labeler = _labeler!;
     final l10n = AppLocalizations.of(context);
     final settings = SettingsScope.of(context);
-    final result = await labeler.enroll(_voice.recent(const Duration(seconds: 20)));
+    final samples = _voice.recent(const Duration(seconds: 20));
+    final result = await labeler.enroll(samples);
     if (!mounted) return;
-    if (result == EnrollResult.ok) settings.update((s) => s.voiceprint = labeler.voiceprint!.toList());
+    if (result == EnrollResult.ok) {
+      settings.update((s) => s.voiceprint = labeler.voiceprint!.toList());
+      _enrollmentAudio = samples;
+      _testMeeting?.setEnrollment(samples);
+    }
     setState(() {
       switch (result) {
         case EnrollResult.ok:
@@ -111,6 +124,20 @@ class _PresenterScreenState extends State<PresenterScreen> {
           _enrollMessage = l10n.enrollFailed;
       }
     });
+  }
+
+  /// A test meeting starts with this session's enrollment recording; without one, the voice is learned again.
+  void _toggleTestMeeting(bool on) {
+    final labeler = _labeler;
+    if (!on || labeler == null) {
+      setState(() => _testMeeting = null);
+      return;
+    }
+    final recorder = TestMeetingRecorder(model: labeler.head.model);
+    final audio = _enrollmentAudio;
+    if (audio != null) recorder.setEnrollment(audio);
+    setState(() => _testMeeting = recorder);
+    if (audio == null) _relearnVoice();
   }
 
   void _relearnVoice() {
@@ -156,9 +183,16 @@ class _PresenterScreenState extends State<PresenterScreen> {
 
   Future<void> _toggleListening() async {
     if (_listening) {
-      await _segments?.cancel();
+      // Not awaited: nothing depends on it, and the stop should not wait for the stream.
+      unawaited(_segments?.cancel());
       await _speech.stop();
       setState(() => _listening = false);
+      final recorder = _testMeeting;
+      if (recorder != null && recorder.lines.isNotEmpty && mounted) {
+        await Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => TestMeetingReview(recorder: recorder, play: _voice.play),
+        ));
+      }
       return;
     }
     final localeId = SettingsScope.of(context).speechLocaleId;
@@ -171,6 +205,15 @@ class _PresenterScreenState extends State<PresenterScreen> {
               ? await labeler.labelFinal(clock.now())
               : labeler.current;
       if (!mounted) return;
+      if (segment.isFinal && labeler != null) {
+        _testMeeting?.add(
+          id: segment.id,
+          text: segment.text,
+          predicted: speaker,
+          score: labeler.lastScore,
+          clip: labeler.lastClip ?? Float32List(0),
+        );
+      }
       final caption = Caption(
         id: segment.id,
         speaker: speaker,
@@ -267,6 +310,8 @@ class _PresenterScreenState extends State<PresenterScreen> {
               _ => null,
             },
             onRelearn: _voiceStage == _VoiceStage.ready ? _relearnVoice : null,
+            testMeeting: _testMeeting != null,
+            onTestMeeting: _voiceStage == _VoiceStage.ready && !_listening ? _toggleTestMeeting : null,
           );
           final left = switch (_voiceStage) {
             _VoiceStage.checking => const Padding(
@@ -326,6 +371,8 @@ class _JoinPanel extends StatelessWidget {
     required this.onForceSpeaker,
     required this.voiceNote,
     required this.onRelearn,
+    required this.testMeeting,
+    required this.onTestMeeting,
   });
 
   final JoinLink link;
@@ -340,6 +387,10 @@ class _JoinPanel extends StatelessWidget {
 
   /// „Reînvață vocea”; null when there is no voice recognition.
   final VoidCallback? onRelearn;
+
+  /// „Meeting de test”; [onTestMeeting] is null while captioning runs or without voice recognition.
+  final bool testMeeting;
+  final ValueChanged<bool>? onTestMeeting;
 
   @override
   Widget build(BuildContext context) {
@@ -400,6 +451,17 @@ class _JoinPanel extends StatelessWidget {
               onChanged: onForceSpeaker,
             ),
           ),
+          if (onTestMeeting != null || testMeeting)
+            ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
+              child: SwitchListTile(
+                secondary: const Icon(Icons.science),
+                title: Text(l10n.testMeeting),
+                subtitle: Text(l10n.testMeetingHint),
+                value: testMeeting,
+                onChanged: onTestMeeting,
+              ),
+            ),
           if (onRelearn != null)
             TextButton.icon(
               style: TextButton.styleFrom(minimumSize: const Size(48, 48)),
