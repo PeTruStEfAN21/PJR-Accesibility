@@ -27,6 +27,9 @@ extension type _Utterance._(JSObject _) implements JSObject {
 
 /// Chrome's speech synthesis. Uses the first installed voice whose language matches the spoken language.
 class WebTtsService implements TtsService {
+  /// Held until they finish: Chrome may otherwise collect an utterance and never fire its end event.
+  final _speaking = <_Utterance>{};
+
   _Voice? _voiceFor(String localeId) {
     final language = localeId.split('-').first.toLowerCase();
     for (final voice in _synthesis.getVoices().toDart) {
@@ -43,15 +46,20 @@ class WebTtsService implements TtsService {
     final voice = _voiceFor(localeId);
     if (voice == null) return Future.value(false);
     final done = Completer<bool>();
-    final utterance = _Utterance(text)
+    _synthesis.cancel();
+    late final _Utterance utterance;
+    utterance = _Utterance(text)
       ..lang = localeId
       ..voice = voice
       ..onend = ((JSAny? _) {
+        _speaking.remove(utterance);
         if (!done.isCompleted) done.complete(true);
       }).toJS
       ..onerror = ((JSAny? _) {
+        _speaking.remove(utterance);
         if (!done.isCompleted) done.complete(false);
       }).toJS;
+    _speaking.add(utterance);
     _synthesis.speak(utterance);
     return done.future;
   }

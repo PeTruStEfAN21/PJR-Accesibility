@@ -7,12 +7,18 @@ import 'voice_head.dart';
 
 enum EnrollResult { ok, tooLittleSpeech, failed }
 
+/// The decision for one final caption: who said it, how sure (null when not judged by voice), and the
+/// audio it was decided on.
+typedef Judgement = ({Speaker speaker, double? score, Float32List clip});
+
 const _rate = 16000;
 
 /// Decides, for each final caption, whether the speaker said it or someone in the room.
 ///
-/// The speaker's voice is learned once (enrollment). For each final caption the audio heard since the
-/// previous final caption (1.5–8 s), without the quiet edges, is embedded and compared with it.
+/// The speaker's voice is learned once (enrollment) and refined during the meeting from lines that are
+/// clearly theirs. For each final caption the audio heard since the previous one (1.5–8 s), without its
+/// quiet edges, is embedded and compared with it. Lines are judged one at a time, each on the audio
+/// taken when it ended; a model error keeps the line with the previous label.
 class SpeakerLabeler {
   SpeakerLabeler(this.engine, this.head);
 
@@ -28,14 +34,12 @@ class SpeakerLabeler {
   /// The learned voice, unit length; set it to restore a saved one.
   Float32List? voiceprint;
 
+  /// The voice as enrolled: adaptation never moves [voiceprint] far from it.
+  Float32List? _anchor;
+
   DateTime? _lastFinal;
   Speaker _current = Speaker.coordinator;
-
-  /// Similarity of the last judged utterance with the learned voice (null when it was not judged).
-  double? lastScore;
-
-  /// The audio the last label was decided on (kept for test meetings).
-  Float32List? lastClip;
+  Future<Judgement>? _pending;
 
   bool get enrolled => voiceprint != null;
 
@@ -52,6 +56,7 @@ class SpeakerLabeler {
           await engine.embed(Float32List.sublistView(voiced, start, start + window)),
       ];
       voiceprint = _normalized(_mean(vectors));
+      _anchor = null;
       _current = Speaker.coordinator;
       return EnrollResult.ok;
     } on Object {
@@ -59,28 +64,60 @@ class SpeakerLabeler {
     }
   }
 
-  Future<Speaker> labelFinal(DateTime now) async {
+  /// The next final line is judged only on audio heard after [time] (e.g. when the laptop stops
+  /// speaking, or captioning starts).
+  void startWindowAt(DateTime time) => _lastFinal = time;
+
+  Future<Speaker> labelFinal(DateTime now) async => (await judgeFinal(now)).speaker;
+
+  Future<Judgement> judgeFinal(DateTime now) {
     final last = _lastFinal;
     _lastFinal = now;
     final since = last == null ? _maxWindow : now.difference(last);
     final window = since < _minWindow ? _minWindow : (since > _maxWindow ? _maxWindow : since);
-    if (!enrolled) return Speaker.coordinator;
+    // The audio is taken now, so a line judged later still gets its own sound.
+    final clip = enrolled ? trimSilence(engine.recent(window)) : Float32List(0);
+    final previous = _pending;
+    final judged = () async {
+      if (previous != null) await previous;
+      return _judge(clip);
+    }();
+    _pending = judged;
+    return judged;
+  }
 
-    final clip = trimSilence(engine.recent(window));
-    lastClip = clip;
-    lastScore = null;
-    if (forceSpeaker) return Speaker.coordinator;
-    if (clip.length < head.minVoicedMs * _rate ~/ 1000) return _current;
-
-    final score = cosine(await engine.embed(clip), voiceprint!);
-    lastScore = score;
+  Future<Judgement> _judge(Float32List clip) async {
+    if (!enrolled || forceSpeaker) return (speaker: Speaker.coordinator, score: null, clip: clip);
+    final voiced = voicedOnly(clip).length;
+    if (voiced < head.minVoicedMs * _rate ~/ 1000) return (speaker: current, score: null, clip: clip);
+    final Float32List vector;
+    try {
+      vector = await engine.embed(clip);
+    } on Object {
+      return (speaker: current, score: null, clip: clip);
+    }
+    final score = cosine(vector, voiceprint!);
     _current = head.isSpeaker(score) ? Speaker.coordinator : Speaker.public;
-    return current;
+    if (head.probability(score) >= head.adaptThreshold && voiced >= head.adaptMinVoicedMs * _rate ~/ 1000) {
+      _adapt(vector);
+    }
+    return (speaker: current, score: score, clip: clip);
+  }
+
+  /// Moves the learned voice a little toward a line that is clearly the speaker's: the room, the distance
+  /// and the speaker's voice that day are learned as the meeting goes on.
+  void _adapt(Float32List vector) {
+    final anchor = _anchor ??= Float32List.fromList(voiceprint!);
+    final moved = _normalized(Float32List.fromList([
+      for (var i = 0; i < vector.length; i++) (1 - head.adaptRate) * voiceprint![i] + head.adaptRate * vector[i],
+    ]));
+    if (cosine(moved, anchor) >= head.adaptMinCosine) voiceprint = moved;
   }
 }
 
-/// RMS of each 30 ms frame; a frame is voiced when it is within [relativeDb] of the loudest frame and
-/// above about -60 dBFS (so a silent clip stays silent).
+/// RMS of each 30 ms frame. A frame is voiced when it stands about 12 dB above the clip's noise floor (its
+/// quietest fifth), and in any case within [relativeDb] of the loudest frame and above about -60 dBFS.
+/// Frames within 6 dB of the loudest always count, so a clip that is all voice stays voice.
 List<bool> _voicedFrames(Float32List samples, int frame, double relativeDb) {
   final energies = <double>[];
   for (var start = 0; start < samples.length; start += frame) {
@@ -93,7 +130,10 @@ List<bool> _voicedFrames(Float32List samples, int frame, double relativeDb) {
   }
   if (energies.isEmpty) return const [];
   final loudest = energies.reduce(max);
-  final floor = max(loudest * pow(10, relativeDb / 10), 1e-6);
+  final sorted = [...energies]..sort();
+  final noise = sorted[(sorted.length * 0.2).floor()];
+  final aboveNoise = min(noise * pow(10, 12 / 10), loudest * pow(10, -6 / 10));
+  final floor = max(max(aboveNoise, loudest * pow(10, relativeDb / 10)), 1e-6);
   return [for (final e in energies) e >= floor];
 }
 
