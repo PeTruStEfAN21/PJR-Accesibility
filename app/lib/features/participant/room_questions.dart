@@ -8,9 +8,14 @@ import '../../core/transcript.dart';
 typedef QuestionFinder = Future<List<int>> Function(List<TranscriptLine> lines);
 
 /// Marks the questions asked from the room. Final room lines go to the AI in batches of up to five, a
-/// second after they arrive; without the AI (no key, no network) a local rule decides.
+/// second after they arrive; without the AI (no key, no network, no answer in 20 s) a local rule decides.
 class RoomQuestions extends ChangeNotifier {
-  RoomQuestions({required this.transcript, required this.find, required this.lang}) {
+  RoomQuestions({
+    required this.transcript,
+    required this.find,
+    required this.lang,
+    this.timeout = const Duration(seconds: 20),
+  }) {
     transcript.addListener(_onTranscript);
   }
 
@@ -22,6 +27,7 @@ class RoomQuestions extends ChangeNotifier {
 
   /// Speech locale, e.g. `ro-RO`: picks the question words of the local rule.
   final String lang;
+  final Duration timeout;
 
   final _questions = <String>{};
   final _seen = <String>{};
@@ -57,7 +63,7 @@ class RoomQuestions extends ChangeNotifier {
     if (batch.isEmpty) return;
     Set<String> found;
     try {
-      final ids = (await find([for (final (_, line) in batch) line])).toSet();
+      final ids = (await find([for (final (_, line) in batch) line]).timeout(timeout)).toSet();
       found = {for (final (caption, line) in batch) if (ids.contains(line.number)) caption.id};
     } on Object {
       found = {for (final (caption, _) in batch) if (looksLikeQuestion(caption.text, lang)) caption.id};

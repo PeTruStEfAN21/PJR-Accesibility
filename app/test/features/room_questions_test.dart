@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/core/protocol.dart';
@@ -74,6 +76,22 @@ void main() {
       async.elapse(const Duration(seconds: 1));
       expect(questions.isQuestion('p1'), isTrue);
       expect(questions.isQuestion('p2'), isFalse);
+    });
+  });
+
+  test('a server that never answers falls back to the local rule after 20 s', () {
+    fakeAsync((async) {
+      final transcript = Transcript();
+      final questions = RoomQuestions(
+        transcript: transcript,
+        find: (lines) => Completer<List<int>>().future,
+        lang: 'ro-RO',
+      );
+      transcript.upsert(line('p1', 'când e termenul'));
+      async.elapse(const Duration(seconds: 1 + 19));
+      expect(questions.isQuestion('p1'), isFalse);
+      async.elapse(const Duration(seconds: 2));
+      expect(questions.isQuestion('p1'), isTrue);
     });
   });
 
