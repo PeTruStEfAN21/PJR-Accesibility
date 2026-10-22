@@ -199,7 +199,7 @@ password_requirements = ""
 
 [auth.rate_limit]
 # Number of emails that can be sent per hour. Requires auth.email.smtp to be enabled.
-email_sent = 2
+email_sent = 30
 # Number of SMS messages that can be sent per hour. Requires auth.sms to be enabled.
 sms_sent = 30
 # Number of anonymous sign-ins that can be made per hour per IP address. Requires enable_anonymous_sign_ins = true.
@@ -236,27 +236,27 @@ otp_length = 6
 # Number of seconds before the email OTP expires (defaults to 1 hour).
 otp_expiry = 600
 
-# Use a production-ready SMTP server
-# [auth.email.smtp]
-# enabled = true
-# host = "smtp.sendgrid.net"
-# port = 587
-# user = "apikey"
-# pass = "env(SENDGRID_API_KEY)"
-# admin_email = "admin@email.com"
-# sender_name = "Admin"
+# Emails go out through Resend. RESEND_API_KEY lives in supabase/.env (ignored by git).
+# Without a verified domain Resend only sends from onboarding@resend.dev, and only to the
+# Resend account owner's address: verify a domain in Resend before real users sign up.
+[auth.email.smtp]
+enabled = true
+host = "smtp.resend.com"
+port = 465
+user = "resend"
+pass = "env(RESEND_API_KEY)"
+admin_email = "onboarding@resend.dev"
+sender_name = "Echo"
 
-# The sign-in email should carry the 6-digit code the app asks for (typed or autofilled), no password.
-# Supabase rejects custom templates on the free plan while it sends the emails itself: configure
-# [auth.email.smtp] above first (e.g. Resend), then uncomment these. Until then the default email
-# contains a sign-in link that opens the app (ro.pjr.echo://login-callback) or the web page.
-# [auth.email.template.magic_link]
-# subject = "Codul tău Echo / Your Echo code"
-# content_path = "./supabase/templates/magic_link.html"
-#
-# [auth.email.template.confirmation]
-# subject = "Codul tău Echo / Your Echo code"
-# content_path = "./supabase/templates/magic_link.html"
+# The sign-in email carries the 6-digit code the app asks for (typed or autofilled), no password.
+# Custom templates need the custom SMTP above (the free plan rejects them otherwise).
+[auth.email.template.magic_link]
+subject = "Codul tău Echo / Your Echo code"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Codul tău Echo / Your Echo code"
+content_path = "./supabase/templates/magic_link.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]
@@ -350,7 +350,7 @@ skip_nonce_check = false
 email_optional = false
 
 [auth.external.google]
-enabled = false
+enabled = true
 # Google Cloud Console -> APIs & Services -> Credentials -> OAuth client (Web application).
 client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
