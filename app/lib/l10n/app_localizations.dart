@@ -1381,6 +1381,306 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Transcrierea se salvează în contul tău'**
   String get meetingSaving;
+
+  /// No description provided for @homeOnline.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meeting online'**
+  String get homeOnline;
+
+  /// No description provided for @homeCoach.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunt coleg într-un meeting online'**
+  String get homeCoach;
+
+  /// No description provided for @homeCoachHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Echo îți arată discret când vorbești prea repede sau peste alții, ca un coleg surd să poată citi subtitrarea.'**
+  String get homeCoachHint;
+
+  /// No description provided for @coachTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Antrenorul de claritate'**
+  String get coachTitle;
+
+  /// No description provided for @coachIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'În meetingurile online, colegii surzi citesc subtitrarea. Echo îți ascultă vocea pe acest calculator și îți arată discret când subtitrarea nu mai ține pasul. Sunetul nu pleacă de aici.'**
+  String get coachIntro;
+
+  /// No description provided for @coachTeam.
+  ///
+  /// In ro, this message translates to:
+  /// **'Echipa'**
+  String get coachTeam;
+
+  /// No description provided for @coachCodeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul echipei (opțional)'**
+  String get coachCodeLabel;
+
+  /// No description provided for @coachCodeHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cu același cod, Echo îți spune și când vorbești peste un coleg.'**
+  String get coachCodeHint;
+
+  /// No description provided for @coachCreateCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Creează un cod'**
+  String get coachCreateCode;
+
+  /// No description provided for @coachCodeCreated.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul {code} e gata: spune-l colegilor.'**
+  String coachCodeCreated(String code);
+
+  /// No description provided for @coachCodeInvalid.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul are 6 litere și cifre.'**
+  String get coachCodeInvalid;
+
+  /// No description provided for @coachServerError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu pot ajunge la serverul Echo. Încearcă din nou.'**
+  String get coachServerError;
+
+  /// No description provided for @coachMicrophone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Microfonul'**
+  String get coachMicrophone;
+
+  /// No description provided for @coachHeadphones.
+  ///
+  /// In ro, this message translates to:
+  /// **'Folosesc căști'**
+  String get coachHeadphones;
+
+  /// No description provided for @coachHeadphonesHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Așa microfonul nu aude meetingul din difuzoare.'**
+  String get coachHeadphonesHint;
+
+  /// No description provided for @coachLearnVoice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Învață-mi vocea'**
+  String get coachLearnVoice;
+
+  /// No description provided for @coachVoiceHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citești un text 20 de secunde; apoi Echo numără doar ce spui tu.'**
+  String get coachVoiceHint;
+
+  /// No description provided for @coachVoiceLearned.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vocea ta e învățată'**
+  String get coachVoiceLearned;
+
+  /// No description provided for @coachRelearnVoice.
+  ///
+  /// In ro, this message translates to:
+  /// **'Învață din nou'**
+  String get coachRelearnVoice;
+
+  /// No description provided for @coachVoiceError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Recunoașterea vocii nu merge în acest browser.'**
+  String get coachVoiceError;
+
+  /// No description provided for @coachEnrollIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citește textul de mai jos cu voce normală, cam 20 de secunde. Așa Echo îți recunoaște vocea și nu numără vocile colegilor care se aud din difuzoare. Sunetul rămâne pe acest calculator.'**
+  String get coachEnrollIntro;
+
+  /// No description provided for @coachApproximate.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fără căști și fără vocea învățată, microfonul poate auzi și meetingul din difuzoare: alertele sunt aproximative, iar alerta de suprapunere e oprită.'**
+  String get coachApproximate;
+
+  /// No description provided for @coachDemo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mod demonstrație'**
+  String get coachDemo;
+
+  /// No description provided for @coachDemoHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Praguri scurte, ca toate alertele să apară în câteva minute. Nu pentru meetinguri reale.'**
+  String get coachDemoHint;
+
+  /// No description provided for @coachStart.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pornește antrenorul'**
+  String get coachStart;
+
+  /// No description provided for @coachMicError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu pot porni microfonul. Dă voie microfonului în browser; pagina trebuie deschisă pe https sau pe localhost.'**
+  String get coachMicError;
+
+  /// No description provided for @coachAllGood.
+  ///
+  /// In ro, this message translates to:
+  /// **'Totul e în regulă: subtitrarea ține pasul.'**
+  String get coachAllGood;
+
+  /// No description provided for @coachAlertOverlap.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vorbești în același timp cu altcineva'**
+  String get coachAlertOverlap;
+
+  /// No description provided for @coachAlertWeakMic.
+  ///
+  /// In ro, this message translates to:
+  /// **'Microfonul te prinde slab: apropie-te sau verifică-l'**
+  String get coachAlertWeakMic;
+
+  /// No description provided for @coachAlertTooFast.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vorbești prea repede pentru subtitrare'**
+  String get coachAlertTooFast;
+
+  /// No description provided for @coachAlertNoPauses.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fă pauze între idei'**
+  String get coachAlertNoPauses;
+
+  /// No description provided for @coachAlertLongTalk.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai vorbit {minutes, plural, =1{un minut} other{{minutes} minute}} fără pauză: lasă loc de întrebări'**
+  String coachAlertLongTalk(int minutes);
+
+  /// No description provided for @coachAlertNoise.
+  ///
+  /// In ro, this message translates to:
+  /// **'Zgomot la tine: pune mute când nu vorbești'**
+  String get coachAlertNoise;
+
+  /// No description provided for @coachWatching.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ce urmăresc'**
+  String get coachWatching;
+
+  /// No description provided for @coachWatchOverlap.
+  ///
+  /// In ro, this message translates to:
+  /// **'Dacă vorbești peste alții'**
+  String get coachWatchOverlap;
+
+  /// No description provided for @coachWatchWeakMic.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cât de bine te prinde microfonul'**
+  String get coachWatchWeakMic;
+
+  /// No description provided for @coachWatchTooFast.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cât de repede vorbești'**
+  String get coachWatchTooFast;
+
+  /// No description provided for @coachWatchNoPauses.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pauzele dintre idei'**
+  String get coachWatchNoPauses;
+
+  /// No description provided for @coachWatchLongTalk.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cât vorbești fără să lași loc de întrebări'**
+  String get coachWatchLongTalk;
+
+  /// No description provided for @coachWatchNoise.
+  ///
+  /// In ro, this message translates to:
+  /// **'Zgomotul de la tine, cât nu vorbești'**
+  String get coachWatchNoise;
+
+  /// No description provided for @coachPip.
+  ///
+  /// In ro, this message translates to:
+  /// **'Arată alertele peste meeting'**
+  String get coachPip;
+
+  /// No description provided for @coachPipClose.
+  ///
+  /// In ro, this message translates to:
+  /// **'Închide fereastra de alerte'**
+  String get coachPipClose;
+
+  /// No description provided for @coachPipTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Echo · alerte'**
+  String get coachPipTitle;
+
+  /// No description provided for @coachPipUnsupported.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fereastra peste meeting merge în Chrome sau Edge pe calculator, pe https sau localhost.'**
+  String get coachPipUnsupported;
+
+  /// No description provided for @coachTeamStatus.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cod {code} · {count, plural, =0{niciun alt coleg conectat} =1{un coleg conectat} other{{count} colegi conectați}}'**
+  String coachTeamStatus(String code, int count);
+
+  /// No description provided for @coachNoTeam.
+  ///
+  /// In ro, this message translates to:
+  /// **'Fără cod de echipă: alerta de suprapunere e oprită.'**
+  String get coachNoTeam;
+
+  /// No description provided for @coachUnknownCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul {code} nu există. Verifică-l sau creează altul.'**
+  String coachUnknownCode(String code);
+
+  /// No description provided for @coachReconnecting.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mă reconectez la echipă…'**
+  String get coachReconnecting;
+
+  /// No description provided for @coachNoNoise.
+  ///
+  /// In ro, this message translates to:
+  /// **'Recunoașterea zgomotelor nu merge aici: alerta de zgomot e oprită.'**
+  String get coachNoNoise;
+
+  /// No description provided for @coachStop.
+  ///
+  /// In ro, this message translates to:
+  /// **'Oprește'**
+  String get coachStop;
 }
 
 class _AppLocalizationsDelegate

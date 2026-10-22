@@ -723,4 +723,191 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meetingSaving => 'The transcript is being saved to your account';
+
+  @override
+  String get homeOnline => 'Online meeting';
+
+  @override
+  String get homeCoach => 'I\'m a colleague in an online meeting';
+
+  @override
+  String get homeCoachHint =>
+      'Echo quietly tells you when you talk too fast or over others, so a deaf colleague can read the captions.';
+
+  @override
+  String get coachTitle => 'Clarity coach';
+
+  @override
+  String get coachIntro =>
+      'In online meetings, deaf colleagues read the captions. Echo listens to your voice on this computer and quietly tells you when the captions can\'t keep up. The sound never leaves this computer.';
+
+  @override
+  String get coachTeam => 'Team';
+
+  @override
+  String get coachCodeLabel => 'Team code (optional)';
+
+  @override
+  String get coachCodeHint =>
+      'With the same code, Echo also tells you when you talk over a colleague.';
+
+  @override
+  String get coachCreateCode => 'Create a code';
+
+  @override
+  String coachCodeCreated(String code) {
+    return 'Code $code is ready: tell your colleagues.';
+  }
+
+  @override
+  String get coachCodeInvalid => 'The code has 6 letters and digits.';
+
+  @override
+  String get coachServerError => 'Can\'t reach the Echo server. Try again.';
+
+  @override
+  String get coachMicrophone => 'Microphone';
+
+  @override
+  String get coachHeadphones => 'I\'m wearing headphones';
+
+  @override
+  String get coachHeadphonesHint =>
+      'Then the microphone doesn\'t hear the meeting from the speakers.';
+
+  @override
+  String get coachLearnVoice => 'Learn my voice';
+
+  @override
+  String get coachVoiceHint =>
+      'You read a text for 20 seconds; then Echo only counts what you say.';
+
+  @override
+  String get coachVoiceLearned => 'Your voice is learned';
+
+  @override
+  String get coachRelearnVoice => 'Learn again';
+
+  @override
+  String get coachVoiceError =>
+      'Voice recognition doesn\'t work in this browser.';
+
+  @override
+  String get coachEnrollIntro =>
+      'Read the text below in a normal voice, for about 20 seconds. Echo then recognises your voice and doesn\'t count your colleagues\' voices coming from the speakers. The sound stays on this computer.';
+
+  @override
+  String get coachApproximate =>
+      'Without headphones or a learned voice, the microphone may also hear the meeting from the speakers: the alerts are approximate and the overlap alert is off.';
+
+  @override
+  String get coachDemo => 'Demo mode';
+
+  @override
+  String get coachDemoHint =>
+      'Short timings, so every alert shows up within a few minutes. Not for real meetings.';
+
+  @override
+  String get coachStart => 'Start the coach';
+
+  @override
+  String get coachMicError =>
+      'Can\'t start the microphone. Allow the microphone in the browser; the page must be opened on https or localhost.';
+
+  @override
+  String get coachAllGood => 'All good: the captions are keeping up.';
+
+  @override
+  String get coachAlertOverlap =>
+      'You\'re talking at the same time as someone else';
+
+  @override
+  String get coachAlertWeakMic =>
+      'The microphone barely picks you up: move closer or check it';
+
+  @override
+  String get coachAlertTooFast => 'You\'re talking too fast for the captions';
+
+  @override
+  String get coachAlertNoPauses => 'Pause between ideas';
+
+  @override
+  String coachAlertLongTalk(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes minutes',
+      one: 'a minute',
+    );
+    return 'You\'ve talked for $_temp0 without a break: leave room for questions';
+  }
+
+  @override
+  String get coachAlertNoise =>
+      'Noise on your side: mute when you\'re not talking';
+
+  @override
+  String get coachWatching => 'What I watch';
+
+  @override
+  String get coachWatchOverlap => 'Whether you talk over others';
+
+  @override
+  String get coachWatchWeakMic => 'How well the microphone picks you up';
+
+  @override
+  String get coachWatchTooFast => 'How fast you talk';
+
+  @override
+  String get coachWatchNoPauses => 'The pauses between ideas';
+
+  @override
+  String get coachWatchLongTalk =>
+      'How long you talk without leaving room for questions';
+
+  @override
+  String get coachWatchNoise => 'Noise on your side while you\'re quiet';
+
+  @override
+  String get coachPip => 'Show alerts over the meeting';
+
+  @override
+  String get coachPipClose => 'Close the alert window';
+
+  @override
+  String get coachPipTitle => 'Echo · alerts';
+
+  @override
+  String get coachPipUnsupported =>
+      'The window over the meeting works in Chrome or Edge on a computer, on https or localhost.';
+
+  @override
+  String coachTeamStatus(String code, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count colleagues connected',
+      one: 'one colleague connected',
+      zero: 'no other colleague connected',
+    );
+    return 'Code $code · $_temp0';
+  }
+
+  @override
+  String get coachNoTeam => 'No team code: the overlap alert is off.';
+
+  @override
+  String coachUnknownCode(String code) {
+    return 'Code $code doesn\'t exist. Check it or create another.';
+  }
+
+  @override
+  String get coachReconnecting => 'Reconnecting to the team…';
+
+  @override
+  String get coachNoNoise =>
+      'Noise recognition doesn\'t work here: the noise alert is off.';
+
+  @override
+  String get coachStop => 'Stop';
 }

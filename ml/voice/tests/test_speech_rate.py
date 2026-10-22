@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from echo_voice.speech_rate import FrameAnalyzer, calibrate, syllable_count, talk_time
+from echo_voice.speech_rate import FrameAnalyzer, calibrate, pace_windows, syllable_count, talk_time
 
 RATE = 16000
 
@@ -53,3 +53,14 @@ def test_calibration_turns_words_a_minute_into_syllables_a_second():
     # 210 words a minute is caught; 150 and slower never are.
     assert result.caught == 1
     assert result.false_alarms == 0
+
+
+def test_windows_join_one_speech_until_twenty_seconds_of_talk():
+    words = " ".join(["cuvânt"] * 20)
+    segments = [("a", syllables(8, 4), words)] * 3 + [("b", syllables(8, 4), words)]
+    windows = list(pace_windows(segments, talk_seconds=20))
+    # Speech a holds 24 s of voice; speech b alone is too short.
+    assert len(windows) == 1
+    words_per_minute, syllables_per_second = windows[0]
+    assert words_per_minute == pytest.approx(60 * 60 / 25.2, rel=0.1)
+    assert syllables_per_second == pytest.approx(4 * 24 / 25.2, rel=0.15)
