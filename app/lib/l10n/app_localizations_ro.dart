@@ -518,21 +518,21 @@ class AppLocalizationsRo extends AppLocalizations {
       'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
 
   @override
-  String get soundsPill => 'Sunete';
+  String get homeSounds => 'Sunete';
 
   @override
-  String get soundsPillOn => 'Sunetul vizibil: pornit';
+  String get homeSoundsOn =>
+      'Pornit: telefonul te alertează la alarme, claxoane și numele tău.';
 
   @override
-  String get soundsPillOff => 'Sunetul vizibil: oprit';
+  String get homeSoundsOff => 'Oprit: atinge ca să pornești alertele de sunet.';
 
   @override
-  String get soundsPillPaused =>
-      'Sunetul vizibil: în pauză cât merge subtitrarea';
+  String get homeSoundsPaused => 'Pe pauză cât rulează subtitrările.';
 
   @override
-  String get soundsPillHint =>
-      'Apasă lung pentru detalii și testarea alertelor.';
+  String get homeSoundsUnavailable =>
+      'Indisponibil pe acest dispozitiv: atinge pentru detalii.';
 
   @override
   String get soundsTest => 'Testează alertele';

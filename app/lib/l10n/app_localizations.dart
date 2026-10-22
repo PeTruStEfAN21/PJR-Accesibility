@@ -992,35 +992,35 @@ abstract class AppLocalizations {
   /// **'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.'**
   String get soundsPaused;
 
-  /// No description provided for @soundsPill.
+  /// No description provided for @homeSounds.
   ///
   /// In ro, this message translates to:
   /// **'Sunete'**
-  String get soundsPill;
+  String get homeSounds;
 
-  /// No description provided for @soundsPillOn.
+  /// No description provided for @homeSoundsOn.
   ///
   /// In ro, this message translates to:
-  /// **'Sunetul vizibil: pornit'**
-  String get soundsPillOn;
+  /// **'Pornit: telefonul te alertează la alarme, claxoane și numele tău.'**
+  String get homeSoundsOn;
 
-  /// No description provided for @soundsPillOff.
+  /// No description provided for @homeSoundsOff.
   ///
   /// In ro, this message translates to:
-  /// **'Sunetul vizibil: oprit'**
-  String get soundsPillOff;
+  /// **'Oprit: atinge ca să pornești alertele de sunet.'**
+  String get homeSoundsOff;
 
-  /// No description provided for @soundsPillPaused.
+  /// No description provided for @homeSoundsPaused.
   ///
   /// In ro, this message translates to:
-  /// **'Sunetul vizibil: în pauză cât merge subtitrarea'**
-  String get soundsPillPaused;
+  /// **'Pe pauză cât rulează subtitrările.'**
+  String get homeSoundsPaused;
 
-  /// No description provided for @soundsPillHint.
+  /// No description provided for @homeSoundsUnavailable.
   ///
   /// In ro, this message translates to:
-  /// **'Apasă lung pentru detalii și testarea alertelor.'**
-  String get soundsPillHint;
+  /// **'Indisponibil pe acest dispozitiv: atinge pentru detalii.'**
+  String get homeSoundsUnavailable;
 
   /// No description provided for @soundsTest.
   ///

@@ -515,19 +515,21 @@ class AppLocalizationsEn extends AppLocalizations {
       'Listening is paused while captions run. It starts again by itself afterwards.';
 
   @override
-  String get soundsPill => 'Sounds';
+  String get homeSounds => 'Sounds';
 
   @override
-  String get soundsPillOn => 'Visible sound: on';
+  String get homeSoundsOn =>
+      'On: your phone alerts you to alarms, horns and your name.';
 
   @override
-  String get soundsPillOff => 'Visible sound: off';
+  String get homeSoundsOff => 'Off: tap to turn sound alerts on.';
 
   @override
-  String get soundsPillPaused => 'Visible sound: paused while captions run';
+  String get homeSoundsPaused => 'Paused while captions run.';
 
   @override
-  String get soundsPillHint => 'Long press for details and to test the alerts.';
+  String get homeSoundsUnavailable =>
+      'Not available on this device: tap for details.';
 
   @override
   String get soundsTest => 'Test the alerts';

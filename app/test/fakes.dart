@@ -156,8 +156,11 @@ class FakeSounds implements SoundDetector {
   int starts = 0;
   int stops = 0;
 
+  /// False = the detector model is missing on this device.
+  bool available = true;
+
   @override
-  bool get isAvailable => true;
+  bool get isAvailable => available;
 
   @override
   Stream<SoundAlert> get alerts => controller.stream;
