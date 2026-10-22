@@ -54,10 +54,7 @@ class RoomQuestions extends ChangeNotifier {
       _send([
         for (final caption in batch)
           if (numbers[caption.id] != null)
-            (
-              caption,
-              TranscriptLine(number: numbers[caption.id]!, speaker: caption.speaker, text: caption.text.trim()),
-            ),
+            (caption, TranscriptLine(number: numbers[caption.id]!, speaker: caption.speaker, text: caption.text.trim())),
       ]);
     }
   }
@@ -67,15 +64,9 @@ class RoomQuestions extends ChangeNotifier {
     Set<String> found;
     try {
       final ids = (await find([for (final (_, line) in batch) line]).timeout(timeout)).toSet();
-      found = {
-        for (final (caption, line) in batch)
-          if (ids.contains(line.number)) caption.id,
-      };
+      found = {for (final (caption, line) in batch) if (ids.contains(line.number)) caption.id};
     } on Object {
-      found = {
-        for (final (caption, _) in batch)
-          if (looksLikeQuestion(caption.text, lang)) caption.id,
-      };
+      found = {for (final (caption, _) in batch) if (looksLikeQuestion(caption.text, lang)) caption.id};
     }
     if (_disposed || found.isEmpty) return;
     _questions.addAll(found);
@@ -91,35 +82,8 @@ class RoomQuestions extends ChangeNotifier {
   }
 }
 
-const _roQuestionStarts = [
-  'cine',
-  'ce',
-  'cand',
-  'cum',
-  'de ce',
-  'unde',
-  'care',
-  'cat',
-  'cate',
-  'poti',
-  'puteti',
-  'se poate',
-];
-const _enQuestionStarts = [
-  'who',
-  'what',
-  'when',
-  'how',
-  'why',
-  'where',
-  'which',
-  'can',
-  'could',
-  'do',
-  'does',
-  'is',
-  'are',
-];
+const _roQuestionStarts = ['cine', 'ce', 'cand', 'cum', 'de ce', 'unde', 'care', 'cat', 'cate', 'poti', 'puteti', 'se poate'];
+const _enQuestionStarts = ['who', 'what', 'when', 'how', 'why', 'where', 'which', 'can', 'could', 'do', 'does', 'is', 'are'];
 
 const _diacritics = {'ă': 'a', 'â': 'a', 'î': 'i', 'ș': 's', 'ş': 's', 'ț': 't', 'ţ': 't'};
 
@@ -133,8 +97,8 @@ bool looksLikeQuestion(String text, String lang) {
   final starts = lang.startsWith('ro')
       ? _roQuestionStarts
       : lang.startsWith('en')
-      ? _enQuestionStarts
-      : [..._roQuestionStarts, ..._enQuestionStarts];
+          ? _enQuestionStarts
+          : [..._roQuestionStarts, ..._enQuestionStarts];
   return starts.any((start) {
     final parts = start.split(' ');
     return words.length >= parts.length && words.take(parts.length).join(' ') == start;

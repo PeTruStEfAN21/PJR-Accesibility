@@ -45,12 +45,7 @@ class _JoinScreenState extends State<JoinScreen> {
   void _submit() {
     if (!_form.currentState!.validate()) return;
     final server = Uri.parse(_server.text.trim());
-    _open(
-      JoinLink(
-        server: Uri(scheme: server.scheme, host: server.host, port: server.port),
-        code: _code.text.trim().toUpperCase(),
-      ),
-    );
+    _open(JoinLink(server: Uri(scheme: server.scheme, host: server.host, port: server.port), code: _code.text.trim().toUpperCase()));
   }
 
   Future<void> _scan() async {
