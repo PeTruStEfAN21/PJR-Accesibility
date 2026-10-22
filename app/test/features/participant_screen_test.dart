@@ -5,9 +5,11 @@ import '../fakes.dart';
 
 Future<void> joinMeeting(WidgetTester tester, TestHarness h) async {
   await tester.pumpWidget(h.app());
-  await tester.tap(find.text('Particip la un meeting'));
+  await tester.tap(find.text('Sunt la un meeting'));
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextFormField).first, 'abc234');
+  await tester.tap(find.text('Schimbă'));
+  await tester.pump();
   await tester.enterText(find.byType(TextFormField).last, 'http://172.20.10.2:8000');
   await tester.tap(find.text('Intră'));
   await tester.pumpAndSettle();
@@ -37,7 +39,7 @@ void main() {
   testWidgets('an invalid code is rejected before connecting', (tester) async {
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
-    await tester.tap(find.text('Particip la un meeting'));
+    await tester.tap(find.text('Sunt la un meeting'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).first, 'abc');
     await tester.tap(find.text('Intră'));

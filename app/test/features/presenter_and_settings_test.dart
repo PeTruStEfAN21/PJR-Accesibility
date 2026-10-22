@@ -41,7 +41,7 @@ void main() {
 
     final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000'});
     await tester.pumpWidget(presenterApp(h));
-    await tester.tap(find.text('Prezint'));
+    await tester.tap(find.text('Tu prezinți? Deschide modul prezentator'));
     await tester.pumpAndSettle();
 
     expect(find.text('A B C 2 3 4'), findsOneWidget);

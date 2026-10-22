@@ -107,56 +107,110 @@ abstract class AppLocalizations {
   /// No description provided for @homeTitle.
   ///
   /// In ro, this message translates to:
-  /// **'Ce vrei să faci?'**
+  /// **'Bună! Cu ce începem?'**
   String get homeTitle;
 
   /// No description provided for @homeJoin.
   ///
   /// In ro, this message translates to:
-  /// **'Particip la un meeting'**
+  /// **'Sunt la un meeting'**
   String get homeJoin;
 
   /// No description provided for @homeJoinHint.
   ///
   /// In ro, this message translates to:
-  /// **'Vezi subtitrările pe roluri și trimite întrebări prezentatorului'**
+  /// **'Vezi tot ce se spune și cine vorbește.'**
   String get homeJoinHint;
 
   /// No description provided for @homePresent.
   ///
   /// In ro, this message translates to:
-  /// **'Prezint'**
+  /// **'Eu prezint'**
   String get homePresent;
 
   /// No description provided for @homePresentHint.
   ///
   /// In ro, this message translates to:
-  /// **'Lasă laptopul în fața ta și arată codul participanților'**
+  /// **'Pornești meetingul și le arăți celorlalți codul.'**
   String get homePresentHint;
 
   /// No description provided for @homeSounds.
   ///
   /// In ro, this message translates to:
-  /// **'Sunetul vizibil'**
+  /// **'Sunetele din jur'**
   String get homeSounds;
 
   /// No description provided for @homeSoundsHint.
   ///
   /// In ro, this message translates to:
-  /// **'Alerte pentru alarme, claxoane și numele tău'**
+  /// **'Te anunțăm când sună o alarmă, un claxon sau cineva te strigă.'**
   String get homeSoundsHint;
 
   /// No description provided for @homeConversation.
   ///
   /// In ro, this message translates to:
-  /// **'Conversație'**
+  /// **'Vorbesc cu cineva'**
   String get homeConversation;
 
   /// No description provided for @homeConversationHint.
   ///
   /// In ro, this message translates to:
-  /// **'Subtitrări lângă fața fiecărui vorbitor'**
+  /// **'Vezi ce spune fiecare, chiar lângă fața lui.'**
   String get homeConversationHint;
+
+  /// No description provided for @homeElsewhere.
+  ///
+  /// In ro, this message translates to:
+  /// **'În afara meetingurilor'**
+  String get homeElsewhere;
+
+  /// No description provided for @homeOtherPresent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Tu prezinți? Deschide modul prezentator'**
+  String get homeOtherPresent;
+
+  /// No description provided for @homeOtherJoin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Participi la meeting? Intră de aici'**
+  String get homeOtherJoin;
+
+  /// No description provided for @tipTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Prima dată aici?'**
+  String get tipTitle;
+
+  /// No description provided for @homeTipJoin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Începe de aici. Ceri codul de la cel care prezintă și urmărești meetingul pe ecran.'**
+  String get homeTipJoin;
+
+  /// No description provided for @homeTipPresent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Începe de aici. Pornești meetingul, iar Echo îți dă un cod pe care îl arăți participanților.'**
+  String get homeTipPresent;
+
+  /// No description provided for @tipGotIt.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am înțeles'**
+  String get tipGotIt;
+
+  /// No description provided for @tipSkip.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sari peste'**
+  String get tipSkip;
+
+  /// No description provided for @tipSkipLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sari peste toate indiciile'**
+  String get tipSkipLabel;
 
   /// No description provided for @settings.
   ///
@@ -187,6 +241,18 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Intră în meeting'**
   String get joinTitle;
+
+  /// No description provided for @joinIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie codul de pe ecranul celui care prezintă.'**
+  String get joinIntro;
+
+  /// No description provided for @joinServerChange.
+  ///
+  /// In ro, this message translates to:
+  /// **'Schimbă'**
+  String get joinServerChange;
 
   /// No description provided for @joinCodeLabel.
   ///

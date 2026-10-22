@@ -12,33 +12,63 @@ class AppLocalizationsRo extends AppLocalizations {
   String get appTitle => 'Echo';
 
   @override
-  String get homeTitle => 'Ce vrei să faci?';
+  String get homeTitle => 'Bună! Cu ce începem?';
 
   @override
-  String get homeJoin => 'Particip la un meeting';
+  String get homeJoin => 'Sunt la un meeting';
 
   @override
-  String get homeJoinHint =>
-      'Vezi subtitrările pe roluri și trimite întrebări prezentatorului';
+  String get homeJoinHint => 'Vezi tot ce se spune și cine vorbește.';
 
   @override
-  String get homePresent => 'Prezint';
+  String get homePresent => 'Eu prezint';
 
   @override
   String get homePresentHint =>
-      'Lasă laptopul în fața ta și arată codul participanților';
+      'Pornești meetingul și le arăți celorlalți codul.';
 
   @override
-  String get homeSounds => 'Sunetul vizibil';
+  String get homeSounds => 'Sunetele din jur';
 
   @override
-  String get homeSoundsHint => 'Alerte pentru alarme, claxoane și numele tău';
+  String get homeSoundsHint =>
+      'Te anunțăm când sună o alarmă, un claxon sau cineva te strigă.';
 
   @override
-  String get homeConversation => 'Conversație';
+  String get homeConversation => 'Vorbesc cu cineva';
 
   @override
-  String get homeConversationHint => 'Subtitrări lângă fața fiecărui vorbitor';
+  String get homeConversationHint =>
+      'Vezi ce spune fiecare, chiar lângă fața lui.';
+
+  @override
+  String get homeElsewhere => 'În afara meetingurilor';
+
+  @override
+  String get homeOtherPresent => 'Tu prezinți? Deschide modul prezentator';
+
+  @override
+  String get homeOtherJoin => 'Participi la meeting? Intră de aici';
+
+  @override
+  String get tipTitle => 'Prima dată aici?';
+
+  @override
+  String get homeTipJoin =>
+      'Începe de aici. Ceri codul de la cel care prezintă și urmărești meetingul pe ecran.';
+
+  @override
+  String get homeTipPresent =>
+      'Începe de aici. Pornești meetingul, iar Echo îți dă un cod pe care îl arăți participanților.';
+
+  @override
+  String get tipGotIt => 'Am înțeles';
+
+  @override
+  String get tipSkip => 'Sari peste';
+
+  @override
+  String get tipSkipLabel => 'Sari peste toate indiciile';
 
   @override
   String get settings => 'Setări';
@@ -54,6 +84,12 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get joinTitle => 'Intră în meeting';
+
+  @override
+  String get joinIntro => 'Scrie codul de pe ecranul celui care prezintă.';
+
+  @override
+  String get joinServerChange => 'Schimbă';
 
   @override
   String get joinCodeLabel => 'Codul de pe ecranul prezentatorului';
