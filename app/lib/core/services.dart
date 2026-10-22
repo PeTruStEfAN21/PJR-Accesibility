@@ -2,8 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:http/http.dart' as http;
 
+import '../features/alerts/alert_signals.dart';
+import '../features/alerts/location_sounds.dart';
 import '../features/alerts/sound_alert.dart';
+import '../features/alerts/sound_listening.dart';
 import '../settings/app_settings.dart';
+import 'account/account_service.dart';
+import 'history/meeting_store.dart';
 import 'server_api.dart';
 import 'session_connection.dart';
 import 'speech/speech_service.dart';
@@ -17,10 +22,16 @@ class AppServices {
     required this.sounds,
     TtsService? tts,
     VoiceEngine? voice,
+    SoundListening? soundListening,
+    this.alertSignals = const BasicAlertSignals(),
+    this.locationSounds,
     this.httpClient,
     this.channelFactory,
+    this.account,
+    this.meetings,
   })  : tts = tts ?? createTtsService(),
-        voice = voice ?? createVoiceEngine();
+        voice = voice ?? createVoiceEngine(),
+        soundListening = soundListening ?? SoundListening(sounds);
 
   final SpeechService speech;
   final SoundDetector sounds;
@@ -30,8 +41,24 @@ class AppServices {
 
   /// Microphone and speaker model on the presenter's laptop: who is talking, the speaker or the room.
   final VoiceEngine voice;
+
+  /// Whether sound recognition should run (remembered) and is running; paused while captions run.
+  final SoundListening soundListening;
+
+  /// Vibration patterns and system notifications for alerts, per platform.
+  final AlertSignals alertSignals;
+
+  /// Sounds learned on site; null where sound recognition cannot run.
+  final LocationSoundStore? locationSounds;
   final http.Client? httpClient;
   final ChannelFactory? channelFactory;
+
+  /// Null when accounts are off (no Supabase configured): no sign-in, nothing saved.
+  final AccountService? account;
+  final MeetingStore? meetings;
+
+  /// The meeting store, only while someone is signed in.
+  MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
 
   ServerApi api(Uri server) => ServerApi(server, client: httpClient);
 }

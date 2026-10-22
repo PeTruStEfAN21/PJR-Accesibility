@@ -6,6 +6,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
+import 'package:pjr_accesibilitate/core/account/account_service.dart';
+import 'package:pjr_accesibilitate/core/history/meeting_store.dart';
+import 'package:pjr_accesibilitate/core/protocol.dart';
+import 'package:pjr_accesibilitate/core/server_api.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
 import 'package:pjr_accesibilitate/core/tts/tts_service.dart';
@@ -143,6 +147,15 @@ class FakeVoiceEngine implements VoiceEngine {
 class FakeSounds implements SoundDetector {
   final controller = StreamController<SoundAlert>.broadcast();
 
+  /// What each learning sample returns, in order; null = nothing heard.
+  final samples = <Float32List?>[];
+
+  /// What start() answers (false = microphone refused).
+  bool canStart = true;
+  bool listening = false;
+  int starts = 0;
+  int stops = 0;
+
   @override
   bool get isAvailable => true;
 
@@ -150,17 +163,156 @@ class FakeSounds implements SoundDetector {
   Stream<SoundAlert> get alerts => controller.stream;
 
   @override
-  Future<bool> start() async => true;
+  Future<bool> start() async {
+    starts++;
+    listening = canStart;
+    return canStart;
+  }
 
   @override
-  Future<void> stop() async {}
+  Future<void> stop() async {
+    stops++;
+    listening = false;
+  }
+
+  @override
+  Future<Float32List?> recordSample(Duration duration) async => samples.isEmpty ? null : samples.removeAt(0);
 
   @override
   void dispose() {}
 }
 
+class FakeAccountService extends AccountService {
+  FakeAccountService({AccountUser? user}) : _user = user;
+
+  AccountUser? _user;
+  String expectedCode = '123456';
+  final sentCodes = <String>[];
+  bool deleted = false;
+
+  @override
+  AccountUser? get user => _user;
+
+  @override
+  String? get accessToken => _user == null ? null : 'token-${_user!.id}';
+
+  void signInAs(String email) {
+    _user = AccountUser(id: 'u-$email', email: email);
+    notifyListeners();
+  }
+
+  @override
+  Future<void> sendEmailCode(String email) async => sentCodes.add(email);
+
+  @override
+  Future<void> verifyEmailCode(String email, String code) async {
+    if (code != expectedCode) throw StateError('wrong code');
+    signInAs(email);
+  }
+
+  @override
+  Future<void> signInWithGoogle() async => signInAs('google@example.com');
+
+  @override
+  Future<void> signOut() async {
+    _user = null;
+    notifyListeners();
+  }
+
+  @override
+  Future<void> deleteAccount() async {
+    deleted = true;
+    await signOut();
+  }
+}
+
+/// Saved meetings in memory, with the same idempotent line saving as the database.
+class FakeMeetingStore implements MeetingStore {
+  final meetings = <String, SavedMeeting>{};
+  final lines = <String, List<SavedLine>>{};
+  final summaries = <String, MeetingSummary>{};
+  final finished = <String>{};
+  int saveCalls = 0;
+
+  /// Makes the next saves fail, like a dropped connection.
+  bool failSaves = false;
+
+  SavedMeeting add(String title, List<String> texts, {DateTime? startedAt}) {
+    final id = 'm${meetings.length + 1}';
+    final meeting = SavedMeeting(id: id, title: title, startedAt: startedAt ?? DateTime(2026, 10, 20, 14, 5));
+    meetings[id] = meeting;
+    lines[id] = [
+      for (final (i, text) in texts.indexed)
+        SavedLine(seq: i + 1, captionId: 'c${i + 1}', speaker: Speaker.coordinator, text: text, spokenAt: meeting.startedAt),
+    ];
+    return meeting;
+  }
+
+  @override
+  Future<String> createMeeting({String? sessionCode, required String lang, String? title}) async {
+    if (failSaves) throw StateError('offline');
+    final id = 'm${meetings.length + 1}';
+    meetings[id] = SavedMeeting(id: id, title: title, startedAt: DateTime(2026, 10, 22));
+    lines[id] = [];
+    return id;
+  }
+
+  @override
+  Future<void> saveLines(String meetingId, List<SavedLine> batch) async {
+    saveCalls++;
+    if (failSaves) throw StateError('offline');
+    final saved = lines[meetingId]!;
+    for (final line in batch) {
+      if (!saved.any((l) => l.captionId == line.captionId)) saved.add(line);
+    }
+  }
+
+  @override
+  Future<void> finishMeeting(String meetingId) async {
+    finished.add(meetingId);
+  }
+
+  @override
+  Future<List<SavedMeeting>> listMeetings() async =>
+      meetings.values.toList()..sort((a, b) => b.startedAt.compareTo(a.startedAt));
+
+  @override
+  Future<List<MeetingMatch>> search(String query) async {
+    final q = query.toLowerCase();
+    return [
+      for (final meeting in await listMeetings())
+        for (final line in lines[meeting.id]!.where((l) => l.text.toLowerCase().contains(q)).take(1))
+          MeetingMatch(meeting: meeting, seq: line.seq, snippet: line.text),
+    ];
+  }
+
+  @override
+  Future<List<SavedLine>> loadLines(String meetingId) async => List.of(lines[meetingId]!);
+
+  @override
+  Future<void> saveSummary(String meetingId, MeetingSummary summary, String lang) async {
+    summaries[meetingId] = summary;
+  }
+
+  @override
+  Future<MeetingSummary?> loadSummary(String meetingId) async => summaries[meetingId];
+
+  @override
+  Future<void> renameMeeting(String meetingId, String title) async {
+    final old = meetings[meetingId]!;
+    meetings[meetingId] = SavedMeeting(id: old.id, title: title, startedAt: old.startedAt, endedAt: old.endedAt);
+  }
+
+  @override
+  Future<void> deleteMeeting(String meetingId) async {
+    meetings.remove(meetingId);
+    lines.remove(meetingId);
+    summaries.remove(meetingId);
+  }
+}
+
 class TestHarness {
-  TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts);
+  TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings);
 
   final AppSettings settings;
   final FakeSpeech speech;
@@ -169,11 +321,17 @@ class TestHarness {
   final FakeSounds sounds;
   final FakeChannel channel;
   final AlertController alerts;
+  final FakeAccountService? account;
+  final FakeMeetingStore? meetings;
 
   /// HTTP calls to the server (AI endpoints); set before [app] to answer them.
   http.Client? httpClient;
 
-  static Future<TestHarness> create({Map<String, Object> prefs = const {'uiLanguage': 'ro'}}) async {
+  /// [accounts] turns on sign-in and saved meetings, as when Supabase is configured.
+  static Future<TestHarness> create({
+    Map<String, Object> prefs = const {'uiLanguage': 'ro'},
+    bool accounts = false,
+  }) async {
     SharedPreferences.setMockInitialValues(prefs);
     return TestHarness._(
       AppSettings(await SharedPreferences.getInstance()),
@@ -181,6 +339,8 @@ class TestHarness {
       FakeSounds(),
       FakeChannel(),
       AlertController(haptic: (_) {}),
+      accounts ? FakeAccountService() : null,
+      accounts ? FakeMeetingStore() : null,
     );
   }
 
@@ -194,6 +354,8 @@ class TestHarness {
           voice: voice,
           httpClient: httpClient,
           channelFactory: (uri) => channel..uri = uri,
+          account: account,
+          meetings: meetings,
         ),
       );
 }

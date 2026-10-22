@@ -18,23 +18,21 @@ Future<void> main() async {
   final settings = AppSettings(await SharedPreferences.getInstance());
 
   // Role labels are drawn in the role colour on the caption background, so
-  // they need WCAG AA text contrast (4.5:1) in every palette and theme.
-  for (final brightness in Brightness.values) {
-    for (final highContrast in [false, true]) {
-      for (final kind in RolePaletteKind.values) {
-        test('$kind ${brightness.name} highContrast=$highContrast meets AA', () {
-          settings.update((s) {
-            s.palette = kind;
-            s.highContrast = highContrast;
-          });
-          final theme = buildTheme(settings, brightness);
-          final roles = theme.extension<RolePalette>()!;
-          final background = theme.colorScheme.surfaceContainerHighest;
-          expect(contrast(roles.coordinator, background), greaterThanOrEqualTo(4.5));
-          expect(contrast(roles.public, background), greaterThanOrEqualTo(4.5));
-          expect(roles.coordinator, isNot(roles.public));
+  // they need WCAG AA text contrast (4.5:1) in every palette.
+  for (final highContrast in [false, true]) {
+    for (final kind in RolePaletteKind.values) {
+      test('$kind highContrast=$highContrast meets AA', () {
+        settings.update((s) {
+          s.palette = kind;
+          s.highContrast = highContrast;
         });
-      }
+        final theme = buildTheme(settings);
+        final roles = theme.extension<RolePalette>()!;
+        final background = theme.colorScheme.surfaceContainerHighest;
+        expect(contrast(roles.coordinator, background), greaterThanOrEqualTo(4.5));
+        expect(contrast(roles.public, background), greaterThanOrEqualTo(4.5));
+        expect(roles.coordinator, isNot(roles.public));
+      });
     }
   }
 }

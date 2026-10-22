@@ -8,8 +8,24 @@ import '../../widgets/caption_tile.dart';
 /// Language names are shown in their own language, whatever the UI language.
 const _languageNames = {'ro': 'Română', 'en': 'English'};
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
+
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  /// The text size while the slider is being dragged. Only the preview follows it, so the page
+  /// does not jump on every step; the whole app takes the new size when the slider is released.
+  double? _draftTextScale;
+
+  /// The preview's text size: the system size times the slider's value, even mid-drag.
+  TextScaler _previewScaler(BuildContext context, AppSettings settings) {
+    // The app already applies system x settings.textScale; swap the second factor for the draft.
+    final system = MediaQuery.textScalerOf(context).scale(1) / settings.textScale;
+    return TextScaler.linear(system * (_draftTextScale ?? settings.textScale));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,16 +45,19 @@ class SettingsScreen extends StatelessWidget {
           section(l10n.settingsPreview),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              children: [
-                CaptionTile(
-                  caption: Caption(id: 'p1', speaker: Speaker.coordinator, text: l10n.quickRepeat, isFinal: true, lang: '', ts: 0),
-                  emphasized: true,
-                ),
-                CaptionTile(
-                  caption: Caption(id: 'p2', speaker: Speaker.public, text: l10n.quickQuestion, isFinal: true, lang: '', ts: 0),
-                ),
-              ],
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaler: _previewScaler(context, settings)),
+              child: Column(
+                children: [
+                  CaptionTile(
+                    caption: Caption(id: 'p1', speaker: Speaker.coordinator, text: l10n.quickRepeat, isFinal: true, lang: '', ts: 0),
+                    emphasized: true,
+                  ),
+                  CaptionTile(
+                    caption: Caption(id: 'p2', speaker: Speaker.public, text: l10n.quickQuestion, isFinal: true, lang: '', ts: 0),
+                  ),
+                ],
+              ),
             ),
           ),
           section(l10n.settingsLanguage),
@@ -66,13 +85,17 @@ class SettingsScreen extends StatelessWidget {
           ),
           section(l10n.settingsTextSize),
           Slider(
-            value: settings.textScale,
+            value: _draftTextScale ?? settings.textScale,
             min: AppSettings.minTextScale,
             max: AppSettings.maxTextScale,
             divisions: 10,
-            label: '${(settings.textScale * 100).round()}%',
+            label: '${((_draftTextScale ?? settings.textScale) * 100).round()}%',
             semanticFormatterCallback: (value) => '${(value * 100).round()}%',
-            onChanged: (value) => settings.update((s) => s.textScale = value),
+            onChanged: (value) => setState(() => _draftTextScale = value),
+            onChangeEnd: (value) {
+              settings.update((s) => s.textScale = value);
+              setState(() => _draftTextScale = null);
+            },
           ),
           SwitchListTile(
             title: Text(l10n.settingsDyslexia),
@@ -106,18 +129,6 @@ class SettingsScreen extends StatelessWidget {
                       RolePaletteKind.tritanopia => l10n.paletteTritanopia,
                     }),
                   ),
-              ],
-            ),
-          ),
-          section(l10n.settingsTheme),
-          RadioGroup<ThemeMode>(
-            groupValue: settings.themeMode,
-            onChanged: (value) => settings.update((s) => s.themeMode = value!),
-            child: Column(
-              children: [
-                RadioListTile(value: ThemeMode.system, title: Text(l10n.themeSystem)),
-                RadioListTile(value: ThemeMode.light, title: Text(l10n.themeLight)),
-                RadioListTile(value: ThemeMode.dark, title: Text(l10n.themeDark)),
               ],
             ),
           ),

@@ -12,33 +12,56 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Echo';
 
   @override
-  String get homeTitle => 'What would you like to do?';
+  String get homeTitle => 'Hi! Where do we start?';
 
   @override
   String get homeJoin => 'Connect to the speaker';
 
   @override
   String get homeJoinHint =>
-      'See what is said in the room and ask the speaker questions';
+      'See what is said in the room and ask the speaker questions.';
 
   @override
   String get homePresent => 'I\'m presenting';
 
   @override
-  String get homePresentHint =>
-      'Keep the laptop in front of you and show the code to participants';
+  String get homePresentHint => 'Start the meeting and show everyone the code.';
 
   @override
-  String get homeSounds => 'Visible sound';
+  String get homeConversation => 'I\'m talking with someone';
 
   @override
-  String get homeSoundsHint => 'Alerts for alarms, horns and your name';
+  String get homeConversationHint =>
+      'See what each person says, right next to their face.';
 
   @override
-  String get homeConversation => 'Conversation';
+  String get homeElsewhere => 'Outside meetings';
 
   @override
-  String get homeConversationHint => 'Captions next to each speaker\'s face';
+  String get homeOtherPresent => 'Presenting? Open presenter mode';
+
+  @override
+  String get homeOtherJoin => 'Joining a meeting? Start here';
+
+  @override
+  String get tipTitle => 'First time here?';
+
+  @override
+  String get homeTipJoin =>
+      'Start here. Ask the presenter for the code and follow the meeting on screen.';
+
+  @override
+  String get homeTipPresent =>
+      'Start here. Start the meeting and Echo gives you a code to show everyone.';
+
+  @override
+  String get tipGotIt => 'Got it';
+
+  @override
+  String get tipSkip => 'Skip';
+
+  @override
+  String get tipSkipLabel => 'Skip all tips';
 
   @override
   String get settings => 'Settings';
@@ -54,6 +77,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get joinTitle => 'Connect to the speaker';
+
+  @override
+  String get joinIntro => 'Type the code shown on the speaker\'s laptop.';
+
+  @override
+  String get joinServerChange => 'Change';
 
   @override
   String get joinCodeLabel => 'The code on the speaker\'s laptop';
@@ -432,6 +461,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String get alertDismiss => 'Got it';
 
   @override
+  String get alertLevelCritical => 'CRITICAL';
+
+  @override
+  String get alertLevelWarning => 'WARNING';
+
+  @override
+  String get adviceFireAlarm =>
+      'Leave the building by the nearest exit. Do not use the lift.';
+
+  @override
+  String get adviceSiren =>
+      'An emergency vehicle or a public alert. Make way and watch what people around you do.';
+
+  @override
+  String get adviceHorn =>
+      'A vehicle is honking nearby. Stop and look around before you go on.';
+
+  @override
+  String get adviceGlassBreak =>
+      'Glass broke nearby. Keep away from the shards and look around.';
+
+  @override
+  String get adviceLineSignal =>
+      'A signal from a machine. Watch the machines around you.';
+
+  @override
   String get soundsTitle => 'Visible sound';
 
   @override
@@ -442,17 +497,45 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsListening =>
-      'Listening to sounds around you. Alerts appear over any screen.';
+      'Listening to sounds around you, also with the phone locked. Starts by itself every time you open the app.';
 
   @override
   String get soundsIdle => 'Listening is off.';
+
+  @override
+  String get soundsPaused =>
+      'Listening is paused while captions run. It starts again by itself afterwards.';
+
+  @override
+  String get soundsPill => 'Sounds';
+
+  @override
+  String get soundsPillOn => 'Visible sound: on';
+
+  @override
+  String get soundsPillOff => 'Visible sound: off';
+
+  @override
+  String get soundsPillPaused => 'Visible sound: paused while captions run';
+
+  @override
+  String get soundsPillHint => 'Long press for details and to test the alerts.';
 
   @override
   String get soundsTest => 'Test the alerts';
 
   @override
   String get soundsDetectorMissing =>
-      'The sound detector (YAMNet) is not connected yet. You can test the alerts below.';
+      'Sound recognition does not work on this device. You can test the alerts below.';
+
+  @override
+  String get soundGlassBreak => 'Breaking glass';
+
+  @override
+  String get soundLocation => 'Workplace sound';
+
+  @override
+  String get alertOpenApp => 'Open Echo for details.';
 
   @override
   String get conversationTitle => 'Conversation';
@@ -498,18 +581,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsHighContrast => 'High contrast';
 
   @override
-  String get settingsTheme => 'Theme';
-
-  @override
-  String get themeSystem => 'Same as system';
-
-  @override
-  String get themeLight => 'Light';
-
-  @override
-  String get themeDark => 'Dark';
-
-  @override
   String get settingsAutoScroll => 'Auto-scroll captions';
 
   @override
@@ -524,4 +595,132 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsPreview => 'Preview';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get account => 'My account';
+
+  @override
+  String get signIn => 'Sign in';
+
+  @override
+  String get signInIntro =>
+      'Sign in to save your meetings and review them any time. No password needed.';
+
+  @override
+  String get signInEmailLabel => 'Email address';
+
+  @override
+  String get signInSendCode => 'Send me a code';
+
+  @override
+  String signInCodeSent(String email) {
+    return 'We sent a code to $email. You can also open the link in the email.';
+  }
+
+  @override
+  String get signInCodeLabel => 'Code from the email';
+
+  @override
+  String get signInVerify => 'Confirm code';
+
+  @override
+  String get signInOtherEmail => 'Use another address';
+
+  @override
+  String get signInOr => 'or';
+
+  @override
+  String get signInGoogle => 'Continue with Google';
+
+  @override
+  String get signInInvalidEmail => 'This email address doesn\'t look right';
+
+  @override
+  String get signInInvalidCode => 'Enter the numeric code from the email';
+
+  @override
+  String get signInFailed =>
+      'We couldn\'t sign you in. Check the details and try again.';
+
+  @override
+  String accountSignedInAs(String email) {
+    return 'Signed in as $email';
+  }
+
+  @override
+  String get accountSignOut => 'Sign out';
+
+  @override
+  String get accountDelete => 'Delete account';
+
+  @override
+  String get accountDeleteTitle => 'Delete your account?';
+
+  @override
+  String get accountDeleteBody =>
+      'Your account and all saved meetings, transcripts and summaries are deleted for good. This cannot be undone.';
+
+  @override
+  String get accountDeleteConfirm => 'Delete for good';
+
+  @override
+  String get accountError => 'Something went wrong. Try again.';
+
+  @override
+  String get homeHistory => 'My meetings';
+
+  @override
+  String get homeHistoryHint =>
+      'Review transcripts and summaries, ask any meeting';
+
+  @override
+  String get historySearchHint => 'Search your meetings';
+
+  @override
+  String get historyClearSearch => 'Clear search';
+
+  @override
+  String get historyEmpty =>
+      'No saved meetings yet. When you join a meeting while signed in, the transcript is saved here.';
+
+  @override
+  String historyNoResults(String query) {
+    return 'No meeting contains “$query”.';
+  }
+
+  @override
+  String get historyLoadError => 'We couldn\'t load your meetings.';
+
+  @override
+  String historyUntitled(String date) {
+    return 'Meeting on $date';
+  }
+
+  @override
+  String get historyDelete => 'Delete meeting';
+
+  @override
+  String get historyDeleteTitle => 'Delete this meeting?';
+
+  @override
+  String get historyDeleteBody =>
+      'This meeting\'s transcript and summary are deleted for good.';
+
+  @override
+  String get historyDeleted => 'Meeting deleted';
+
+  @override
+  String get meetingRename => 'Rename';
+
+  @override
+  String get meetingNameLabel => 'Meeting name';
+
+  @override
+  String get meetingSaving => 'The transcript is being saved to your account';
 }

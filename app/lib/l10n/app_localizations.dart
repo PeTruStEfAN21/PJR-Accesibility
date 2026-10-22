@@ -107,7 +107,7 @@ abstract class AppLocalizations {
   /// No description provided for @homeTitle.
   ///
   /// In ro, this message translates to:
-  /// **'Ce vrei să faci?'**
+  /// **'Bună! Cu ce începem?'**
   String get homeTitle;
 
   /// No description provided for @homeJoin.
@@ -119,44 +119,86 @@ abstract class AppLocalizations {
   /// No description provided for @homeJoinHint.
   ///
   /// In ro, this message translates to:
-  /// **'Vezi ce se spune în sală și pune întrebări speakerului'**
+  /// **'Vezi ce se spune în sală și pune întrebări speakerului.'**
   String get homeJoinHint;
 
   /// No description provided for @homePresent.
   ///
   /// In ro, this message translates to:
-  /// **'Prezint'**
+  /// **'Eu prezint'**
   String get homePresent;
 
   /// No description provided for @homePresentHint.
   ///
   /// In ro, this message translates to:
-  /// **'Lasă laptopul în fața ta și arată codul participanților'**
+  /// **'Pornești meetingul și le arăți celorlalți codul.'**
   String get homePresentHint;
-
-  /// No description provided for @homeSounds.
-  ///
-  /// In ro, this message translates to:
-  /// **'Sunetul vizibil'**
-  String get homeSounds;
-
-  /// No description provided for @homeSoundsHint.
-  ///
-  /// In ro, this message translates to:
-  /// **'Alerte pentru alarme, claxoane și numele tău'**
-  String get homeSoundsHint;
 
   /// No description provided for @homeConversation.
   ///
   /// In ro, this message translates to:
-  /// **'Conversație'**
+  /// **'Vorbesc cu cineva'**
   String get homeConversation;
 
   /// No description provided for @homeConversationHint.
   ///
   /// In ro, this message translates to:
-  /// **'Subtitrări lângă fața fiecărui vorbitor'**
+  /// **'Vezi ce spune fiecare, chiar lângă fața lui.'**
   String get homeConversationHint;
+
+  /// No description provided for @homeElsewhere.
+  ///
+  /// In ro, this message translates to:
+  /// **'În afara meetingurilor'**
+  String get homeElsewhere;
+
+  /// No description provided for @homeOtherPresent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Tu prezinți? Deschide modul prezentator'**
+  String get homeOtherPresent;
+
+  /// No description provided for @homeOtherJoin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Participi la meeting? Intră de aici'**
+  String get homeOtherJoin;
+
+  /// No description provided for @tipTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Prima dată aici?'**
+  String get tipTitle;
+
+  /// No description provided for @homeTipJoin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Începe de aici. Ceri codul de la cel care prezintă și urmărești meetingul pe ecran.'**
+  String get homeTipJoin;
+
+  /// No description provided for @homeTipPresent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Începe de aici. Pornești meetingul, iar Echo îți dă un cod pe care îl arăți participanților.'**
+  String get homeTipPresent;
+
+  /// No description provided for @tipGotIt.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am înțeles'**
+  String get tipGotIt;
+
+  /// No description provided for @tipSkip.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sari peste'**
+  String get tipSkip;
+
+  /// No description provided for @tipSkipLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sari peste toate indiciile'**
+  String get tipSkipLabel;
 
   /// No description provided for @settings.
   ///
@@ -187,6 +229,18 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Conectează-te la speaker'**
   String get joinTitle;
+
+  /// No description provided for @joinIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie codul de pe laptopul speakerului.'**
+  String get joinIntro;
+
+  /// No description provided for @joinServerChange.
+  ///
+  /// In ro, this message translates to:
+  /// **'Schimbă'**
+  String get joinServerChange;
 
   /// No description provided for @joinCodeLabel.
   ///
@@ -848,6 +902,48 @@ abstract class AppLocalizations {
   /// **'Am înțeles'**
   String get alertDismiss;
 
+  /// No description provided for @alertLevelCritical.
+  ///
+  /// In ro, this message translates to:
+  /// **'CRITIC'**
+  String get alertLevelCritical;
+
+  /// No description provided for @alertLevelWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'ATENȚIE'**
+  String get alertLevelWarning;
+
+  /// No description provided for @adviceFireAlarm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ieși din clădire pe cea mai apropiată ieșire. Nu folosi liftul.'**
+  String get adviceFireAlarm;
+
+  /// No description provided for @adviceSiren.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un vehicul de urgență sau o alertă publică. Fă loc și urmărește ce fac cei din jur.'**
+  String get adviceSiren;
+
+  /// No description provided for @adviceHorn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un vehicul claxonează aproape. Oprește-te și uită-te în jur înainte să mergi mai departe.'**
+  String get adviceHorn;
+
+  /// No description provided for @adviceGlassBreak.
+  ///
+  /// In ro, this message translates to:
+  /// **'S-a spart un geam în apropiere. Ferește-te de cioburi și uită-te în jur.'**
+  String get adviceGlassBreak;
+
+  /// No description provided for @adviceLineSignal.
+  ///
+  /// In ro, this message translates to:
+  /// **'Semnal de la un utilaj. Fii atent la mașinile din jur.'**
+  String get adviceLineSignal;
+
   /// No description provided for @soundsTitle.
   ///
   /// In ro, this message translates to:
@@ -869,7 +965,7 @@ abstract class AppLocalizations {
   /// No description provided for @soundsListening.
   ///
   /// In ro, this message translates to:
-  /// **'Ascult sunetele din jur. Alertele apar peste orice ecran.'**
+  /// **'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.'**
   String get soundsListening;
 
   /// No description provided for @soundsIdle.
@@ -877,6 +973,42 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Ascultarea e oprită.'**
   String get soundsIdle;
+
+  /// No description provided for @soundsPaused.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.'**
+  String get soundsPaused;
+
+  /// No description provided for @soundsPill.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunete'**
+  String get soundsPill;
+
+  /// No description provided for @soundsPillOn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul vizibil: pornit'**
+  String get soundsPillOn;
+
+  /// No description provided for @soundsPillOff.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul vizibil: oprit'**
+  String get soundsPillOff;
+
+  /// No description provided for @soundsPillPaused.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunetul vizibil: în pauză cât merge subtitrarea'**
+  String get soundsPillPaused;
+
+  /// No description provided for @soundsPillHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Apasă lung pentru detalii și testarea alertelor.'**
+  String get soundsPillHint;
 
   /// No description provided for @soundsTest.
   ///
@@ -887,8 +1019,26 @@ abstract class AppLocalizations {
   /// No description provided for @soundsDetectorMissing.
   ///
   /// In ro, this message translates to:
-  /// **'Detectorul de sunete (YAMNet) nu e încă conectat. Poți testa alertele de mai jos.'**
+  /// **'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.'**
   String get soundsDetectorMissing;
+
+  /// No description provided for @soundGlassBreak.
+  ///
+  /// In ro, this message translates to:
+  /// **'Geam spart'**
+  String get soundGlassBreak;
+
+  /// No description provided for @soundLocation.
+  ///
+  /// In ro, this message translates to:
+  /// **'Sunet al locației'**
+  String get soundLocation;
+
+  /// No description provided for @alertOpenApp.
+  ///
+  /// In ro, this message translates to:
+  /// **'Deschide Echo pentru detalii.'**
+  String get alertOpenApp;
 
   /// No description provided for @conversationTitle.
   ///
@@ -974,30 +1124,6 @@ abstract class AppLocalizations {
   /// **'Contrast ridicat'**
   String get settingsHighContrast;
 
-  /// No description provided for @settingsTheme.
-  ///
-  /// In ro, this message translates to:
-  /// **'Temă'**
-  String get settingsTheme;
-
-  /// No description provided for @themeSystem.
-  ///
-  /// In ro, this message translates to:
-  /// **'Ca sistemul'**
-  String get themeSystem;
-
-  /// No description provided for @themeLight.
-  ///
-  /// In ro, this message translates to:
-  /// **'Luminoasă'**
-  String get themeLight;
-
-  /// No description provided for @themeDark.
-  ///
-  /// In ro, this message translates to:
-  /// **'Întunecată'**
-  String get themeDark;
-
   /// No description provided for @settingsAutoScroll.
   ///
   /// In ro, this message translates to:
@@ -1027,6 +1153,234 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Previzualizare'**
   String get settingsPreview;
+
+  /// No description provided for @cancel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulează'**
+  String get cancel;
+
+  /// No description provided for @save.
+  ///
+  /// In ro, this message translates to:
+  /// **'Salvează'**
+  String get save;
+
+  /// No description provided for @account.
+  ///
+  /// In ro, this message translates to:
+  /// **'Contul meu'**
+  String get account;
+
+  /// No description provided for @signIn.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în cont'**
+  String get signIn;
+
+  /// No description provided for @signInIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în cont ca să-ți salvezi meetingurile și să le revezi oricând. Nu ai nevoie de parolă.'**
+  String get signInIntro;
+
+  /// No description provided for @signInEmailLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adresa de email'**
+  String get signInEmailLabel;
+
+  /// No description provided for @signInSendCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trimite-mi un cod'**
+  String get signInSendCode;
+
+  /// No description provided for @signInCodeSent.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ți-am trimis un cod pe {email}. Poți și să deschizi linkul din email.'**
+  String signInCodeSent(String email);
+
+  /// No description provided for @signInCodeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul din email'**
+  String get signInCodeLabel;
+
+  /// No description provided for @signInVerify.
+  ///
+  /// In ro, this message translates to:
+  /// **'Confirmă codul'**
+  String get signInVerify;
+
+  /// No description provided for @signInOtherEmail.
+  ///
+  /// In ro, this message translates to:
+  /// **'Folosește altă adresă'**
+  String get signInOtherEmail;
+
+  /// No description provided for @signInOr.
+  ///
+  /// In ro, this message translates to:
+  /// **'sau'**
+  String get signInOr;
+
+  /// No description provided for @signInGoogle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Continuă cu Google'**
+  String get signInGoogle;
+
+  /// No description provided for @signInInvalidEmail.
+  ///
+  /// In ro, this message translates to:
+  /// **'Adresa de email nu pare corectă'**
+  String get signInInvalidEmail;
+
+  /// No description provided for @signInInvalidCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Introdu codul din cifre primit pe email'**
+  String get signInInvalidCode;
+
+  /// No description provided for @signInFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut intra în cont. Verifică datele și încearcă din nou.'**
+  String get signInFailed;
+
+  /// No description provided for @accountSignedInAs.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ești conectat ca {email}'**
+  String accountSignedInAs(String email);
+
+  /// No description provided for @accountSignOut.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ieși din cont'**
+  String get accountSignOut;
+
+  /// No description provided for @accountDelete.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge contul'**
+  String get accountDelete;
+
+  /// No description provided for @accountDeleteTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi contul?'**
+  String get accountDeleteTitle;
+
+  /// No description provided for @accountDeleteBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.'**
+  String get accountDeleteBody;
+
+  /// No description provided for @accountDeleteConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge definitiv'**
+  String get accountDeleteConfirm;
+
+  /// No description provided for @accountError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ceva nu a mers. Încearcă din nou.'**
+  String get accountError;
+
+  /// No description provided for @homeHistory.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingurile mele'**
+  String get homeHistory;
+
+  /// No description provided for @homeHistoryHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Revezi transcrierile și rezumatele, întreabă orice meeting'**
+  String get homeHistoryHint;
+
+  /// No description provided for @historySearchHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Caută în meetinguri'**
+  String get historySearchHint;
+
+  /// No description provided for @historyClearSearch.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge căutarea'**
+  String get historyClearSearch;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu ai încă meetinguri salvate. Când participi la un meeting cu contul deschis, transcrierea se salvează aici.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyNoResults.
+  ///
+  /// In ro, this message translates to:
+  /// **'Niciun meeting nu conține „{query}”.'**
+  String historyNoResults(String query);
+
+  /// No description provided for @historyLoadError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu am putut încărca meetingurile.'**
+  String get historyLoadError;
+
+  /// No description provided for @historyUntitled.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meeting din {date}'**
+  String historyUntitled(String date);
+
+  /// No description provided for @historyDelete.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge meetingul'**
+  String get historyDelete;
+
+  /// No description provided for @historyDeleteTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi meetingul?'**
+  String get historyDeleteTitle;
+
+  /// No description provided for @historyDeleteBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Transcrierea și rezumatul acestui meeting se șterg definitiv.'**
+  String get historyDeleteBody;
+
+  /// No description provided for @historyDeleted.
+  ///
+  /// In ro, this message translates to:
+  /// **'Meetingul a fost șters'**
+  String get historyDeleted;
+
+  /// No description provided for @meetingRename.
+  ///
+  /// In ro, this message translates to:
+  /// **'Redenumește'**
+  String get meetingRename;
+
+  /// No description provided for @meetingNameLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele meetingului'**
+  String get meetingNameLabel;
+
+  /// No description provided for @meetingSaving.
+  ///
+  /// In ro, this message translates to:
+  /// **'Transcrierea se salvează în contul tău'**
+  String get meetingSaving;
 }
 
 class _AppLocalizationsDelegate

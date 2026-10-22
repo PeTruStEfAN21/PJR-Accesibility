@@ -12,33 +12,57 @@ class AppLocalizationsRo extends AppLocalizations {
   String get appTitle => 'Echo';
 
   @override
-  String get homeTitle => 'Ce vrei să faci?';
+  String get homeTitle => 'Bună! Cu ce începem?';
 
   @override
   String get homeJoin => 'Conectează-te la speaker';
 
   @override
   String get homeJoinHint =>
-      'Vezi ce se spune în sală și pune întrebări speakerului';
+      'Vezi ce se spune în sală și pune întrebări speakerului.';
 
   @override
-  String get homePresent => 'Prezint';
+  String get homePresent => 'Eu prezint';
 
   @override
   String get homePresentHint =>
-      'Lasă laptopul în fața ta și arată codul participanților';
+      'Pornești meetingul și le arăți celorlalți codul.';
 
   @override
-  String get homeSounds => 'Sunetul vizibil';
+  String get homeConversation => 'Vorbesc cu cineva';
 
   @override
-  String get homeSoundsHint => 'Alerte pentru alarme, claxoane și numele tău';
+  String get homeConversationHint =>
+      'Vezi ce spune fiecare, chiar lângă fața lui.';
 
   @override
-  String get homeConversation => 'Conversație';
+  String get homeElsewhere => 'În afara meetingurilor';
 
   @override
-  String get homeConversationHint => 'Subtitrări lângă fața fiecărui vorbitor';
+  String get homeOtherPresent => 'Tu prezinți? Deschide modul prezentator';
+
+  @override
+  String get homeOtherJoin => 'Participi la meeting? Intră de aici';
+
+  @override
+  String get tipTitle => 'Prima dată aici?';
+
+  @override
+  String get homeTipJoin =>
+      'Începe de aici. Ceri codul de la cel care prezintă și urmărești meetingul pe ecran.';
+
+  @override
+  String get homeTipPresent =>
+      'Începe de aici. Pornești meetingul, iar Echo îți dă un cod pe care îl arăți participanților.';
+
+  @override
+  String get tipGotIt => 'Am înțeles';
+
+  @override
+  String get tipSkip => 'Sari peste';
+
+  @override
+  String get tipSkipLabel => 'Sari peste toate indiciile';
 
   @override
   String get settings => 'Setări';
@@ -54,6 +78,12 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get joinTitle => 'Conectează-te la speaker';
+
+  @override
+  String get joinIntro => 'Scrie codul de pe laptopul speakerului.';
+
+  @override
+  String get joinServerChange => 'Schimbă';
 
   @override
   String get joinCodeLabel => 'Codul de pe laptopul speakerului';
@@ -434,6 +464,32 @@ class AppLocalizationsRo extends AppLocalizations {
   String get alertDismiss => 'Am înțeles';
 
   @override
+  String get alertLevelCritical => 'CRITIC';
+
+  @override
+  String get alertLevelWarning => 'ATENȚIE';
+
+  @override
+  String get adviceFireAlarm =>
+      'Ieși din clădire pe cea mai apropiată ieșire. Nu folosi liftul.';
+
+  @override
+  String get adviceSiren =>
+      'Un vehicul de urgență sau o alertă publică. Fă loc și urmărește ce fac cei din jur.';
+
+  @override
+  String get adviceHorn =>
+      'Un vehicul claxonează aproape. Oprește-te și uită-te în jur înainte să mergi mai departe.';
+
+  @override
+  String get adviceGlassBreak =>
+      'S-a spart un geam în apropiere. Ferește-te de cioburi și uită-te în jur.';
+
+  @override
+  String get adviceLineSignal =>
+      'Semnal de la un utilaj. Fii atent la mașinile din jur.';
+
+  @override
   String get soundsTitle => 'Sunetul vizibil';
 
   @override
@@ -444,17 +500,47 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get soundsListening =>
-      'Ascult sunetele din jur. Alertele apar peste orice ecran.';
+      'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.';
 
   @override
   String get soundsIdle => 'Ascultarea e oprită.';
+
+  @override
+  String get soundsPaused =>
+      'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
+
+  @override
+  String get soundsPill => 'Sunete';
+
+  @override
+  String get soundsPillOn => 'Sunetul vizibil: pornit';
+
+  @override
+  String get soundsPillOff => 'Sunetul vizibil: oprit';
+
+  @override
+  String get soundsPillPaused =>
+      'Sunetul vizibil: în pauză cât merge subtitrarea';
+
+  @override
+  String get soundsPillHint =>
+      'Apasă lung pentru detalii și testarea alertelor.';
 
   @override
   String get soundsTest => 'Testează alertele';
 
   @override
   String get soundsDetectorMissing =>
-      'Detectorul de sunete (YAMNet) nu e încă conectat. Poți testa alertele de mai jos.';
+      'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.';
+
+  @override
+  String get soundGlassBreak => 'Geam spart';
+
+  @override
+  String get soundLocation => 'Sunet al locației';
+
+  @override
+  String get alertOpenApp => 'Deschide Echo pentru detalii.';
 
   @override
   String get conversationTitle => 'Conversație';
@@ -500,18 +586,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get settingsHighContrast => 'Contrast ridicat';
 
   @override
-  String get settingsTheme => 'Temă';
-
-  @override
-  String get themeSystem => 'Ca sistemul';
-
-  @override
-  String get themeLight => 'Luminoasă';
-
-  @override
-  String get themeDark => 'Întunecată';
-
-  @override
   String get settingsAutoScroll => 'Derulare automată a subtitrărilor';
 
   @override
@@ -526,4 +600,132 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get settingsPreview => 'Previzualizare';
+
+  @override
+  String get cancel => 'Anulează';
+
+  @override
+  String get save => 'Salvează';
+
+  @override
+  String get account => 'Contul meu';
+
+  @override
+  String get signIn => 'Intră în cont';
+
+  @override
+  String get signInIntro =>
+      'Intră în cont ca să-ți salvezi meetingurile și să le revezi oricând. Nu ai nevoie de parolă.';
+
+  @override
+  String get signInEmailLabel => 'Adresa de email';
+
+  @override
+  String get signInSendCode => 'Trimite-mi un cod';
+
+  @override
+  String signInCodeSent(String email) {
+    return 'Ți-am trimis un cod pe $email. Poți și să deschizi linkul din email.';
+  }
+
+  @override
+  String get signInCodeLabel => 'Codul din email';
+
+  @override
+  String get signInVerify => 'Confirmă codul';
+
+  @override
+  String get signInOtherEmail => 'Folosește altă adresă';
+
+  @override
+  String get signInOr => 'sau';
+
+  @override
+  String get signInGoogle => 'Continuă cu Google';
+
+  @override
+  String get signInInvalidEmail => 'Adresa de email nu pare corectă';
+
+  @override
+  String get signInInvalidCode => 'Introdu codul din cifre primit pe email';
+
+  @override
+  String get signInFailed =>
+      'Nu am putut intra în cont. Verifică datele și încearcă din nou.';
+
+  @override
+  String accountSignedInAs(String email) {
+    return 'Ești conectat ca $email';
+  }
+
+  @override
+  String get accountSignOut => 'Ieși din cont';
+
+  @override
+  String get accountDelete => 'Șterge contul';
+
+  @override
+  String get accountDeleteTitle => 'Ștergi contul?';
+
+  @override
+  String get accountDeleteBody =>
+      'Se șterg definitiv contul, toate meetingurile salvate, transcrierile și rezumatele. Nu se poate anula.';
+
+  @override
+  String get accountDeleteConfirm => 'Șterge definitiv';
+
+  @override
+  String get accountError => 'Ceva nu a mers. Încearcă din nou.';
+
+  @override
+  String get homeHistory => 'Meetingurile mele';
+
+  @override
+  String get homeHistoryHint =>
+      'Revezi transcrierile și rezumatele, întreabă orice meeting';
+
+  @override
+  String get historySearchHint => 'Caută în meetinguri';
+
+  @override
+  String get historyClearSearch => 'Șterge căutarea';
+
+  @override
+  String get historyEmpty =>
+      'Nu ai încă meetinguri salvate. Când participi la un meeting cu contul deschis, transcrierea se salvează aici.';
+
+  @override
+  String historyNoResults(String query) {
+    return 'Niciun meeting nu conține „$query”.';
+  }
+
+  @override
+  String get historyLoadError => 'Nu am putut încărca meetingurile.';
+
+  @override
+  String historyUntitled(String date) {
+    return 'Meeting din $date';
+  }
+
+  @override
+  String get historyDelete => 'Șterge meetingul';
+
+  @override
+  String get historyDeleteTitle => 'Ștergi meetingul?';
+
+  @override
+  String get historyDeleteBody =>
+      'Transcrierea și rezumatul acestui meeting se șterg definitiv.';
+
+  @override
+  String get historyDeleted => 'Meetingul a fost șters';
+
+  @override
+  String get meetingRename => 'Redenumește';
+
+  @override
+  String get meetingNameLabel => 'Numele meetingului';
+
+  @override
+  String get meetingSaving => 'Transcrierea se salvează în contul tău';
 }

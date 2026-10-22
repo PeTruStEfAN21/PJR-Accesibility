@@ -44,6 +44,11 @@ dependencies:
   mobile_scanner: ^7.4.2
   qr_flutter: ^4.1.0
   clock: ^1.1.2
+  tflite_flutter: ^0.12.1
+  record: ^7.1.2
+  vibration: ^3.2.1
+  flutter_local_notifications: ^22.3.2
+  supabase_flutter: ^2.17.1
 
 dev_dependencies:
   flutter_test:
@@ -67,8 +72,23 @@ flutter:
 
   assets:
     - assets/fonts/OpenDyslexic-OFL.txt
+    - assets/fonts/Roboto-OFL.txt
+    - assets/models/yamnet.tflite
+    - assets/models/yamnet_class_map.csv
+    - assets/models/danger_head.json
+    - assets/models/danger_head_web.json
 
   fonts:
+    # Bundled so iOS shows Roboto too, with Romanian diacritics (latin-ext).
+    - family: Roboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf
+        - asset: assets/fonts/Roboto-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Roboto-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Roboto-Bold.ttf
+          weight: 700
     - family: OpenDyslexic
       fonts:
         - asset: assets/fonts/OpenDyslexic-Regular.otf

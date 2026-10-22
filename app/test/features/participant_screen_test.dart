@@ -12,6 +12,8 @@ Future<void> joinMeeting(WidgetTester tester, TestHarness h) async {
   await tester.tap(find.text('Conectează-te la speaker'));
   await tester.pumpAndSettle();
   await tester.enterText(find.byType(TextFormField).first, 'abc234');
+  await tester.tap(find.text('Schimbă'));
+  await tester.pump();
   await tester.enterText(find.byType(TextFormField).last, 'http://172.20.10.2:8000');
   await tester.tap(find.text('Intră'));
   await tester.pumpAndSettle();
