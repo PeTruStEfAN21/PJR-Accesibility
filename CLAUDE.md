@@ -49,6 +49,7 @@
 - **Ce se salvează**: doar replicile finale (text), rezumatul și setările, în contul participantului. Niciodată audio sau video.
 - **Row Level Security pe fiecare tabel**: fiecare utilizator vede doar rândurile lui. Aplicația vorbește direct cu Supabase cu cheia `anon` (publică) + tokenul utilizatorului. Serverul doar verifică tokenul (JWKS sau `SUPABASE_JWT_SECRET`) și **nu folosește cheia `service_role`**.
 - **Schema se schimbă doar prin migrații noi** în `supabase/migrations/` (niciodată editând una deja aplicată), cu test în `server/tests/test_database.py`.
+- **Companii** (`supabase/migrations/…_organizations.sql`, `app/lib/core/org/`, `app/lib/features/organization/`): angajatul intră doar acceptând o invitație pe emailul lui; despre el se salvează **nevoi, nu diagnostic** (coloane fixe, fără text liber), scrise doar de el; angajații se văd doar pe ei, adminii văd tot din compania lor; compania păstrează mereu un admin. Sunetele comune păstrează doar amprenta și modelul (`tflite` telefon / `tfjs` browser, nu se potrivesc între ele). Aceeași schemă pe Supabase-ul nostru sau instalat la companie.
 - **Sesiunile live nu se salvează în Postgres**: stau în Redis (`REDIS_URL`) sau în memorie dacă lipsește. Codul expiră după 12 h fără activitate.
 - **Limite AI** pe oră: `AI_REQUESTS_PER_HOUR` (cont) și `AI_ANONYMOUS_REQUESTS_PER_HOUR` (după IP); peste limită serverul răspunde 429.
 

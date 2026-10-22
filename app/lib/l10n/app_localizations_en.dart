@@ -723,4 +723,215 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get meetingSaving => 'The transcript is being saved to your account';
+
+  @override
+  String get locSoundsTitle => 'Sounds of this place';
+
+  @override
+  String get locSoundsHint =>
+      'Teach the sounds that matter here: the hall alarm, the office doorbell. Only the sound\'s fingerprint is kept, never the recording.';
+
+  @override
+  String get locSoundsEmpty => 'No sounds learned yet.';
+
+  @override
+  String get locSoundsLearn => 'Learn a sound';
+
+  @override
+  String get locSoundsFromCompany => 'From your company';
+
+  @override
+  String get locSoundsShare => 'Share with the company';
+
+  @override
+  String get locSoundsShared => 'The sound was sent to your company.';
+
+  @override
+  String get locSoundsDelete => 'Delete the sound';
+
+  @override
+  String get learnName => 'Name of the sound';
+
+  @override
+  String get learnNameHint => 'For example: Hall 2 alarm';
+
+  @override
+  String get learnLevel => 'How important it is';
+
+  @override
+  String get levelCritical => 'Critical: red screen until you confirm';
+
+  @override
+  String get levelWarning => 'Warning: yellow screen';
+
+  @override
+  String get levelInfo => 'Info: a quiet notification';
+
+  @override
+  String get learnRecord => 'Record a sample (3 seconds)';
+
+  @override
+  String get learnRecording => 'Listening… play the sound now.';
+
+  @override
+  String learnSamples(int count) {
+    return 'Samples: $count of 3';
+  }
+
+  @override
+  String get learnNothingHeard =>
+      'I heard nothing. Bring the phone closer to the sound and try again.';
+
+  @override
+  String get learnSave => 'Save the sound';
+
+  @override
+  String get orgError => 'That didn\'t work. Check the internet and try again.';
+
+  @override
+  String get orgTitle => 'My company';
+
+  @override
+  String get orgNone => 'You are not part of a company.';
+
+  @override
+  String get orgInvitesTitle => 'Invitations';
+
+  @override
+  String orgInviteFrom(String org) {
+    return '$org invites you to join';
+  }
+
+  @override
+  String get orgAccept => 'Accept';
+
+  @override
+  String get orgCreateTitle => 'Create a company';
+
+  @override
+  String get orgCreateHint =>
+      'For employers: invite employees, share the sounds of your sites and see who is safe during an alarm.';
+
+  @override
+  String get orgName => 'Company name';
+
+  @override
+  String get orgCreate => 'Create';
+
+  @override
+  String get orgRoleAdmin => 'Admin';
+
+  @override
+  String get orgRoleEmployee => 'Employee';
+
+  @override
+  String get orgMyNeeds => 'My needs';
+
+  @override
+  String get orgMyNeedsHint =>
+      'Your company sees only what you tick here. No medical details.';
+
+  @override
+  String get needCaptions => 'Captions in meetings';
+
+  @override
+  String get needVisualAlerts => 'Visual alerts for sounds';
+
+  @override
+  String get needWatchAlerts => 'Alerts on my watch';
+
+  @override
+  String get needLargeText => 'Large text';
+
+  @override
+  String get orgSave => 'Save';
+
+  @override
+  String get orgSaved => 'Saved.';
+
+  @override
+  String get orgLeave => 'Leave the company';
+
+  @override
+  String orgLeaveTitle(String org) {
+    return 'Leave $org?';
+  }
+
+  @override
+  String get orgLeaveBody =>
+      'The company will no longer see your needs or your answers to alarms.';
+
+  @override
+  String get orgMembers => 'Employees';
+
+  @override
+  String get orgMakeAdmin => 'Make admin';
+
+  @override
+  String get orgMakeEmployee => 'Make employee';
+
+  @override
+  String get orgRemove => 'Remove from the company';
+
+  @override
+  String get orgNeedsNotShared => 'Needs not filled in';
+
+  @override
+  String get orgInvite => 'Invite an employee';
+
+  @override
+  String get orgEmail => 'Employee\'s email';
+
+  @override
+  String get orgDepartment => 'Department (optional)';
+
+  @override
+  String get orgSendInvite => 'Send the invitation';
+
+  @override
+  String get orgInviteSent =>
+      'Invitation sent. The employee sees it after signing in with this email.';
+
+  @override
+  String get orgPending => 'Pending invitations';
+
+  @override
+  String get orgCancelInvite => 'Cancel the invitation';
+
+  @override
+  String get orgAlarms => 'Alarms in progress';
+
+  @override
+  String get orgNoAlarms => 'No alarm right now.';
+
+  @override
+  String orgAlarmSafe(int count) {
+    return 'Safe: $count';
+  }
+
+  @override
+  String orgAlarmHelp(int count) {
+    return 'Need help: $count';
+  }
+
+  @override
+  String orgAlarmNoAnswer(int count) {
+    return 'No answer: $count';
+  }
+
+  @override
+  String get orgCloseAlarm => 'Close the alarm';
+
+  @override
+  String get orgRollCallNote =>
+      'This list does not replace the evacuation procedure.';
+
+  @override
+  String get alertSafe => 'I\'m safe';
+
+  @override
+  String get alertNeedHelp => 'I need help';
+
+  @override
+  String get alertAnswerSent => 'Your answer was sent to your company.';
 }

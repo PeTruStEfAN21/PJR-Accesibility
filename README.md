@@ -78,3 +78,16 @@ Fără pașii de mai jos aplicația merge anonim, ca înainte. Detalii în `docs
 5. În `.env`: `SUPABASE_URL`. Pentru aplicație creează `app/supabase.env.json` (ignorat de git) cu `{"SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "<cheia publishable>"}`, apoi `flutter run --dart-define-from-file=supabase.env.json` (la fel pentru `flutter build web`).
 
 Local, fără cloud: `npx supabase start` (cere Docker), iar emailurile apar în Mailpit pe http://localhost:54324.
+
+### Companii (organizații)
+
+Cu conturi activate, din **Contul meu → Compania mea** un angajator își face compania, invită angajații pe email (ei acceptă din contul lor), le vede nevoile de accesibilitate (fără diagnostic), împarte sunetele locației învățate o dată și, la o alarmă critică, vede cine a răspuns „Sunt în siguranță” sau „Am nevoie de ajutor”. Detalii: `docs/superpowers/specs/2026-10-22-organizatii-design.md`.
+
+**Instalare la companie** (datele nu ies din firmă): aceeași schemă rulează pe un Supabase găzduit de companie.
+
+1. Pe un server al companiei, [Supabase self-hosted cu Docker](https://supabase.com/docs/guides/self-hosting/docker) (Postgres + Auth). Setează SMTP-ul companiei pentru emailurile cu cod.
+2. Trimite schema din acest repo: `npx supabase db push --db-url postgresql://postgres:<parola>@<server>:5432/postgres`.
+3. Serverul Echo (`docker compose up --build`) cu `SUPABASE_URL` și `SUPABASE_JWT_SECRET` ale instalării din firmă, în `.env`.
+4. Aplicația, construită cu `supabase.env.json` care arată spre Supabase-ul firmei (`SUPABASE_URL`, `SUPABASE_ANON_KEY`).
+
+Testele schemei rulează pe orice Postgres: `TEST_DATABASE_URL=... python -m pytest tests/test_database.py`. Fără Docker, un Postgres temporar merge cu `initdb -D <folder> -U postgres --auth=trust`, apoi `pg_ctl -D <folder> -o "-p 54329" start` și `TEST_DATABASE_URL=postgresql://postgres@localhost:54329/postgres`.

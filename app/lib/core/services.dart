@@ -9,6 +9,7 @@ import '../features/alerts/sound_listening.dart';
 import '../settings/app_settings.dart';
 import 'account/account_service.dart';
 import 'history/meeting_store.dart';
+import 'org/organizations.dart';
 import 'server_api.dart';
 import 'session_connection.dart';
 import 'speech/speech_service.dart';
@@ -29,6 +30,7 @@ class AppServices {
     this.channelFactory,
     this.account,
     this.meetings,
+    this.organizations,
   })  : tts = tts ?? createTtsService(),
         voice = voice ?? createVoiceEngine(),
         soundListening = soundListening ?? SoundListening(sounds);
@@ -56,6 +58,9 @@ class AppServices {
   /// Null when accounts are off (no Supabase configured): no sign-in, nothing saved.
   final AccountService? account;
   final MeetingStore? meetings;
+
+  /// The signed-in user's companies; null when accounts are off.
+  final Organizations? organizations;
 
   /// The meeting store, only while someone is signed in.
   MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
