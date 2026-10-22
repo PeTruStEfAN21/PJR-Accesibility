@@ -30,6 +30,21 @@ class Caller:
         return f"user:{self.user_id}" if self.user_id else f"ip:{self.ip}"
 
 
+@dataclass(frozen=True)
+class AccountCaller:
+    """A caller that must be signed in (alarm routes)."""
+
+    user_id: str
+    email: str | None
+    ip: str
+
+
+@dataclass(frozen=True)
+class Identity:
+    user_id: str
+    email: str | None
+
+
 class TokenVerifier:
     def __init__(self, *, secret: str | None = None, jwks_url: str | None = None) -> None:
         if not secret and not jwks_url:
@@ -38,6 +53,9 @@ class TokenVerifier:
         self._jwks = jwt.PyJWKClient(jwks_url, cache_keys=True) if jwks_url and not secret else None
 
     async def user_id(self, token: str) -> str:
+        return (await self.identity(token)).user_id
+
+    async def identity(self, token: str) -> Identity:
         try:
             if self._jwks is not None:
                 # Fetching the keys is blocking I/O (cached after the first call).
@@ -49,7 +67,7 @@ class TokenVerifier:
             claims = jwt.decode(token, key, algorithms=algorithms, audience=AUDIENCE, options={"require": ["sub", "exp"]})
         except (jwt.PyJWTError, jwt.PyJWKClientError) as exc:
             raise InvalidToken(str(exc)) from exc
-        return claims["sub"]
+        return Identity(user_id=claims["sub"], email=claims.get("email"))
 
 
 def verifier_from_env() -> TokenVerifier | None:
