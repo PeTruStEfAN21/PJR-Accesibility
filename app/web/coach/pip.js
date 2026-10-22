@@ -8,10 +8,10 @@ window.echoPip = (() => {
     main {
       box-sizing: border-box; height: 100%; display: flex; align-items: center; gap: 14px;
       padding: 12px 16px; border-left: 8px solid #3a3a3a;
-      font: 600 20px/1.3 system-ui, -apple-system, "Segoe UI", sans-serif;
+      font: 600 calc(20px * var(--scale)) / 1.3 system-ui, -apple-system, "Segoe UI", sans-serif;
     }
     main.alert { border-left-color: #ffc857; }
-    .icon { font-size: 34px; line-height: 1; }
+    .icon { font-size: calc(34px * var(--scale)); line-height: 1; }
     .text { margin: 0; overflow-wrap: anywhere; }
   `;
 
@@ -25,11 +25,16 @@ window.echoPip = (() => {
       return 'documentPictureInPicture' in window && window.isSecureContext;
     },
 
-    // Needs a click on the page just before; resolves false when the browser refuses.
-    async open(title, language, onClosed) {
+    // Needs a click on the page just before; resolves false when the browser refuses. The text follows
+    // the size the colleague chose in Echo (textScale, 1 to 2).
+    async open(title, language, textScale, onClosed) {
       if (pip) return true;
+      const scale = Math.min(Math.max(textScale, 1), 2);
       try {
-        pip = await documentPictureInPicture.requestWindow({ width: 400, height: 130 });
+        pip = await documentPictureInPicture.requestWindow({
+          width: Math.round(400 * Math.min(scale, 1.5)),
+          height: Math.round(130 * scale),
+        });
       } catch (error) {
         console.warn('echoPip: could not open', error);
         return false;
@@ -37,6 +42,7 @@ window.echoPip = (() => {
       const doc = pip.document;
       doc.title = title;
       doc.documentElement.lang = language;
+      doc.documentElement.style.setProperty('--scale', String(scale));
       const style = doc.createElement('style');
       style.textContent = CSS;
       doc.head.append(style);

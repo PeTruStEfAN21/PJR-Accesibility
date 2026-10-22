@@ -21,6 +21,16 @@ abstract class CoachAudio {
 
 CoachAudio createCoachAudio() => platform.createCoachAudio();
 
+/// How sure YAMNet is that a window holds speech: its strongest speech class (0–12: speech, conversation,
+/// narration, shouting, whispering…).
+double speechScore(List<double> scores) {
+  var best = 0.0;
+  for (var i = 0; i < min(scores.length, 13); i++) {
+    best = max(best, scores[i]);
+  }
+  return best;
+}
+
 /// How much of a YAMNet window is noise the colleague could mute: the strongest class that is not speech
 /// (0–12), silence or the sound of the room itself (494–520), except television and radio (518, 519).
 double noiseScore(List<double> scores) {
