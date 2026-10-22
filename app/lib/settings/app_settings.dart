@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,6 +28,9 @@ class AppSettings extends ChangeNotifier {
   String emergencyExit = '';
   String serverUrl = '';
 
+  /// The presenter's learned voice (speaker embedding), kept so a reload does not ask for it again.
+  List<double>? voiceprint;
+
   static const minTextScale = 1.0;
   static const maxTextScale = 2.0;
 
@@ -45,6 +50,8 @@ class AppSettings extends ChangeNotifier {
     autoScroll = _prefs.getBool('autoScroll') ?? autoScroll;
     emergencyExit = _prefs.getString('emergencyExit') ?? emergencyExit;
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;
+    final saved = _prefs.getString('voiceEnrollment');
+    voiceprint = saved == null ? null : [for (final x in jsonDecode(saved) as List) (x as num).toDouble()];
   }
 
   void update(void Function(AppSettings s) change) {
@@ -70,6 +77,11 @@ class AppSettings extends ChangeNotifier {
       ..setBool('autoScroll', autoScroll)
       ..setString('emergencyExit', emergencyExit)
       ..setString('serverUrl', serverUrl);
+    if (voiceprint == null) {
+      _prefs.remove('voiceEnrollment');
+    } else {
+      _prefs.setString('voiceEnrollment', jsonEncode(voiceprint));
+    }
   }
 }
 

@@ -104,7 +104,8 @@ class FakeTts implements TtsService {
 /// Microphone + speaker model the test controls: [audio] is what was heard most recently,
 /// [vectorFor] decides the embedding of each clip.
 class FakeVoiceEngine implements VoiceEngine {
-  bool available = true;
+  /// Off by default: most tests do not care about voices, and the presenter page then skips enrollment.
+  bool available = false;
   Float32List audio = Float32List(0);
   Float32List Function(Float32List samples) vectorFor = (_) => Float32List.fromList([1, 0, 0]);
   VoiceHead head = VoiceHead.fallback;
