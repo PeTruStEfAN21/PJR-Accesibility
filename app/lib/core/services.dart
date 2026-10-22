@@ -65,7 +65,7 @@ class AppServices {
   /// The meeting store, only while someone is signed in.
   MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
 
-  ServerApi api(Uri server) => ServerApi(server, client: httpClient);
+  ServerApi api(Uri server) => ServerApi(server, client: httpClient, accessToken: () => account?.accessToken);
 }
 
 class ServicesScope extends InheritedWidget {

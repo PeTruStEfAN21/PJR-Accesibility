@@ -265,6 +265,14 @@ class AppLocalizationsRo extends AppLocalizations {
   String get aiError => 'AI-ul nu a putut răspunde. Încearcă din nou.';
 
   @override
+  String get aiErrorLimit =>
+      'AI-ul a primit prea multe cereri în ultima oră. Încearcă din nou mai târziu.';
+
+  @override
+  String get aiErrorOff =>
+      'AI-ul nu e pornit pe server. Subtitrările merg în continuare.';
+
+  @override
   String get simplify => 'Simplifică';
 
   @override
@@ -493,12 +501,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get soundsTitle => 'Sunetul vizibil';
 
   @override
-  String get soundsStart => 'Pornește ascultarea';
-
-  @override
-  String get soundsStop => 'Oprește ascultarea';
-
-  @override
   String get soundsListening =>
       'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.';
 
@@ -510,21 +512,21 @@ class AppLocalizationsRo extends AppLocalizations {
       'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
 
   @override
-  String get soundsPill => 'Sunete';
+  String get homeSounds => 'Sunete';
 
   @override
-  String get soundsPillOn => 'Sunetul vizibil: pornit';
+  String get homeSoundsOn =>
+      'Pornit: telefonul te alertează la alarme, claxoane și numele tău.';
 
   @override
-  String get soundsPillOff => 'Sunetul vizibil: oprit';
+  String get homeSoundsOff => 'Oprit: atinge ca să pornești alertele de sunet.';
 
   @override
-  String get soundsPillPaused =>
-      'Sunetul vizibil: în pauză cât merge subtitrarea';
+  String get homeSoundsPaused => 'Pe pauză cât rulează subtitrările.';
 
   @override
-  String get soundsPillHint =>
-      'Apasă lung pentru detalii și testarea alertelor.';
+  String get homeSoundsUnavailable =>
+      'Indisponibil pe acest dispozitiv: atinge pentru detalii.';
 
   @override
   String get soundsTest => 'Testează alertele';
@@ -532,6 +534,66 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.';
+
+  @override
+  String get soundsExplain =>
+      'Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.';
+
+  @override
+  String get soundsSwitch => 'Alerte de sunet';
+
+  @override
+  String get soundsVibrations => 'Vibrații';
+
+  @override
+  String get soundsLevelExamplesCritical => 'Alarmă de incendiu, sirenă';
+
+  @override
+  String get soundsLevelExamplesWarning => 'Claxon, sticlă spartă';
+
+  @override
+  String get soundsLevelExamplesInfo => 'Numele tău, telefon, ușă';
+
+  @override
+  String get levelCritical => 'Critic';
+
+  @override
+  String get levelWarning => 'Important';
+
+  @override
+  String get levelInfo => 'Informativ';
+
+  @override
+  String get hapticLong => 'Lungă';
+
+  @override
+  String get hapticLongHint => 'Un buzz lung și puternic';
+
+  @override
+  String get hapticStrong => 'Triplă';
+
+  @override
+  String get hapticStrongHint => 'Trei buzz-uri puternice la rând';
+
+  @override
+  String get hapticLight => 'Scurtă';
+
+  @override
+  String get hapticLightHint => 'Un buzz scurt și ușor';
+
+  @override
+  String vibrationUsedBy(String level) {
+    return 'Folosită la $level';
+  }
+
+  @override
+  String vibrationSwapped(String level, String haptic) {
+    return '$level folosește acum $haptic';
+  }
+
+  @override
+  String get vibrationCriticalRepeats =>
+      'La alertele critice vibrația se repetă până închizi alerta.';
 
   @override
   String get soundGlassBreak => 'Geam spart';

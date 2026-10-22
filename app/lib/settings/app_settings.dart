@@ -3,6 +3,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../features/alerts/alert_controller.dart' as alerts show defaultAlertHaptics;
+import '../features/alerts/alert_controller.dart' show Haptic;
+import '../features/alerts/sound_alert.dart';
+
 enum RolePaletteKind { standard, protanopia, deuteranopia, tritanopia }
 
 /// Languages the app ships with. Adding one: a new ARB file plus an entry here.
@@ -40,6 +44,27 @@ class AppSettings extends ChangeNotifier {
 
   bool shouldShowTip(String id) => tipsEnabled && !seenTips.contains(id);
 
+  /// The vibration of each alert level; always three different ones, so the levels stay tellable apart.
+  static const defaultAlertHaptics = alerts.defaultAlertHaptics;
+
+  Map<AlertLevel, Haptic> _alertHaptics = {...defaultAlertHaptics};
+
+  Map<AlertLevel, Haptic> get alertHaptics => Map.unmodifiable(_alertHaptics);
+
+  Haptic hapticFor(AlertLevel level) => _alertHaptics[level]!;
+
+  /// Gives [level] the vibration [haptic]. If another level had it, that level takes [level]'s old one and is
+  /// returned, so the three stay different; null when nothing else changed.
+  AlertLevel? chooseHaptic(AlertLevel level, Haptic haptic) {
+    final old = _alertHaptics[level]!;
+    if (old == haptic) return null;
+    final other = _alertHaptics.keys.firstWhere((l) => _alertHaptics[l] == haptic);
+    _alertHaptics = {..._alertHaptics, level: haptic, other: old};
+    _save();
+    notifyListeners();
+    return other;
+  }
+
   static const minTextScale = 1.0;
   static const maxTextScale = 2.0;
 
@@ -60,6 +85,7 @@ class AppSettings extends ChangeNotifier {
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;
     tipsEnabled = _prefs.getBool('tipsEnabled') ?? tipsEnabled;
     seenTips = (_prefs.getStringList('seenTips') ?? const []).toSet();
+    _alertHaptics = _decodeHaptics(_prefs.getString('alertHaptics'));
     final saved = _prefs.getString('voiceEnrollment');
     final decoded = saved == null ? null : jsonDecode(saved);
     // Older saves were a bare list, without the model: they count as made by an unknown model.
@@ -67,6 +93,19 @@ class AppSettings extends ChangeNotifier {
       voiceprintModel = decoded['model'] as String?;
       voiceprint = [for (final x in decoded['vector'] as List) (x as num).toDouble()];
     }
+  }
+
+  /// The saved vibrations, or the defaults when the save is missing or not three different ones.
+  static Map<AlertLevel, Haptic> _decodeHaptics(String? saved) {
+    try {
+      final decoded = jsonDecode(saved ?? '') as Map;
+      final map = {
+        for (final level in AlertLevel.values)
+          level: Haptic.values.byName(decoded[level.name] as String),
+      };
+      if (map.values.toSet().length == AlertLevel.values.length) return map;
+    } catch (_) {}
+    return {...defaultAlertHaptics};
   }
 
   void update(void Function(AppSettings s) change) {
@@ -92,7 +131,8 @@ class AppSettings extends ChangeNotifier {
       ..setString('emergencyExit', emergencyExit)
       ..setString('serverUrl', serverUrl)
       ..setBool('tipsEnabled', tipsEnabled)
-      ..setStringList('seenTips', seenTips.toList());
+      ..setStringList('seenTips', seenTips.toList())
+      ..setString('alertHaptics', jsonEncode({for (final e in _alertHaptics.entries) e.key.name: e.value.name}));
     if (voiceprint == null) {
       _prefs.remove('voiceEnrollment');
     } else {
