@@ -11,6 +11,7 @@ import datetime
 import hashlib
 import json
 import math
+import zlib
 from collections.abc import Callable
 from pathlib import Path
 
@@ -18,6 +19,7 @@ import numpy as np
 import soundfile as sf
 import torch
 
+from echo_voice.augment import apply_room
 from echo_voice.data import meeting_dirs, split_speakers
 from echo_voice.model import SAMPLE_RATE, embed, load_base
 
@@ -28,6 +30,14 @@ DEFAULT_HEAD = {"scale": 20.0, "bias": -7.0, "threshold": 0.5}
 HEAD_FILE = ROOT.parent.parent / "app" / "web" / "voice" / "voice_head.json"
 WINDOW_SECONDS = 3
 MAX_CLIP_SECONDS = 8
+# Where the people in the room are: the laptop hears everyone from 5–10 m.
+FAR_DISTANCE = (5.0, 10.0)
+
+
+def far_version(path: Path, wave: np.ndarray) -> np.ndarray:
+    """The clip as heard 5–10 m away; always the same room for the same file, so runs can be compared."""
+    rng = np.random.default_rng(zlib.crc32(Path(path).as_posix().encode()))
+    return apply_room(wave, rng, [], distance=FAR_DISTANCE)
 
 
 def eer(scores: np.ndarray, same: np.ndarray) -> float:
@@ -113,16 +123,18 @@ def speaker_trials(root: Path, speakers: list[str], n_trials: int, seed: int = 0
     return trials
 
 
-def trials_eer(model: torch.nn.Module, trials: list[tuple[Path, Path, bool]]) -> float:
-    cache: dict[Path, np.ndarray] = {}
+def trials_eer(model: torch.nn.Module, trials: list[tuple[Path, Path, bool]], far: bool = False) -> float:
+    """With [far], the second clip of each pair is heard across the room (the first stands for enrollment)."""
+    cache: dict[tuple[Path, bool], np.ndarray] = {}
 
-    def vector(path: Path) -> np.ndarray:
-        if path not in cache:
+    def vector(path: Path, distant: bool) -> np.ndarray:
+        if (path, distant) not in cache:
             wave, _ = sf.read(path, dtype="float32")
-            cache[path] = embed(model, wave[: MAX_CLIP_SECONDS * SAMPLE_RATE])
-        return cache[path]
+            wave = wave[: MAX_CLIP_SECONDS * SAMPLE_RATE]
+            cache[(path, distant)] = embed(model, far_version(path, wave) if distant else wave)
+        return cache[(path, distant)]
 
-    scores = np.array([float(vector(a) @ vector(b)) for a, b, _ in trials])
+    scores = np.array([float(vector(a, False) @ vector(b, far)) for a, b, _ in trials])
     return eer(scores, np.array([same for _, _, same in trials]))
 
 
