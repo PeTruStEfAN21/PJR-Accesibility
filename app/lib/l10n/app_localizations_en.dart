@@ -498,12 +498,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get soundsTitle => 'Visible sound';
 
   @override
-  String get soundsStart => 'Start listening';
-
-  @override
-  String get soundsStop => 'Stop listening';
-
-  @override
   String get soundsListening =>
       'Listening to sounds around you, also with the phone locked. Starts by itself every time you open the app.';
 
@@ -537,6 +531,66 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Sound recognition does not work on this device. You can test the alerts below.';
+
+  @override
+  String get soundsExplain =>
+      'Your phone listens to the sounds around you, right on the device: nothing goes to the internet. When it recognises a sound, the screen changes and the phone vibrates. Critical alerts cover any screen until you close them.';
+
+  @override
+  String get soundsSwitch => 'Sound alerts';
+
+  @override
+  String get soundsVibrations => 'Vibrations';
+
+  @override
+  String get soundsLevelExamplesCritical => 'Fire alarm, siren';
+
+  @override
+  String get soundsLevelExamplesWarning => 'Car horn, breaking glass';
+
+  @override
+  String get soundsLevelExamplesInfo => 'Your name, phone, door';
+
+  @override
+  String get levelCritical => 'Critical';
+
+  @override
+  String get levelWarning => 'Important';
+
+  @override
+  String get levelInfo => 'Informational';
+
+  @override
+  String get hapticLong => 'Long';
+
+  @override
+  String get hapticLongHint => 'One long, strong buzz';
+
+  @override
+  String get hapticStrong => 'Triple';
+
+  @override
+  String get hapticStrongHint => 'Three strong buzzes in a row';
+
+  @override
+  String get hapticLight => 'Short';
+
+  @override
+  String get hapticLightHint => 'One short, light buzz';
+
+  @override
+  String vibrationUsedBy(String level) {
+    return 'Used for $level';
+  }
+
+  @override
+  String vibrationSwapped(String level, String haptic) {
+    return '$level now uses $haptic';
+  }
+
+  @override
+  String get vibrationCriticalRepeats =>
+      'For critical alerts the vibration repeats until you close the alert.';
 
   @override
   String get soundGlassBreak => 'Breaking glass';
