@@ -85,7 +85,7 @@ TEST_DATABASE_URL=postgresql://postgres@localhost:5432/postgres .venv/Scripts/py
 npx supabase start                 # Supabase local în Docker (Postgres, Auth, emailuri în Mailpit pe :54324)
 npx supabase db reset              # reaplică migrațiile local
 npx supabase link --project-ref <ref> && npx supabase db push   # trimite migrațiile în proiectul găzduit
-cd app && flutter run --dart-define=SUPABASE_URL=<url> --dart-define=SUPABASE_ANON_KEY=<cheie anon>   # cu conturi
+cd app && flutter run --dart-define-from-file=supabase.env.json   # cu conturi (fișier local, ignorat de git; vezi README)
 cd app && flutter test             # teste aplicație
 cd app && flutter analyze
 cd app && flutter run -d chrome    # pagina prezentatorului, pentru dezvoltare
