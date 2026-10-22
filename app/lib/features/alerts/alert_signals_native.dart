@@ -7,6 +7,7 @@ import 'package:vibration/vibration.dart';
 
 import 'alert_controller.dart';
 import 'alert_signals.dart';
+import 'critical_repeater.dart';
 import 'sound_alert.dart';
 
 AlertSignals createAlertSignals() =>
@@ -31,6 +32,7 @@ class _MobileAlertSignals implements AlertSignals {
   }
 
   final _plugin = FlutterLocalNotificationsPlugin();
+  final _repeater = CriticalRepeater(isForeground: _isForeground);
   late final Future<void> _ready;
   static const _id = 1;
   static const _fallback = BasicAlertSignals();
@@ -65,11 +67,14 @@ class _MobileAlertSignals implements AlertSignals {
   @override
   void notify(SoundAlert alert, String title, String body) {
     final critical = alert.level == AlertLevel.critical;
-    final foreground = WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
     // On screen the overlay already shows it; a critical alert is also pushed so it reaches a watch.
-    if (foreground && !critical) return;
+    if (_isForeground() && !critical) return;
     _show(alert.level, title, body);
+    // In a pocket one buzz is easy to miss: repeat until the app is opened or the alert acknowledged.
+    if (critical) _repeater.start(() => _show(alert.level, title, body));
   }
+
+  static bool _isForeground() => WidgetsBinding.instance.lifecycleState == AppLifecycleState.resumed;
 
   Future<void> _show(AlertLevel level, String title, String body) async {
     await _ready;
@@ -123,6 +128,7 @@ class _MobileAlertSignals implements AlertSignals {
 
   @override
   void clear() {
+    _repeater.stop();
     Vibration.cancel().catchError((Object _) {});
     _ready.then((_) => _plugin.cancel(id: _id)).catchError((Object _) {});
   }

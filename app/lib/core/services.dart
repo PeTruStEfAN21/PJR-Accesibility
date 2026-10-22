@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import '../features/alerts/alert_signals.dart';
 import '../features/alerts/location_sounds.dart';
 import '../features/alerts/sound_alert.dart';
+import '../features/alerts/sound_listening.dart';
 import '../settings/app_settings.dart';
 import 'account/account_service.dart';
 import 'history/meeting_store.dart';
@@ -17,16 +18,20 @@ class AppServices {
   AppServices({
     required this.speech,
     required this.sounds,
+    SoundListening? soundListening,
     this.alertSignals = const BasicAlertSignals(),
     this.locationSounds,
     this.httpClient,
     this.channelFactory,
     this.account,
     this.meetings,
-  });
+  }) : soundListening = soundListening ?? SoundListening(sounds);
 
   final SpeechService speech;
   final SoundDetector sounds;
+
+  /// Whether sound recognition should run (remembered) and is running; paused while captions run.
+  final SoundListening soundListening;
 
   /// Vibration patterns and system notifications for alerts, per platform.
   final AlertSignals alertSignals;

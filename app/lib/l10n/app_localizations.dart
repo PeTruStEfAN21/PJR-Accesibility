@@ -653,7 +653,7 @@ abstract class AppLocalizations {
   /// No description provided for @soundsListening.
   ///
   /// In ro, this message translates to:
-  /// **'Ascult sunetele din jur. Alertele apar peste orice ecran.'**
+  /// **'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.'**
   String get soundsListening;
 
   /// No description provided for @soundsIdle.
@@ -661,6 +661,12 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Ascultarea e oprită.'**
   String get soundsIdle;
+
+  /// No description provided for @soundsPaused.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.'**
+  String get soundsPaused;
 
   /// No description provided for @soundsTest.
   ///

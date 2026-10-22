@@ -6,35 +6,31 @@ import '../alerts/alert_controller.dart';
 import '../alerts/alert_overlay.dart';
 import '../alerts/sound_alert.dart';
 
-/// Turns sound recognition on or off. Alerts themselves are shown app-wide by
-/// AlertOverlay, so they appear over whatever screen is open.
-class SoundsScreen extends StatefulWidget {
+/// Turns "always listen" on or off. Listening keeps running after leaving this
+/// screen; alerts are shown app-wide by AlertOverlay, over whatever screen is open.
+class SoundsScreen extends StatelessWidget {
   const SoundsScreen({super.key});
 
   @override
-  State<SoundsScreen> createState() => _SoundsScreenState();
-}
-
-class _SoundsScreenState extends State<SoundsScreen> {
-  bool _listening = false;
-
-  Future<void> _toggle() async {
-    final detector = ServicesScope.of(context).sounds;
-    if (_listening) {
-      await detector.stop();
-      setState(() => _listening = false);
-    } else {
-      final ok = await detector.start();
-      setState(() => _listening = ok);
-    }
+  Widget build(BuildContext context) {
+    final services = ServicesScope.of(context);
+    return ListenableBuilder(
+      listenable: services.soundListening,
+      builder: (context, _) => _build(context, services),
+    );
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _build(BuildContext context, AppServices services) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final detector = ServicesScope.of(context).sounds;
+    final detector = services.sounds;
+    final listening = services.soundListening;
     final alerts = AlertScope.of(context);
+    final status = listening.paused
+        ? l10n.soundsPaused
+        : listening.listening
+            ? l10n.soundsListening
+            : l10n.soundsIdle;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.soundsTitle)),
@@ -46,12 +42,12 @@ class _SoundsScreenState extends State<SoundsScreen> {
               child: ListTile(leading: const Icon(Icons.info_outline), title: Text(l10n.soundsDetectorMissing)),
             ),
           const SizedBox(height: 16),
-          Icon(_listening ? Icons.hearing : Icons.hearing_disabled, size: 96, color: theme.colorScheme.primary),
+          Icon(listening.wanted ? Icons.hearing : Icons.hearing_disabled, size: 96, color: theme.colorScheme.primary),
           const SizedBox(height: 8),
           Semantics(
             liveRegion: true,
             child: Text(
-              _listening ? l10n.soundsListening : l10n.soundsIdle,
+              status,
               textAlign: TextAlign.center,
               style: theme.textTheme.titleMedium,
             ),
@@ -59,8 +55,8 @@ class _SoundsScreenState extends State<SoundsScreen> {
           const SizedBox(height: 16),
           FilledButton(
             style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(64)),
-            onPressed: detector.isAvailable ? _toggle : null,
-            child: Text(_listening ? l10n.soundsStop : l10n.soundsStart),
+            onPressed: detector.isAvailable ? (listening.wanted ? listening.disable : listening.enable) : null,
+            child: Text(listening.wanted ? l10n.soundsStop : l10n.soundsStart),
           ),
           const SizedBox(height: 32),
           Semantics(header: true, child: Text(l10n.soundsTest, style: theme.textTheme.titleLarge)),

@@ -7,10 +7,12 @@ import 'core/account/account_service.dart';
 import 'core/account/supabase_config.dart';
 import 'core/history/meeting_store.dart';
 import 'core/services.dart';
+import 'core/speech/mic_sharing_speech.dart';
 import 'core/speech/speech_service.dart';
 import 'features/alerts/alert_signals.dart';
 import 'features/alerts/location_sounds.dart';
 import 'features/alerts/sound_alert.dart';
+import 'features/alerts/sound_listening.dart';
 import 'features/alerts/yamnet_detector.dart';
 import 'features/alerts/yamnet_model.dart';
 import 'settings/app_settings.dart';
@@ -34,15 +36,26 @@ Future<void> main() async {
   final model = createYamnetModel();
   final locationSounds = model.isSupported ? LocationSoundStore(prefs) : null;
   final signals = createAlertSignals();
+  final SoundDetector sounds = locationSounds != null
+      ? YamnetSoundDetector(model: model, locationSounds: locationSounds, signals: signals)
+      : UnavailableSoundDetector();
+  // Once turned on, listening runs on every launch; captions pause it while they use the microphone.
+  final listening = SoundListening(
+    sounds,
+    wanted: prefs.getBool(_alwaysListenKey) ?? false,
+    onWantedChanged: (on) => prefs.setBool(_alwaysListenKey, on),
+  );
   final services = AppServices(
-    speech: PlatformSpeechService(),
-    sounds: locationSounds != null
-        ? YamnetSoundDetector(model: model, locationSounds: locationSounds, signals: signals)
-        : UnavailableSoundDetector(),
+    speech: MicSharingSpeech(PlatformSpeechService(), takeMic: listening.hold, giveBackMic: listening.release),
+    sounds: sounds,
+    soundListening: listening,
     alertSignals: signals,
     locationSounds: locationSounds,
     account: account,
     meetings: meetings,
   );
   runApp(EchoApp(settings: settings, services: services));
+  listening.autoStart();
 }
+
+const _alwaysListenKey = 'alwaysListen';

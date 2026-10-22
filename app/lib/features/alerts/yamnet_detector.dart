@@ -57,7 +57,8 @@ class YamnetSoundDetector implements SoundDetector {
         IosAudioCategoryOption.allowBluetooth,
       ],
     ),
-    audioInterruption: AudioInterruptionMode.none,
+    // After a phone call or Siri, listening picks up again by itself.
+    audioInterruption: AudioInterruptionMode.pauseResume,
   );
 
   @override

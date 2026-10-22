@@ -316,10 +316,14 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get soundsListening =>
-      'Ascult sunetele din jur. Alertele apar peste orice ecran.';
+      'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.';
 
   @override
   String get soundsIdle => 'Ascultarea e oprită.';
+
+  @override
+  String get soundsPaused =>
+      'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
 
   @override
   String get soundsTest => 'Testează alertele';

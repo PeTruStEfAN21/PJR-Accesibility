@@ -317,10 +317,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsListening =>
-      'Listening to sounds around you. Alerts appear over any screen.';
+      'Listening to sounds around you, also with the phone locked. Starts by itself every time you open the app.';
 
   @override
   String get soundsIdle => 'Listening is off.';
+
+  @override
+  String get soundsPaused =>
+      'Listening is paused while captions run. It starts again by itself afterwards.';
 
   @override
   String get soundsTest => 'Test the alerts';
