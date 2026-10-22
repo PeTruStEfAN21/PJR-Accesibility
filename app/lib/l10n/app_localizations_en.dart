@@ -146,7 +146,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myQuestionSend => 'Send the question';
 
   @override
-  String get myQuestionHandSent => 'The speaker knows you want to ask';
+  String get myQuestionHandSent => 'Sent to the speaker';
+
+  @override
+  String get myQuestionHandSeen => 'The speaker saw that you want to ask';
+
+  @override
+  String get myQuestionOffline => 'The speaker is not connected yet';
 
   @override
   String get myQuestionSent => 'Sent, waiting to be read out';

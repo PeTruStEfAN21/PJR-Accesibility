@@ -359,8 +359,20 @@ abstract class AppLocalizations {
   /// No description provided for @myQuestionHandSent.
   ///
   /// In ro, this message translates to:
-  /// **'Speakerul știe că vrei să întrebi'**
+  /// **'Am trimis semnalul către speaker'**
   String get myQuestionHandSent;
+
+  /// No description provided for @myQuestionHandSeen.
+  ///
+  /// In ro, this message translates to:
+  /// **'Speakerul a văzut că vrei să întrebi'**
+  String get myQuestionHandSeen;
+
+  /// No description provided for @myQuestionOffline.
+  ///
+  /// In ro, this message translates to:
+  /// **'Speakerul nu e conectat încă'**
+  String get myQuestionOffline;
 
   /// No description provided for @myQuestionSent.
   ///
