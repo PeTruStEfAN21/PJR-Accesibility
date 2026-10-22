@@ -501,12 +501,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get soundsTitle => 'Sunetul vizibil';
 
   @override
-  String get soundsStart => 'Pornește ascultarea';
-
-  @override
-  String get soundsStop => 'Oprește ascultarea';
-
-  @override
   String get soundsListening =>
       'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.';
 
@@ -540,6 +534,66 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.';
+
+  @override
+  String get soundsExplain =>
+      'Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.';
+
+  @override
+  String get soundsSwitch => 'Alerte de sunet';
+
+  @override
+  String get soundsVibrations => 'Vibrații';
+
+  @override
+  String get soundsLevelExamplesCritical => 'Alarmă de incendiu, sirenă';
+
+  @override
+  String get soundsLevelExamplesWarning => 'Claxon, sticlă spartă';
+
+  @override
+  String get soundsLevelExamplesInfo => 'Numele tău, telefon, ușă';
+
+  @override
+  String get levelCritical => 'Critic';
+
+  @override
+  String get levelWarning => 'Important';
+
+  @override
+  String get levelInfo => 'Informativ';
+
+  @override
+  String get hapticLong => 'Lungă';
+
+  @override
+  String get hapticLongHint => 'Un buzz lung și puternic';
+
+  @override
+  String get hapticStrong => 'Triplă';
+
+  @override
+  String get hapticStrongHint => 'Trei buzz-uri puternice la rând';
+
+  @override
+  String get hapticLight => 'Scurtă';
+
+  @override
+  String get hapticLightHint => 'Un buzz scurt și ușor';
+
+  @override
+  String vibrationUsedBy(String level) {
+    return 'Folosită la $level';
+  }
+
+  @override
+  String vibrationSwapped(String level, String haptic) {
+    return '$level folosește acum $haptic';
+  }
+
+  @override
+  String get vibrationCriticalRepeats =>
+      'La alertele critice vibrația se repetă până închizi alerta.';
 
   @override
   String get soundGlassBreak => 'Geam spart';

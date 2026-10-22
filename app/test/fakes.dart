@@ -16,6 +16,7 @@ import 'package:pjr_accesibilitate/core/tts/tts_service.dart';
 import 'package:pjr_accesibilitate/core/voice/voice_engine.dart';
 import 'package:pjr_accesibilitate/core/voice/voice_head.dart';
 import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
+import 'package:pjr_accesibilitate/features/alerts/alert_signals.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -185,6 +186,24 @@ class FakeSounds implements SoundDetector {
   void dispose() {}
 }
 
+/// Alert signals that only record what was asked of them.
+class FakeAlertSignals implements AlertSignals {
+  final vibrated = <Haptic>[];
+  int clears = 0;
+
+  @override
+  Future<void> requestPermission() async {}
+
+  @override
+  void vibrate(Haptic haptic) => vibrated.add(haptic);
+
+  @override
+  void notify(SoundAlert alert, String title, String body) {}
+
+  @override
+  void clear() => clears++;
+}
+
 class FakeAccountService extends AccountService {
   FakeAccountService({AccountUser? user}) : _user = user;
 
@@ -322,6 +341,7 @@ class TestHarness {
   final tts = FakeTts();
   final voice = FakeVoiceEngine();
   final FakeSounds sounds;
+  final signals = FakeAlertSignals();
   final FakeChannel channel;
   final AlertController alerts;
   final FakeAccountService? account;
@@ -355,6 +375,7 @@ class TestHarness {
           sounds: sounds,
           tts: tts,
           voice: voice,
+          alertSignals: signals,
           httpClient: httpClient,
           channelFactory: (uri) => channel..uri = uri,
           account: account,

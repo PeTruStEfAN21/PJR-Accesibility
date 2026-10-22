@@ -962,18 +962,6 @@ abstract class AppLocalizations {
   /// **'Sunetul vizibil'**
   String get soundsTitle;
 
-  /// No description provided for @soundsStart.
-  ///
-  /// In ro, this message translates to:
-  /// **'Pornește ascultarea'**
-  String get soundsStart;
-
-  /// No description provided for @soundsStop.
-  ///
-  /// In ro, this message translates to:
-  /// **'Oprește ascultarea'**
-  String get soundsStop;
-
   /// No description provided for @soundsListening.
   ///
   /// In ro, this message translates to:
@@ -1033,6 +1021,114 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.'**
   String get soundsDetectorMissing;
+
+  /// No description provided for @soundsExplain.
+  ///
+  /// In ro, this message translates to:
+  /// **'Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.'**
+  String get soundsExplain;
+
+  /// No description provided for @soundsSwitch.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alerte de sunet'**
+  String get soundsSwitch;
+
+  /// No description provided for @soundsVibrations.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vibrații'**
+  String get soundsVibrations;
+
+  /// No description provided for @soundsLevelExamplesCritical.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alarmă de incendiu, sirenă'**
+  String get soundsLevelExamplesCritical;
+
+  /// No description provided for @soundsLevelExamplesWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Claxon, sticlă spartă'**
+  String get soundsLevelExamplesWarning;
+
+  /// No description provided for @soundsLevelExamplesInfo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele tău, telefon, ușă'**
+  String get soundsLevelExamplesInfo;
+
+  /// No description provided for @levelCritical.
+  ///
+  /// In ro, this message translates to:
+  /// **'Critic'**
+  String get levelCritical;
+
+  /// No description provided for @levelWarning.
+  ///
+  /// In ro, this message translates to:
+  /// **'Important'**
+  String get levelWarning;
+
+  /// No description provided for @levelInfo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Informativ'**
+  String get levelInfo;
+
+  /// No description provided for @hapticLong.
+  ///
+  /// In ro, this message translates to:
+  /// **'Lungă'**
+  String get hapticLong;
+
+  /// No description provided for @hapticLongHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un buzz lung și puternic'**
+  String get hapticLongHint;
+
+  /// No description provided for @hapticStrong.
+  ///
+  /// In ro, this message translates to:
+  /// **'Triplă'**
+  String get hapticStrong;
+
+  /// No description provided for @hapticStrongHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Trei buzz-uri puternice la rând'**
+  String get hapticStrongHint;
+
+  /// No description provided for @hapticLight.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scurtă'**
+  String get hapticLight;
+
+  /// No description provided for @hapticLightHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un buzz scurt și ușor'**
+  String get hapticLightHint;
+
+  /// No description provided for @vibrationUsedBy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Folosită la {level}'**
+  String vibrationUsedBy(String level);
+
+  /// No description provided for @vibrationSwapped.
+  ///
+  /// In ro, this message translates to:
+  /// **'{level} folosește acum {haptic}'**
+  String vibrationSwapped(String level, String haptic);
+
+  /// No description provided for @vibrationCriticalRepeats.
+  ///
+  /// In ro, this message translates to:
+  /// **'La alertele critice vibrația se repetă până închizi alerta.'**
+  String get vibrationCriticalRepeats;
 
   /// No description provided for @soundGlassBreak.
   ///
