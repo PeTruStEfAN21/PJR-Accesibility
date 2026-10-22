@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/account/account_service.dart';
@@ -24,6 +25,7 @@ import 'package:pjr_accesibilitate/features/alerts/location_sounds.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/features/coach/alert_window.dart';
 import 'package:pjr_accesibilitate/features/coach/coach_audio.dart';
+import 'package:pjr_accesibilitate/features/home/phone_shell.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -740,4 +742,13 @@ class FakeActivityStore implements ActivityStore {
     opened.add(meetingId);
     return content;
   }
+}
+
+/// An entry of the phone's floating bar.
+Finder inBar(String label) => find.descendant(of: find.byKey(PhoneShell.barKey), matching: find.text(label));
+
+/// Opens one of the phone's main screens from the floating bar.
+Future<void> openTab(WidgetTester tester, String label) async {
+  await tester.tap(inBar(label));
+  await tester.pumpAndSettle();
 }

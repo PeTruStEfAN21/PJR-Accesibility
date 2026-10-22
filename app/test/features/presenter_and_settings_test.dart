@@ -157,7 +157,7 @@ void main() {
   testWidgets('accessibility settings are applied and saved', (tester) async {
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
-    await tester.tap(find.byTooltip('Setări'));
+    await tester.tap(inBar('Setări'));
     await tester.pumpAndSettle();
 
     await tapVisible(tester, find.text('Mod dislexie'));
@@ -172,7 +172,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('English').first);
     await tester.pumpAndSettle();
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
   });
 
   testWidgets('a raised hand shows a big alert with an icon', (tester) async {

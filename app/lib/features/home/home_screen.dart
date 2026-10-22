@@ -19,6 +19,7 @@ import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
 import '../settings/settings_screen.dart';
 import '../sounds/sounds_screen.dart';
+import 'phone_shell.dart';
 
 /// One obvious main action per device: joining on the phone, presenting on the laptop.
 ///
@@ -71,12 +72,18 @@ class HomeScreen extends StatelessWidget {
       if (!settings.seenTips.contains(_tipId)) settings.update((s) => s.seenTips.add(_tipId));
     }
 
-    void openFromCard(Widget screen) {
+    // Inside the phone's frame, cards for the bar's own screens switch the bar instead of opening a copy.
+    final shell = ShellScope.maybeOf(context);
+    void openFromCard(Widget screen, {EchoTab? tab}) {
       markTipSeen();
-      open(screen);
+      if (shell != null && tab != null) {
+        shell.select(tab);
+      } else {
+        open(screen);
+      }
     }
 
-    Widget joinAction({bool fill = false}) => _MainAction(icon: Icons.closed_caption_outlined, title: l10n.homeJoin, hint: l10n.homeJoinHint, onTap: () => openFromCard(const JoinScreen()), fill: fill);
+    Widget joinAction({bool fill = false}) => _MainAction(icon: Icons.closed_caption_outlined, title: l10n.homeJoin, hint: l10n.homeJoinHint, onTap: () => openFromCard(const JoinScreen(), tab: EchoTab.meeting), fill: fill);
 
     Widget mainAction({bool fill = false}) => presenterFirst
         ? _MainAction(icon: Icons.co_present_outlined, title: l10n.homePresent, hint: l10n.homePresentHint, onTap: () => openFromCard(const PresenterScreen()), fill: fill)
@@ -99,7 +106,7 @@ class HomeScreen extends StatelessWidget {
                           ? l10n.homeSoundsOn
                           : l10n.homeSoundsOff,
               // The card only opens the Sounds screen, which holds the switch and says why when unavailable.
-              onTap: () => open(const SoundsScreen()),
+              onTap: () => openFromCard(const SoundsScreen(), tab: EchoTab.sounds),
               fill: fill,
             );
           },
@@ -117,12 +124,15 @@ class HomeScreen extends StatelessWidget {
                 icon: Icons.emergency_share,
                 title: l10n.emergencyTitle,
                 hint: l10n.emergencyHomeHint,
-                onTap: () => open(EmergencyScreen(
-                  api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
-                  positions: services.positions,
-                  onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
-                  memory: AlarmScope.maybeOf(context)?.sentAlarm,
-                )),
+                onTap: () => openFromCard(
+                  EmergencyScreen(
+                    api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
+                    positions: services.positions,
+                    onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
+                    memory: AlarmScope.maybeOf(context)?.sentAlarm,
+                  ),
+                  tab: EchoTab.alarm,
+                ),
               ),
           ],
         );
@@ -166,11 +176,13 @@ class HomeScreen extends StatelessWidget {
                     : SignInScreen(account: account),
               ),
             ),
-          IconButton(
-            tooltip: l10n.settings,
-            icon: Icon(Icons.settings_outlined, color: palette.brand),
-            onPressed: () => open(const SettingsScreen()),
-          ),
+          // In the phone's frame, Setări is in the bar.
+          if (shell == null)
+            IconButton(
+              tooltip: l10n.settings,
+              icon: Icon(Icons.settings_outlined, color: palette.brand),
+              onPressed: () => open(const SettingsScreen()),
+            ),
           // The icon's own padding is 8, so the glyph ends on the column's right edge.
           SizedBox(width: barSide - 8),
         ],

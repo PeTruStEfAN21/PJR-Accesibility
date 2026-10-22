@@ -10,7 +10,11 @@ import '../../widgets/pressable.dart';
 import 'participant_screen.dart';
 
 class JoinScreen extends StatefulWidget {
-  const JoinScreen({super.key});
+  const JoinScreen({super.key, this.replaceOnJoin = true});
+
+  /// Opened from the home screen, joining replaces this screen; as the phone frame's Meeting tab it opens
+  /// the meeting on top, and back returns to the tab.
+  final bool replaceOnJoin;
 
   @override
   State<JoinScreen> createState() => _JoinScreenState();
@@ -42,7 +46,12 @@ class _JoinScreenState extends State<JoinScreen> {
   void _open(JoinLink link) {
     final settings = SettingsScope.of(context);
     settings.update((s) => s.serverUrl = link.server.toString());
-    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => ParticipantScreen(link: link)));
+    final route = MaterialPageRoute<void>(builder: (_) => ParticipantScreen(link: link));
+    if (widget.replaceOnJoin) {
+      Navigator.of(context).pushReplacement(route);
+    } else {
+      Navigator.of(context).push(route);
+    }
   }
 
   bool _validServer(String value) {

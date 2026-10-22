@@ -10,7 +10,7 @@ import 'features/alerts/alert_overlay.dart';
 import 'features/alerts/sound_alert.dart';
 import 'features/emergency/alarm_feed.dart';
 import 'features/emergency/alarm_scope.dart';
-import 'features/home/home_screen.dart';
+import 'features/home/echo_home.dart';
 import 'features/participant/participant_screen.dart';
 import 'l10n/app_localizations.dart';
 import 'settings/app_settings.dart';
@@ -150,6 +150,6 @@ class _EchoAppState extends State<EchoApp> {
       final link = JoinLink.parse(Uri.base.toString());
       if (link != null) return ParticipantScreen(link: link);
     }
-    return const HomeScreen();
+    return const EchoHome();
   }
 }
