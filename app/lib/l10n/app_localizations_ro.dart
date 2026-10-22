@@ -15,11 +15,11 @@ class AppLocalizationsRo extends AppLocalizations {
   String get homeTitle => 'Ce vrei să faci?';
 
   @override
-  String get homeJoin => 'Particip la un meeting';
+  String get homeJoin => 'Conectează-te la speaker';
 
   @override
   String get homeJoinHint =>
-      'Vezi subtitrările pe roluri și trimite întrebări prezentatorului';
+      'Vezi ce se spune în sală și pune întrebări speakerului';
 
   @override
   String get homePresent => 'Prezint';
@@ -53,10 +53,10 @@ class AppLocalizationsRo extends AppLocalizations {
   String get send => 'Trimite';
 
   @override
-  String get joinTitle => 'Intră în meeting';
+  String get joinTitle => 'Conectează-te la speaker';
 
   @override
-  String get joinCodeLabel => 'Codul de pe ecranul prezentatorului';
+  String get joinCodeLabel => 'Codul de pe laptopul speakerului';
 
   @override
   String get joinServerLabel => 'Adresa serverului';
@@ -99,10 +99,10 @@ class AppLocalizationsRo extends AppLocalizations {
   String get presenterOffline => 'Aștept prezentatorul';
 
   @override
-  String get speakerCoordinator => 'Coordonator';
+  String get speakerCoordinator => 'Speaker';
 
   @override
-  String get speakerPublic => 'Public';
+  String get speakerPublic => 'Din sală';
 
   @override
   String get captionsEmpty =>
@@ -135,6 +135,46 @@ class AppLocalizationsRo extends AppLocalizations {
   String messageSeen(String text) {
     return 'Prezentatorul a văzut: $text';
   }
+
+  @override
+  String get myQuestionButton => 'Vreau să întreb';
+
+  @override
+  String get myQuestionHint => 'Scrie întrebarea';
+
+  @override
+  String get myQuestionSend => 'Trimite întrebarea';
+
+  @override
+  String get myQuestionHandSent => 'Speakerul știe că vrei să întrebi';
+
+  @override
+  String get myQuestionSent => 'Trimisă, așteaptă să fie citită';
+
+  @override
+  String get myQuestionRead => 'Citită, se așteaptă răspunsul';
+
+  @override
+  String get myQuestionNotFound => 'Nu am găsit încă un răspuns';
+
+  @override
+  String get myQuestionRetry => 'Caută răspunsul';
+
+  @override
+  String get answeredTitle => 'Ți s-a răspuns';
+
+  @override
+  String answeredQuestion(String text) {
+    return 'Întrebarea ta: $text';
+  }
+
+  @override
+  String answeredAnnouncement(String answer) {
+    return 'Ți s-a răspuns: $answer';
+  }
+
+  @override
+  String get roomQuestion => 'Întrebare din sală';
 
   @override
   String get listenRoom => 'Ascultă și sala';

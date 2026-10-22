@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
@@ -101,6 +102,9 @@ class TestHarness {
   final FakeChannel channel;
   final AlertController alerts;
 
+  /// HTTP calls to the server (AI endpoints); set before [app] to answer them.
+  http.Client? httpClient;
+
   static Future<TestHarness> create({Map<String, Object> prefs = const {'uiLanguage': 'ro'}}) async {
     SharedPreferences.setMockInitialValues(prefs);
     return TestHarness._(
@@ -118,6 +122,7 @@ class TestHarness {
         services: AppServices(
           speech: speech,
           sounds: sounds,
+          httpClient: httpClient,
           channelFactory: (uri) => channel..uri = uri,
         ),
       );

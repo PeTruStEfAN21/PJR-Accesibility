@@ -15,11 +15,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get homeTitle => 'What would you like to do?';
 
   @override
-  String get homeJoin => 'Join a meeting';
+  String get homeJoin => 'Connect to the speaker';
 
   @override
   String get homeJoinHint =>
-      'See captions by role and send questions to the presenter';
+      'See what is said in the room and ask the speaker questions';
 
   @override
   String get homePresent => 'I\'m presenting';
@@ -53,10 +53,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get send => 'Send';
 
   @override
-  String get joinTitle => 'Join a meeting';
+  String get joinTitle => 'Connect to the speaker';
 
   @override
-  String get joinCodeLabel => 'Code shown on the presenter\'s screen';
+  String get joinCodeLabel => 'The code on the speaker\'s laptop';
 
   @override
   String get joinServerLabel => 'Server address';
@@ -99,10 +99,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presenterOffline => 'Waiting for the presenter';
 
   @override
-  String get speakerCoordinator => 'Coordinator';
+  String get speakerCoordinator => 'Speaker';
 
   @override
-  String get speakerPublic => 'Audience';
+  String get speakerPublic => 'Room';
 
   @override
   String get captionsEmpty =>
@@ -135,6 +135,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String messageSeen(String text) {
     return 'The presenter saw: $text';
   }
+
+  @override
+  String get myQuestionButton => 'I want to ask';
+
+  @override
+  String get myQuestionHint => 'Type your question';
+
+  @override
+  String get myQuestionSend => 'Send the question';
+
+  @override
+  String get myQuestionHandSent => 'The speaker knows you want to ask';
+
+  @override
+  String get myQuestionSent => 'Sent, waiting to be read out';
+
+  @override
+  String get myQuestionRead => 'Read out, waiting for the answer';
+
+  @override
+  String get myQuestionNotFound => 'No answer found yet';
+
+  @override
+  String get myQuestionRetry => 'Look for the answer';
+
+  @override
+  String get answeredTitle => 'You got an answer';
+
+  @override
+  String answeredQuestion(String text) {
+    return 'Your question: $text';
+  }
+
+  @override
+  String answeredAnnouncement(String answer) {
+    return 'You got an answer: $answer';
+  }
+
+  @override
+  String get roomQuestion => 'Question from the room';
 
   @override
   String get listenRoom => 'Listen to the room too';
