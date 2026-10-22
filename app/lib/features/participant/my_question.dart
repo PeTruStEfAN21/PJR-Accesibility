@@ -13,14 +13,15 @@ enum MyQuestionState { sent, read, answered, notFound }
 ///
 /// After the question is read (or the participant asks to look again), every new final line restarts a
 /// short wait; when the speaker pauses, the lines said since the question go to the AI, one call at a time,
-/// until it finds the answer or five minutes pass. A server error stops the search quietly: no answer
-/// card is better than a wrong one.
+/// until it finds the answer or five minutes pass. Without AI on the server (503) the search stops quietly:
+/// no answer card is better than a wrong one. Other errors and slow answers only skip that check.
 class MyQuestion extends ChangeNotifier {
   MyQuestion({
     required this.transcript,
     required this.check,
     this.settle = const Duration(seconds: 3),
     this.giveUp = const Duration(minutes: 5),
+    this.checkTimeout = const Duration(seconds: 20),
   }) {
     _finalCount = transcript.finalLines().length;
     transcript.addListener(_onTranscript);
@@ -30,6 +31,10 @@ class MyQuestion extends ChangeNotifier {
   final AnswerChecker check;
   final Duration settle;
   final Duration giveUp;
+  final Duration checkTimeout;
+
+  /// The server accepts at most this many lines; the most recent ones matter.
+  static const maxLines = 200;
 
   String? _id;
   String? _text;
@@ -39,6 +44,7 @@ class MyQuestion extends ChangeNotifier {
   int _finalCount = 0;
   bool _searching = false;
   bool _inFlight = false;
+  int _sentCount = 0;
   int _generation = 0;
   Timer? _settleTimer;
   Timer? _giveUpTimer;
@@ -67,6 +73,9 @@ class MyQuestion extends ChangeNotifier {
   /// Look again: right away over what was said since the question, then on new lines for five minutes.
   void retry() {
     if (_id == null || _state == MyQuestionState.answered) return;
+    // Forget a check that may hang: its answer, if it ever comes, is ignored.
+    _generation++;
+    _inFlight = false;
     _state = MyQuestionState.read;
     _startSearch(checkNow: true);
     notifyListeners();
@@ -116,27 +125,41 @@ class MyQuestion extends ChangeNotifier {
   }
 
   Future<void> _check() async {
-    final lines = transcript.finalLines().skip(_fromLine).toList();
+    final all = transcript.finalLines().skip(_fromLine).toList();
+    final lines = all.length > maxLines ? all.sublist(all.length - maxLines) : all;
     final question = _text;
     if (!_searching || _inFlight || lines.isEmpty || question == null) return;
     final generation = _generation;
     _inFlight = true;
+    _sentCount = all.length;
     try {
-      final result = await check(question, lines);
+      final result = await check(question, lines).timeout(checkTimeout);
       if (generation != _generation) return;
       _inFlight = false;
-      if (!result.answered || !_searching) return;
+      if (!_searching) return;
+      if (!result.answered) return _checkAgainIfMoreWasSaid();
       _searching = false;
       _giveUpTimer?.cancel();
       _settleTimer?.cancel();
       _result = result;
       _state = MyQuestionState.answered;
       notifyListeners();
-    } on Object {
+    } on Object catch (error) {
       if (generation != _generation) return;
       _inFlight = false;
-      _searching = false;
+      if (error is ApiException && error.statusCode == 503) {
+        _searching = false;
+        return;
+      }
+      _checkAgainIfMoreWasSaid();
     }
+  }
+
+  /// Lines said while a check ran were not in it: look at them once the speaker pauses.
+  void _checkAgainIfMoreWasSaid() {
+    if (!_searching || transcript.finalLines().length - _fromLine <= _sentCount) return;
+    _settleTimer?.cancel();
+    _settleTimer = Timer(settle, _check);
   }
 
   @override
