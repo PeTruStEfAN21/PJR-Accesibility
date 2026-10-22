@@ -28,13 +28,16 @@ const defaultAlertHaptics = <AlertLevel, Haptic>{
 /// A critical alert is never replaced or auto-dismissed: the user has to
 /// acknowledge it. Lower levels never hide a higher one.
 class AlertController extends ChangeNotifier {
-  AlertController({void Function(Haptic)? haptic}) : _haptic = haptic ?? _platformHaptic;
+  AlertController({void Function(Haptic)? haptic, Haptic Function(AlertLevel)? hapticFor})
+      : _haptic = haptic ?? _platformHaptic,
+        _hapticFor = hapticFor ?? ((level) => defaultAlertHaptics[level]!);
 
   static const warningDuration = Duration(seconds: 8);
   static const infoDuration = Duration(seconds: 4);
-  static const _criticalPulse = Duration(milliseconds: 500);
+  static const _pulseGap = Duration(milliseconds: 50);
 
   final void Function(Haptic) _haptic;
+  final Haptic Function(AlertLevel) _hapticFor;
   SoundAlert? _current;
   Timer? _autoDismiss;
   Timer? _pulse;
@@ -50,17 +53,25 @@ class AlertController extends ChangeNotifier {
     _current = alert;
     switch (alert.level) {
       case AlertLevel.critical:
-        _haptic(Haptic.long);
-        // iOS has no endless vibration API: keep pulsing until acknowledged.
-        _pulse = Timer.periodic(_criticalPulse, (_) => _haptic(Haptic.long));
+        // iOS has no endless vibration API: repeat when the pattern ends,
+        // until acknowledged.
+        _pulseCritical();
       case AlertLevel.warning:
-        _haptic(Haptic.strong);
+        _haptic(_hapticFor(AlertLevel.warning));
         _autoDismiss = Timer(warningDuration, dismiss);
       case AlertLevel.info:
-        _haptic(Haptic.light);
+        _haptic(_hapticFor(AlertLevel.info));
         _autoDismiss = Timer(infoDuration, dismiss);
     }
     notifyListeners();
+  }
+
+  /// Vibrates for the critical level and schedules the next repeat. The choice
+  /// is read again on every repeat, so a change applies from the next one.
+  void _pulseCritical() {
+    final haptic = _hapticFor(AlertLevel.critical);
+    _haptic(haptic);
+    _pulse = Timer(haptic.duration + _pulseGap, _pulseCritical);
   }
 
   void dismiss() {
