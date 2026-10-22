@@ -2,7 +2,8 @@
 
 An alarm is a point in space and time: kind, position, accuracy. Sockets only ever
 see Alarm.public(); who raised it (owner, email, ip) stays on the server and goes
-to the AlarmRecorder. LocalAlarmFeed keeps alarms in this process; RedisAlarmFeed
+to the AlarmRecorder. A socket subscribes with the listener's user id, so nobody is sent
+their own alarm (live or in the active list). LocalAlarmFeed keeps alarms in this process; RedisAlarmFeed
 keeps them in Redis and relays through pub/sub, like RedisHub, so every instance
 reaches its own sockets. An alarm counts as active for 15 minutes unless cancelled.
 """
@@ -81,9 +82,16 @@ class AlarmFeed(Protocol):
     async def close(self) -> None: ...
     async def add(self, alarm: Alarm, owner: str) -> None: ...
     async def cancel(self, alarm_id: str, owner: str) -> CancelResult: ...
-    async def active(self, now: float) -> list[Alarm]: ...
-    def subscribe(self, socket: Any) -> None: ...
+    async def active(self, now: float, viewer: str | None = None) -> list[Alarm]: ...
+    def subscribe(self, socket: Any, user_id: str | None = None) -> None: ...
     def unsubscribe(self, socket: Any) -> None: ...
+
+
+async def _deliver(send: Send, sockets: dict[Any, str | None], payload: dict, owner: str | None) -> None:
+    """Sends payload to every socket except those of the alarm's owner."""
+    for socket, user_id in list(sockets.items()):
+        if owner is None or user_id != owner:
+            await send(socket, payload)
 
 
 class LocalAlarmFeed:
@@ -91,7 +99,7 @@ class LocalAlarmFeed:
         self._send = send
         self._clock = clock
         self._alarms: dict[str, tuple[Alarm, str]] = {}
-        self._sockets: set[Any] = set()
+        self._sockets: dict[Any, str | None] = {}
 
     async def start(self) -> None:
         pass
@@ -101,7 +109,7 @@ class LocalAlarmFeed:
 
     async def add(self, alarm: Alarm, owner: str) -> None:
         self._alarms[alarm.id] = (alarm, owner)
-        await self._broadcast(alarm.public())
+        await self._broadcast(alarm.public(), owner)
 
     async def cancel(self, alarm_id: str, owner: str) -> CancelResult:
         entry = self._alarms.get(alarm_id)
@@ -114,25 +122,28 @@ class LocalAlarmFeed:
         await self._broadcast(cancelled_message(alarm_id))
         return "ok"
 
-    async def active(self, now: float) -> list[Alarm]:
-        return [a for a, _ in self._alarms.values() if not a.cancelled and now - a.at <= ACTIVE_SECONDS]
+    async def active(self, now: float, viewer: str | None = None) -> list[Alarm]:
+        return [
+            a
+            for a, owner in self._alarms.values()
+            if not a.cancelled and now - a.at <= ACTIVE_SECONDS and (viewer is None or owner != viewer)
+        ]
 
-    def subscribe(self, socket: Any) -> None:
-        self._sockets.add(socket)
+    def subscribe(self, socket: Any, user_id: str | None = None) -> None:
+        self._sockets[socket] = user_id
 
     def unsubscribe(self, socket: Any) -> None:
-        self._sockets.discard(socket)
+        self._sockets.pop(socket, None)
 
-    async def _broadcast(self, payload: dict) -> None:
-        for socket in list(self._sockets):
-            await self._send(socket, payload)
+    async def _broadcast(self, payload: dict, owner: str | None = None) -> None:
+        await _deliver(self._send, self._sockets, payload, owner)
 
 
 class RedisAlarmFeed:
     """Alarms in Redis.
 
     echo:alarms:active  hash alarm id -> JSON of the alarm plus its owner; expires 15 min after the last write
-    echo:alarms         pub/sub channel carrying the message for sockets
+    echo:alarms         pub/sub channel carrying {"owner", "payload"}; only the payload reaches sockets
     """
 
     ACTIVE = "echo:alarms:active"
@@ -142,7 +153,7 @@ class RedisAlarmFeed:
         self._redis = redis
         self._send = send
         self._clock = clock
-        self._sockets: set[Any] = set()
+        self._sockets: dict[Any, str | None] = {}
         self._listener: asyncio.Task | None = None
         self._pubsub: Any = None
 
@@ -164,7 +175,7 @@ class RedisAlarmFeed:
     async def add(self, alarm: Alarm, owner: str) -> None:
         await self._redis.hset(self.ACTIVE, alarm.id, json.dumps({**asdict(alarm), "owner": owner}))
         await self._redis.expire(self.ACTIVE, ACTIVE_SECONDS)
-        await self._redis.publish(self.CHANNEL, json.dumps(alarm.public()))
+        await self._redis.publish(self.CHANNEL, json.dumps({"owner": owner, "payload": alarm.public()}))
 
     async def cancel(self, alarm_id: str, owner: str) -> CancelResult:
         raw = await self._redis.hget(self.ACTIVE, alarm_id)
@@ -173,29 +184,29 @@ class RedisAlarmFeed:
         if json.loads(raw)["owner"] != owner:
             return "forbidden"
         await self._redis.hdel(self.ACTIVE, alarm_id)
-        await self._redis.publish(self.CHANNEL, json.dumps(cancelled_message(alarm_id)))
+        await self._redis.publish(self.CHANNEL, json.dumps({"owner": None, "payload": cancelled_message(alarm_id)}))
         return "ok"
 
-    async def active(self, now: float) -> list[Alarm]:
+    async def active(self, now: float, viewer: str | None = None) -> list[Alarm]:
         alarms: list[Alarm] = []
         stale: list[str] = []
         for alarm_id, raw in (await self._redis.hgetall(self.ACTIVE)).items():
             data = json.loads(raw)
-            data.pop("owner")
+            owner = data.pop("owner")
             alarm = Alarm(**data)
             if alarm.cancelled or now - alarm.at > ACTIVE_SECONDS:
                 stale.append(alarm_id)
-            else:
+            elif viewer is None or owner != viewer:
                 alarms.append(alarm)
         if stale:
             await self._redis.hdel(self.ACTIVE, *stale)
         return alarms
 
-    def subscribe(self, socket: Any) -> None:
-        self._sockets.add(socket)
+    def subscribe(self, socket: Any, user_id: str | None = None) -> None:
+        self._sockets[socket] = user_id
 
     def unsubscribe(self, socket: Any) -> None:
-        self._sockets.discard(socket)
+        self._sockets.pop(socket, None)
 
     async def _listen(self) -> None:
         while True:
@@ -203,9 +214,8 @@ class RedisAlarmFeed:
                 message = await self._pubsub.get_message(ignore_subscribe_messages=True, timeout=1.0)
                 if message is None:
                     continue
-                payload = json.loads(message["data"])
-                for socket in list(self._sockets):
-                    await self._send(socket, payload)
+                envelope = json.loads(message["data"])
+                await _deliver(self._send, self._sockets, envelope["payload"], envelope.get("owner"))
             except asyncio.CancelledError:
                 raise
             except Exception:
