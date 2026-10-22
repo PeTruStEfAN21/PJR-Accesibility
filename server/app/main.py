@@ -2,6 +2,7 @@
 
 import asyncio
 import json
+import logging
 import os
 import time
 from contextlib import asynccontextmanager
@@ -40,6 +41,10 @@ def _default_ai_client() -> anthropic.AsyncAnthropic | None:
     if not os.environ.get("ANTHROPIC_API_KEY"):
         return None
     return anthropic.AsyncAnthropic()
+
+
+# Same logger as LogRecorder, so an entry the recorder lost still ends up in the logs.
+alarm_log = logging.getLogger("echo.alarms")
 
 
 def _limit(name: str, default: int) -> int:
@@ -172,6 +177,13 @@ def create_app(
     async def me(who: Caller = Depends(caller)) -> dict:
         return {"user_id": who.user_id}
 
+    async def _record(entry: dict) -> None:
+        # The alarm already went out: a failing recorder must not turn that into an error the sender retries.
+        try:
+            await recorder.record(entry)
+        except Exception:
+            alarm_log.exception("alarm not recorded: %s", json.dumps(entry, ensure_ascii=False))
+
     @app.post("/api/alarms", status_code=status.HTTP_201_CREATED)
     async def raise_alarm(body: AlarmIn, who: AccountCaller = Depends(account_caller)) -> dict:
         retry_after = await limiter.hit(f"alarm:user:{who.user_id}", 3)
@@ -183,7 +195,7 @@ def create_app(
             )
         alarm = Alarm(at=time.time(), **body.model_dump())
         await alarm_feed.add(alarm, who.user_id)
-        await recorder.record(_alarm_entry("raised", alarm, who))
+        await _record(_alarm_entry("raised", alarm, who))
         return {"id": alarm.id, "at": alarm.at}
 
     @app.post("/api/alarms/{alarm_id}/cancel")
@@ -197,7 +209,7 @@ def create_app(
             raise HTTPException(status.HTTP_403_FORBIDDEN, "Only the author can cancel an alarm")
         entry = _alarm_entry("cancelled", known, who)
         entry["id"], entry["at"] = alarm_id, now
-        await recorder.record(entry)
+        await _record(entry)
         return {"id": alarm_id}
 
     # Declared before /ws/{code}, or "alarms" would be taken for a session code.
@@ -212,14 +224,14 @@ def create_app(
                 first = await asyncio.wait_for(websocket.receive_json(), timeout=10)
                 if not isinstance(first, dict) or first.get("type") != "auth":
                     raise InvalidToken("auth expected")
-                await verifier.identity(str(first.get("token") or ""))
+                listener = await verifier.identity(str(first.get("token") or ""))
             except (InvalidToken, asyncio.TimeoutError, ValueError):
                 await websocket.close(code=4401, reason="sign in to listen for alarms")
                 return
             await websocket.send_json({"type": "auth_ok"})
             # Subscribe before listing, so an alarm raised in between is not lost (clients de-duplicate by id).
-            alarm_feed.subscribe(websocket)
-            for alarm in await alarm_feed.active(time.time()):
+            alarm_feed.subscribe(websocket, listener.user_id)
+            for alarm in await alarm_feed.active(time.time(), viewer=listener.user_id):
                 await websocket.send_json(alarm.public())
             while True:
                 await websocket.receive_text()  # Later client messages are ignored.

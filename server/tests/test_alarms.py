@@ -153,6 +153,33 @@ async def test_unsubscribed_socket_gets_nothing(feed, sent, clock):
     assert sent == []
 
 
+@feed_scenario
+async def test_owner_socket_gets_neither_live_nor_active_alarm(feed, sent, clock):
+    mine, theirs = object(), object()
+    feed.subscribe(mine, "u1")
+    feed.subscribe(theirs, "u2")
+    alarm = make_alarm()
+    await feed.add(alarm, "u1")
+    await settle(sent, 1)
+    await asyncio.sleep(0.1)
+    assert sent == [(theirs, alarm.public())]
+    assert await feed.active(clock(), viewer="u1") == []
+    assert [a.id for a in await feed.active(clock(), viewer="u2")] == [alarm.id]
+    sent.clear()
+    assert await feed.cancel(alarm.id, "u1") == "ok"
+    await settle(sent, 2)
+    assert {s for s, _ in sent} == {mine, theirs}
+
+
+@feed_scenario
+async def test_redis_envelope_owner_never_reaches_sockets(feed, sent, clock):
+    socket = object()
+    feed.subscribe(socket, "u2")
+    await feed.add(make_alarm(), "u1")
+    await settle(sent, 1)
+    assert not {"owner", "user_id", "email", "ip", "payload"} & set(sent[0][1])
+
+
 def test_public_message_has_no_identity():
     keys = set(make_alarm().public())
     assert keys == {"type", "id", "kind", "at", "lat", "lon", "accuracy_m"}
@@ -195,7 +222,7 @@ def listen(client: TestClient, sub: str = "user-1"):
 def test_alarm_reaches_a_listening_phone():
     client, _ = alarm_app()
     with client:
-        ws, socket = listen(client)
+        ws, socket = listen(client, "user-2")
         try:
             response = client.post("/api/alarms", json=FIRE, headers=bearer())
             assert response.status_code == 201
@@ -227,7 +254,7 @@ def test_unknown_kind_is_rejected():
 def test_only_the_author_can_cancel():
     client, recorder = alarm_app()
     with client:
-        ws, socket = listen(client)
+        ws, socket = listen(client, "user-2")
         try:
             alarm_id = client.post("/api/alarms", json=FIRE, headers=bearer()).json()["id"]
             socket.receive_json()
@@ -253,6 +280,55 @@ def test_new_listener_gets_active_alarms():
             assert message["type"] == "alarm" and message["id"] == alarm_id
         finally:
             ws.__exit__(None, None, None)
+
+
+def test_own_alarm_is_not_sent_to_the_author():
+    client, _ = alarm_app()
+    with client:
+        ws_mine, mine = listen(client, "user-1")
+        ws_theirs, theirs = listen(client, "user-2")
+        try:
+            first = client.post("/api/alarms", json=FIRE, headers=bearer()).json()["id"]
+            assert theirs.receive_json()["id"] == first
+            second = client.post("/api/alarms", json=FIRE, headers=bearer("user-2")).json()["id"]
+            # The author's socket skips its own alarm: the next thing it sees is the colleague's.
+            message = mine.receive_json()
+            assert message["id"] == second
+            assert not {"owner", "user_id", "email", "ip"} & set(message)
+        finally:
+            ws_mine.__exit__(None, None, None)
+            ws_theirs.__exit__(None, None, None)
+        # Replay on (re)connect: the author is not sent their own active alarm, a colleague is.
+        ws, socket = listen(client, "user-1")
+        try:
+            assert socket.receive_json()["id"] == second
+            client.post("/api/alarms", json={**FIRE, "kind": "siren"}, headers=bearer("user-2"))
+            assert socket.receive_json()["kind"] == "siren"
+        finally:
+            ws.__exit__(None, None, None)
+        ws, socket = listen(client, "user-3")
+        try:
+            assert {socket.receive_json()["id"] for _ in range(3)} >= {first, second}
+        finally:
+            ws.__exit__(None, None, None)
+
+
+class BrokenRecorder:
+    async def record(self, entry: dict) -> None:
+        raise RuntimeError("database down")
+
+
+def test_a_failing_recorder_does_not_fail_the_alarm(caplog):
+    app = create_app(ai_client=FakeAnthropic(text_response("ok")), verifier=TokenVerifier(secret=SECRET), recorder=BrokenRecorder())
+    client = TestClient(app)
+    with client, caplog.at_level("ERROR", logger="echo.alarms"):
+        raised = client.post("/api/alarms", json=FIRE, headers=bearer())
+        assert raised.status_code == 201
+        cancelled = client.post(f"/api/alarms/{raised.json()['id']}/cancel", headers=bearer())
+        assert cancelled.status_code == 200
+    logged = [r for r in caplog.records if r.name == "echo.alarms"]
+    assert len(logged) == 2
+    assert "ana@firma.ro" in logged[0].getMessage() and logged[0].exc_info
 
 
 def test_listening_needs_an_account():
