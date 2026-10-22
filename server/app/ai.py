@@ -1,9 +1,11 @@
-"""Single-call AI features over meeting text: recap with tasks, and simplified captions."""
+"""Single-call AI features over meeting text: recap with tasks, simplified captions,
+whether the participant's question was answered, and which lines are questions."""
 
+import json
 from collections.abc import Iterable
 from typing import Any
 
-from app.schemas import Line, SummaryResponse
+from app.schemas import AnswerCheckResponse, Line, SummaryResponse
 
 MODEL = "claude-opus-5-5"
 FALLBACK_BETA = "server-side-fallback-2026-07-01"
@@ -107,3 +109,82 @@ async def simplify(client: Any, lang: str, text: str) -> str:
         messages=[{"role": "user", "content": text}],
     )
     return text_of(response)
+
+
+def known_ids(ids: list[int], lines: list[Line]) -> list[int]:
+    """The model may cite lines it was not given; keep only real ones, once, in order."""
+    known = {line.id for line in lines}
+    return list(dict.fromkeys(i for i in ids if i in known))
+
+
+ANSWER_SYSTEM = """\
+A deaf participant in an in-person meeting typed a question, and it was read out loud to the speaker \
+running the meeting. You receive the question and everything said since it was sent, from live speech \
+recognition, so some words are misheard. Each line is labelled Coordinator (the speaker) or Audience; \
+the labels come from voice recognition and can be wrong.
+
+Decide whether the speaker has answered this question.
+- The speaker may first read the question out loud or repeat it. That alone is not an answer.
+- "I'll come back to this", "I don't know" or "let's discuss it later" count as an answer; say so in answer.
+- An answer to a different question does not count.
+- If the answer is still in progress (cut off mid-sentence), it is not answered yet.
+
+Write in {language}.
+- answered: true only when the speaker has answered this question.
+- answer: when answered, one or two short sentences giving the answer in plain language; otherwise "".
+- line_ids: the ids of the lines the answer comes from; an empty list when not answered."""
+
+ANSWER_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "answered": {"type": "boolean"},
+        "answer": {"type": "string"},
+        "line_ids": {"type": "array", "items": {"type": "integer"}},
+    },
+    "required": ["answered", "answer", "line_ids"],
+    "additionalProperties": False,
+}
+
+
+async def check_answer(client: Any, lang: str, question: str, lines: list[Line]) -> AnswerCheckResponse:
+    response = await create(
+        client,
+        max_tokens=4000,
+        output_config={"effort": "low", "format": {"type": "json_schema", "schema": ANSWER_SCHEMA}},
+        system=ANSWER_SYSTEM.format(language=language_name(lang)),
+        messages=[
+            {
+                "role": "user",
+                "content": f"Question from the deaf participant: {question}\n\n"
+                f"Said since it was sent:\n{render_transcript(lines)}",
+            }
+        ],
+    )
+    result = AnswerCheckResponse.model_validate_json(text_of(response))
+    return result.model_copy(update={"line_ids": known_ids(result.line_ids, lines)})
+
+
+QUESTIONS_SYSTEM = """\
+You receive lines said in an in-person meeting, in {language}, from live speech recognition: punctuation \
+is often missing and some words are misheard. Return the ids of the lines that are questions someone \
+asked out loud (asking for information, an opinion or a decision). Filler such as "right?" or \
+"you know?" is not a question. Use an empty list when there are none."""
+
+QUESTIONS_SCHEMA = {
+    "type": "object",
+    "properties": {"question_ids": {"type": "array", "items": {"type": "integer"}}},
+    "required": ["question_ids"],
+    "additionalProperties": False,
+}
+
+
+async def find_questions(client: Any, lang: str, lines: list[Line]) -> list[int]:
+    response = await create(
+        client,
+        max_tokens=4000,
+        output_config={"effort": "low", "format": {"type": "json_schema", "schema": QUESTIONS_SCHEMA}},
+        system=QUESTIONS_SYSTEM.format(language=language_name(lang)),
+        messages=[{"role": "user", "content": render_transcript(lines)}],
+    )
+    ids = json.loads(text_of(response))["question_ids"]
+    return known_ids(ids, lines)

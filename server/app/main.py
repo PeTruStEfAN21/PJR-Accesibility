@@ -14,8 +14,12 @@ from pydantic import ValidationError
 from app import agent, ai
 from app.protocol import ALLOWED, MAX_MESSAGE_BYTES, ROLES, client_message
 from app.schemas import (
+    AnswerCheckRequest,
+    AnswerCheckResponse,
     AskRequest,
     AskResponse,
+    QuestionsRequest,
+    QuestionsResponse,
     SimplifyRequest,
     SimplifyResponse,
     SummaryRequest,
@@ -78,6 +82,14 @@ def create_app(ai_client: Any = _DEFAULT) -> FastAPI:
     @app.post("/api/ai/ask")
     async def ask(body: AskRequest) -> AskResponse:
         return await call_ai(agent.ask(require_ai(), body.lang, body.lines, body.question))
+
+    @app.post("/api/ai/answer-check")
+    async def answer_check(body: AnswerCheckRequest) -> AnswerCheckResponse:
+        return await call_ai(ai.check_answer(require_ai(), body.lang, body.question, body.lines))
+
+    @app.post("/api/ai/questions")
+    async def questions(body: QuestionsRequest) -> QuestionsResponse:
+        return QuestionsResponse(question_ids=await call_ai(ai.find_questions(require_ai(), body.lang, body.lines)))
 
     @app.websocket("/ws/{code}")
     async def meeting_socket(websocket: WebSocket, code: str, role: str = "") -> None:
