@@ -345,6 +345,31 @@ class AppLocalizationsEn extends AppLocalizations {
   String get relearnVoice => 'Learn my voice again';
 
   @override
+  String get testMeeting => 'Test meeting';
+
+  @override
+  String get testMeetingHint =>
+      'Records the clips on this laptop, for training. Everyone in the room must agree.';
+
+  @override
+  String get testReviewTitle => 'Check the test meeting';
+
+  @override
+  String get testReviewIntro =>
+      'Listen to each line and fix who said it. Then download the archive and copy it to ml/voice/data/meetings.';
+
+  @override
+  String testPredicted(String label, String score) {
+    return 'Echo chose: $label · score $score';
+  }
+
+  @override
+  String get testListen => 'Listen';
+
+  @override
+  String get testDownload => 'Download';
+
+  @override
   String get presenterCreateError =>
       'Could not create the meeting. Check that the server is running.';
 

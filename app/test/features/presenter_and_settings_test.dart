@@ -211,7 +211,7 @@ void main() {
     await openPresenter(tester);
     await tester.tap(find.text('Vorbesc eu'));
     await tester.pump();
-    expect(tester.widget<SwitchListTile>(find.byType(SwitchListTile)).value, isTrue);
+    expect(tester.widget<SwitchListTile>(find.widgetWithText(SwitchListTile, 'Vorbesc eu')).value, isTrue);
   });
 
   testWidgets('the presenter page starts by learning the speaker\'s voice', (tester) async {
@@ -290,5 +290,29 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(h.channel.sink.sent.lastWhere((m) => m['type'] == 'caption')['speaker'], 'coordinator');
+  });
+
+  testWidgets('a test meeting keeps each final line and opens the review when captioning stops', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+    await enroll(tester, h, voiceAudio(20));
+
+    await tester.ensureVisible(find.text('Meeting de test'));
+    await tester.tap(find.text('Meeting de test'));
+    await tester.pump();
+    await tester.ensureVisible(find.text('Pornește subtitrarea'));
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.speech.say('s1', 'Bun venit la ședință');
+    await tester.pump();
+    await tester.pump();
+    await tester.ensureVisible(find.text('Oprește subtitrarea'));
+    await tester.tap(find.text('Oprește subtitrarea'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Verifică meetingul de test'), findsOneWidget);
+    expect(find.text('Bun venit la ședință'), findsOneWidget);
+    await tester.tap(find.text('Ascultă'));
+    await tester.pump();
+    expect(h.voice.played, hasLength(1));
   });
 }

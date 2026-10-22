@@ -345,6 +345,31 @@ class AppLocalizationsRo extends AppLocalizations {
   String get relearnVoice => 'Reînvață vocea';
 
   @override
+  String get testMeeting => 'Meeting de test';
+
+  @override
+  String get testMeetingHint =>
+      'Înregistrează clipurile pe acest laptop, pentru antrenare. Toți cei din sală trebuie să fie de acord.';
+
+  @override
+  String get testReviewTitle => 'Verifică meetingul de test';
+
+  @override
+  String get testReviewIntro =>
+      'Ascultă fiecare replică și corectează cine a vorbit. Apoi descarcă arhiva și copiaz-o în ml/voice/data/meetings.';
+
+  @override
+  String testPredicted(String label, String score) {
+    return 'Echo a ales: $label · scor $score';
+  }
+
+  @override
+  String get testListen => 'Ascultă';
+
+  @override
+  String get testDownload => 'Descarcă';
+
+  @override
   String get presenterCreateError =>
       'Nu pot crea meetingul. Verifică dacă serverul rulează.';
 

@@ -19,6 +19,9 @@ class UnavailableVoiceEngine implements VoiceEngine {
 
   @override
   Future<VoiceHead> loadHead() async => VoiceHead.fallback;
+
+  @override
+  Future<void> play(Float32List samples) async {}
 }
 
 VoiceEngine createVoiceEngine() => UnavailableVoiceEngine();
