@@ -77,3 +77,11 @@ Thumbs.db
 # Node (tools/tfjs_yamnet_worker.mjs)
 tools/node_modules/
 tools/learned_sounds.json
+
+# Supabase CLI (fișiere locale)
+supabase/.temp/
+supabase/.branches/
+supabase/.env
+
+# Adresa și cheia publică Supabase pentru flutter --dart-define-from-file (vezi README)
+app/supabase.env.json

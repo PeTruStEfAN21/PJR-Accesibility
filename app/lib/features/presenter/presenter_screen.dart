@@ -62,7 +62,12 @@ class _PresenterScreenState extends State<PresenterScreen> {
     return (local, JoinLink(server: publicServer, code: code));
   }
 
-  void _retry() => setState(() => _setup = _createMeeting());
+  void _retry() {
+    // Block body: an arrow would hand setState the Future, which it rejects.
+    setState(() {
+      _setup = _createMeeting();
+    });
+  }
 
   @override
   void dispose() {

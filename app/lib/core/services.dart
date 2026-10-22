@@ -6,6 +6,8 @@ import '../features/alerts/alert_signals.dart';
 import '../features/alerts/location_sounds.dart';
 import '../features/alerts/sound_alert.dart';
 import '../settings/app_settings.dart';
+import 'account/account_service.dart';
+import 'history/meeting_store.dart';
 import 'server_api.dart';
 import 'session_connection.dart';
 import 'speech/speech_service.dart';
@@ -19,6 +21,8 @@ class AppServices {
     this.locationSounds,
     this.httpClient,
     this.channelFactory,
+    this.account,
+    this.meetings,
   });
 
   final SpeechService speech;
@@ -31,6 +35,13 @@ class AppServices {
   final LocationSoundStore? locationSounds;
   final http.Client? httpClient;
   final ChannelFactory? channelFactory;
+
+  /// Null when accounts are off (no Supabase configured): no sign-in, nothing saved.
+  final AccountService? account;
+  final MeetingStore? meetings;
+
+  /// The meeting store, only while someone is signed in.
+  MeetingStore? get signedInMeetings => (account?.isSignedIn ?? false) ? meetings : null;
 
   ServerApi api(Uri server) => ServerApi(server, client: httpClient);
 }

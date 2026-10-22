@@ -12,11 +12,22 @@ void _showEmpty(BuildContext context) {
   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).transcriptEmpty)));
 }
 
-/// Summary and task list of the meeting so far.
-void showSummarySheet(BuildContext context, ServerApi api, Transcript transcript) {
+/// Summary and task list of the meeting so far. [onSummary] receives it once it
+/// arrives, e.g. to save it to the user's account.
+void showSummarySheet(
+  BuildContext context,
+  ServerApi api,
+  Transcript transcript, {
+  void Function(MeetingSummary summary, String lang)? onSummary,
+}) {
   final lines = transcript.finalLines();
   if (lines.isEmpty) return _showEmpty(context);
-  final future = api.summarize(_lang(context), lines);
+  final lang = _lang(context);
+  final future = api.summarize(lang, lines);
+  if (onSummary != null) {
+    // Errors are shown by the sheet below.
+    future.then((summary) => onSummary(summary, lang), onError: (Object _) {});
+  }
 
   showModalBottomSheet<void>(
     context: context,
