@@ -56,6 +56,16 @@ void main() {
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
 
     expect(find.text(l10n.homeSoundsUnavailable), findsOneWidget);
+
+    // Wanting to listen must not make the icon look active when there is no detector.
+    // enable() refuses without a detector, so set the remembered choice directly.
+    final listening = ServicesScope.of(tester.element(find.byType(HomeScreen))).soundListening;
+    listening.wanted = true;
+    // ignore: invalid_use_of_protected_member
+    listening.notifyListeners();
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.hearing_disabled), findsOneWidget);
+    expect(find.byIcon(Icons.hearing), findsNothing);
   });
 
   testWidgets('phone: one main action, other tools grouped, presenter as a quiet link', (tester) async {

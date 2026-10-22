@@ -74,7 +74,7 @@ class HomeScreen extends StatelessWidget {
           listenable: services.soundListening,
           builder: (context, _) {
             final listening = services.soundListening;
-            final on = listening.wanted && !listening.paused;
+            final on = services.sounds.isAvailable && listening.wanted && !listening.paused;
             return _MainAction(
               icon: on ? Icons.hearing : Icons.hearing_disabled,
               title: l10n.homeSounds,
