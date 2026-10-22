@@ -396,4 +396,17 @@ void main() {
     await tester.pump();
     expect(find.text('Recunoașterea vocii e oprită: totul apare ca „Speaker”'), findsOneWidget);
   });
+
+  testWidgets('a model error is shown as such, not as a short line', (tester) async {
+    final h = await openPresenter(tester, voice: true);
+    await enroll(tester, h, voiceAudio(20));
+    await tester.ensureVisible(find.text('Pornește subtitrarea'));
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.voice.vectorFor = (_) => throw StateError('WebGPU lost');
+    h.speech.say('s1', 'Bun venit la ședință');
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('Eroare la modelul de voce: păstrează eticheta de dinainte'), findsOneWidget);
+  });
 }

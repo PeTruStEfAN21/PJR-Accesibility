@@ -391,6 +391,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get voiceDiagShort => 'Line too short: keeps the previous label';
 
   @override
+  String get voiceDiagError => 'Voice model error: keeps the previous label';
+
+  @override
   String voiceDiagScore(String similarity, String threshold, String label) {
     return 'Similarity with your voice: $similarity (threshold $threshold) → $label';
   }

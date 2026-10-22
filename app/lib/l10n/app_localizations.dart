@@ -776,6 +776,12 @@ abstract class AppLocalizations {
   /// **'Replică prea scurtă: păstrează eticheta de dinainte'**
   String get voiceDiagShort;
 
+  /// No description provided for @voiceDiagError.
+  ///
+  /// In ro, this message translates to:
+  /// **'Eroare la modelul de voce: păstrează eticheta de dinainte'**
+  String get voiceDiagError;
+
   /// No description provided for @voiceDiagScore.
   ///
   /// In ro, this message translates to:
