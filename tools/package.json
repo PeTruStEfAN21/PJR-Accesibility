@@ -1,0 +1,9 @@
+{
+  "name": "echo-tools",
+  "private": true,
+  "description": "Runs the browser's YAMNet (TensorFlow.js) for tools/train_danger_sounds.py --backend tfjs",
+  "type": "module",
+  "dependencies": {
+    "@tensorflow/tfjs": "4.22.0"
+  }
+}

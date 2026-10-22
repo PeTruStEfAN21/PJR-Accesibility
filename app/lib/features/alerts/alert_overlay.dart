@@ -4,6 +4,7 @@ import 'package:flutter/semantics.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import 'alert_controller.dart';
+import 'alert_signals.dart';
 import 'sound_alert.dart';
 
 String soundLabel(AppLocalizations l10n, SoundKind kind) => switch (kind) {
@@ -14,7 +15,12 @@ String soundLabel(AppLocalizations l10n, SoundKind kind) => switch (kind) {
       SoundKind.name => l10n.soundName,
       SoundKind.phone => l10n.soundPhone,
       SoundKind.door => l10n.soundDoor,
+      SoundKind.glassBreak => l10n.soundGlassBreak,
+      SoundKind.location => l10n.soundLocation,
     };
+
+/// A learned sound shows its own name ("Alarma halei 2").
+String alertLabel(AppLocalizations l10n, SoundAlert alert) => alert.label ?? soundLabel(l10n, alert.kind);
 
 IconData soundIcon(SoundKind kind) => switch (kind) {
       SoundKind.fireAlarm => Icons.local_fire_department,
@@ -24,12 +30,17 @@ IconData soundIcon(SoundKind kind) => switch (kind) {
       SoundKind.name => Icons.record_voice_over,
       SoundKind.phone => Icons.phone_in_talk,
       SoundKind.door => Icons.doorbell,
+      SoundKind.glassBreak => Icons.broken_image,
+      SoundKind.location => Icons.graphic_eq,
     };
 
 /// Sits above every screen (MaterialApp.builder) so an alert is never hidden.
 class AlertOverlay extends StatefulWidget {
-  const AlertOverlay({super.key, required this.child});
+  const AlertOverlay({super.key, required this.child, this.signals = const BasicAlertSignals()});
   final Widget child;
+
+  /// System notifications for the alert, so it is felt outside the app too (watch, locked phone, other tab).
+  final AlertSignals signals;
 
   @override
   State<AlertOverlay> createState() => _AlertOverlayState();
@@ -46,10 +57,17 @@ class _AlertOverlayState extends State<AlertOverlay> {
 
     if (alert != null && !identical(alert, _announced)) {
       _announced = alert;
-      // Screen readers announce the alert even if focus is elsewhere.
+      final label = alertLabel(l10n, alert);
+      final exit = SettingsScope.of(context).emergencyExit.trim();
+      final body = alert.level == AlertLevel.critical && exit.isNotEmpty ? l10n.alertExit(exit) : l10n.alertOpenApp;
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        SemanticsService.sendAnnouncement(View.of(context), soundLabel(l10n, alert.kind), Directionality.of(context));
+        widget.signals.notify(alert, label, body);
+        // Screen readers announce the alert even if focus is elsewhere.
+        SemanticsService.sendAnnouncement(View.of(context), label, Directionality.of(context));
       });
+    } else if (alert == null && _announced != null) {
+      _announced = null;
+      WidgetsBinding.instance.addPostFrameCallback((_) => widget.signals.clear());
     }
 
     return Stack(
@@ -92,7 +110,7 @@ class _CriticalAlert extends StatelessWidget {
                   header: true,
                   liveRegion: true,
                   child: Text(
-                    soundLabel(l10n, alert.kind),
+                    alertLabel(l10n, alert),
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.displaySmall?.copyWith(color: foreground, fontWeight: FontWeight.w800),
                   ),
@@ -158,7 +176,7 @@ class _BannerAlert extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        soundLabel(l10n, alert.kind),
+                        alertLabel(l10n, alert),
                         style: (warning
                                 ? Theme.of(context).textTheme.titleLarge
                                 : Theme.of(context).textTheme.titleMedium)

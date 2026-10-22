@@ -76,6 +76,9 @@ class FakeSpeech implements SpeechService {
 class FakeSounds implements SoundDetector {
   final controller = StreamController<SoundAlert>.broadcast();
 
+  /// What each learning sample returns, in order; null = nothing heard.
+  final samples = <Float32List?>[];
+
   @override
   bool get isAvailable => true;
 
@@ -87,6 +90,9 @@ class FakeSounds implements SoundDetector {
 
   @override
   Future<void> stop() async {}
+
+  @override
+  Future<Float32List?> recordSample(Duration duration) async => samples.isEmpty ? null : samples.removeAt(0);
 
   @override
   void dispose() {}

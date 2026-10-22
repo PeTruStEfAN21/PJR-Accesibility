@@ -327,7 +327,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsDetectorMissing =>
-      'The sound detector (YAMNet) is not connected yet. You can test the alerts below.';
+      'Sound recognition does not work on this device. You can test the alerts below.';
+
+  @override
+  String get soundGlassBreak => 'Breaking glass';
+
+  @override
+  String get soundLocation => 'Workplace sound';
+
+  @override
+  String get alertOpenApp => 'Open Echo for details.';
 
   @override
   String get conversationTitle => 'Conversation';

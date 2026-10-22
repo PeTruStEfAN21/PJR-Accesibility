@@ -26,7 +26,7 @@ class EchoApp extends StatefulWidget {
 }
 
 class _EchoAppState extends State<EchoApp> {
-  late final AlertController _alerts = widget.alerts ?? AlertController();
+  late final AlertController _alerts = widget.alerts ?? AlertController(haptic: widget.services.alertSignals.vibrate);
   StreamSubscription<SoundAlert>? _sounds;
 
   @override
@@ -69,7 +69,7 @@ class _EchoAppState extends State<EchoApp> {
                   final system = MediaQuery.textScalerOf(context).scale(1);
                   return MediaQuery(
                     data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(system * settings.textScale)),
-                    child: AlertOverlay(child: child!),
+                    child: AlertOverlay(signals: widget.services.alertSignals, child: child!),
                   );
                 },
                 home: _initialScreen(),

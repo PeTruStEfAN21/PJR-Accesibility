@@ -71,3 +71,7 @@ Thumbs.db
 *.fls
 *.fdb_latexmk
 
+
+# Node (tools/tfjs_yamnet_worker.mjs)
+tools/node_modules/
+tools/learned_sounds.json

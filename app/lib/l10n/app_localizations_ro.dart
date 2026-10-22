@@ -326,7 +326,16 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get soundsDetectorMissing =>
-      'Detectorul de sunete (YAMNet) nu e încă conectat. Poți testa alertele de mai jos.';
+      'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.';
+
+  @override
+  String get soundGlassBreak => 'Geam spart';
+
+  @override
+  String get soundLocation => 'Sunet al locației';
+
+  @override
+  String get alertOpenApp => 'Deschide Echo pentru detalii.';
 
   @override
   String get conversationTitle => 'Conversație';
