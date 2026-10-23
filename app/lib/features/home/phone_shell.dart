@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../core/org/org_store.dart';
+import '../../core/org/organizations.dart';
 import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
@@ -41,17 +43,53 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
   /// Tabs are built the first time they are shown, then kept (their state survives switching).
   late final _visited = <EchoTab>{widget.initial};
 
-  /// The new tab fades in over the old one and rises 8 px: quick and subtle, since switching tabs
-  /// happens often. Strong ease-out, 200 ms; with reduced motion only the fade remains.
-  late final _switch = AnimationController(vsync: this, duration: const Duration(milliseconds: 200), value: 1)
+  /// +1 when the new tab is to the right of the old one in the bar, -1 to the left.
+  int _direction = 1;
+
+  /// Horizontal shared axis, like iOS: the new tab slides in from the side of the tab tapped while the
+  /// old one fades and slides a little the other way, in step with the bar's pill. 340 ms on the iOS
+  /// sheet curve: quick to start, soft to settle. Only opacity and position move (cheap to draw);
+  /// with reduced motion only the fade remains.
+  late final _switch = AnimationController(vsync: this, duration: const Duration(milliseconds: 340), value: 1)
     ..addStatusListener((status) {
       if (status == AnimationStatus.completed && _leaving != null) setState(() => _leaving = null);
     });
-  late final _curve = CurvedAnimation(parent: _switch, curve: const Cubic(0.23, 1, 0.32, 1));
+  late final _curve = CurvedAnimation(parent: _switch, curve: const Cubic(0.32, 0.72, 0, 1));
+
+  Organizations? _organizations;
+
+  /// The bar's tabs for how the employee takes part (docs/superpowers/specs/2026-10-23-taburi-dupa-tip-design.md):
+  /// reading what is said gets Vibrații, hearing gets Urgență (to alert those who read). An admin or
+  /// someone in no company keeps all five for now.
+  List<EchoTab> get _tabs => _organizations?.isAdminAnywhere ?? false
+      // The admin raises emergencies for the company and has no sound alerts of their own.
+      ? const [EchoTab.home, EchoTab.meeting, EchoTab.alarm, EchoTab.settings]
+      : switch (_organizations?.employeeExperience) {
+          MemberExperience.visual => const [EchoTab.home, EchoTab.meeting, EchoTab.sounds, EchoTab.settings],
+          MemberExperience.standard => const [EchoTab.home, EchoTab.meeting, EchoTab.alarm, EchoTab.settings],
+          null => EchoTab.values,
+        };
+
+  /// The selected tab, or Dashboard when the selected one is not in this person's bar.
+  EchoTab get _current => _tabs.contains(_tab) ? _tab : EchoTab.home;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final organizations = ServicesScope.of(context).organizations;
+    if (identical(organizations, _organizations)) return;
+    _organizations?.removeListener(_onOrganizations);
+    _organizations = organizations?..addListener(_onOrganizations);
+  }
+
+  void _onOrganizations() => setState(() {});
 
   void _select(EchoTab tab) {
-    if (tab == _tab) return;
+    if (tab == _current) return;
+    final tabs = _tabs;
     setState(() {
+      _direction = tabs.indexOf(tab) > tabs.indexOf(_current) ? 1 : -1;
+      _tab = _current;
       _leaving = _tab;
       _tab = tab;
       _visited.add(tab);
@@ -61,6 +99,7 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
 
   @override
   void dispose() {
+    _organizations?.removeListener(_onOrganizations);
     _curve.dispose();
     _switch.dispose();
     super.dispose();
@@ -76,8 +115,9 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final current = _current;
     return ShellScope(
-      tab: _tab,
+      tab: current,
       select: _select,
       child: Scaffold(
         // Content scrolls under the glass bar; each main screen puts the bar's height inside its list
@@ -88,21 +128,27 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
           // Keyed and reordered so the new tab paints on top of the one leaving; each keeps its state.
           children: [
             for (final tab in [
-              ...EchoTab.values.where((t) => _visited.contains(t) && t != _tab && t != _leaving),
+              ...EchoTab.values.where((t) => _visited.contains(t) && t != current && t != _leaving),
               ?_leaving,
-              _tab,
+              current,
             ])
               _TabLayer(
                 key: ValueKey(tab),
-                shown: tab == _tab || tab == _leaving,
-                active: tab == _tab,
-                animation: tab == _tab ? _curve : kAlwaysCompleteAnimation,
-                rise: !MediaQuery.disableAnimationsOf(context),
+                shown: tab == current || tab == _leaving,
+                active: tab == current,
+                motion: tab == current
+                    ? _TabMotion.entering
+                    : tab == _leaving
+                    ? _TabMotion.leaving
+                    : _TabMotion.still,
+                animation: _curve,
+                direction: _direction,
+                slide: !MediaQuery.disableAnimationsOf(context),
                 child: _screen(tab),
               ),
           ],
         ),
-        bottomNavigationBar: _FloatingBar(current: _tab, onSelect: _select),
+        bottomNavigationBar: _FloatingBar(tabs: _tabs, current: current, onSelect: _select),
       ),
     );
   }
@@ -110,25 +156,47 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
 
 /// One main screen in the shell. Hidden tabs stay built but offstage, with their animations paused, so
 /// switching back is instant; each sits on its own layer so the fade repaints nothing inside it.
+enum _TabMotion { entering, leaving, still }
+
 class _TabLayer extends StatelessWidget {
   const _TabLayer({
     super.key,
     required this.shown,
     required this.active,
+    required this.motion,
     required this.animation,
-    required this.rise,
+    required this.direction,
+    required this.slide,
     required this.child,
   });
+
+  /// How far the tabs travel: the new one a little more than the old one, so they never overlap fully.
+  static const _enterShift = 56.0;
+  static const _leaveShift = 28.0;
 
   final bool shown;
 
   /// The tab the bar has selected: the only one that takes touches and is read by VoiceOver.
   final bool active;
+  final _TabMotion motion;
+
+  /// The switch, 0 to 1 (1 at rest).
   final Animation<double> animation;
 
-  /// False with reduced motion: the tab only fades.
-  final bool rise;
+  /// +1: the new tab is to the right of the old one.
+  final int direction;
+
+  /// False with reduced motion: the tabs only fade.
+  final bool slide;
   final Widget child;
+
+  double _shift(double t) => !slide
+      ? 0
+      : switch (motion) {
+          _TabMotion.entering => direction * _enterShift * (1 - t),
+          _TabMotion.leaving => -direction * _leaveShift * t,
+          _TabMotion.still => 0,
+        };
 
   @override
   Widget build(BuildContext context) {
@@ -141,13 +209,15 @@ class _TabLayer extends StatelessWidget {
           child: ExcludeSemantics(
             excluding: !active,
             child: FadeTransition(
-              opacity: animation,
+              opacity: switch (motion) {
+                _TabMotion.entering => animation,
+                _TabMotion.leaving => ReverseAnimation(animation),
+                _TabMotion.still => kAlwaysCompleteAnimation,
+              },
               child: AnimatedBuilder(
                 animation: animation,
-                builder: (context, child) => Transform.translate(
-                  offset: Offset(0, rise ? 8 * (1 - animation.value) : 0),
-                  child: child,
-                ),
+                builder: (context, child) =>
+                    Transform.translate(offset: Offset(_shift(animation.value), 0), child: child),
                 child: RepaintBoundary(child: child),
               ),
             ),
@@ -172,8 +242,10 @@ class ShellScope extends InheritedWidget {
 }
 
 class _FloatingBar extends StatelessWidget {
-  const _FloatingBar({required this.current, required this.onSelect});
+  const _FloatingBar({required this.tabs, required this.current, required this.onSelect});
 
+  /// The tabs this person has, in the bar's order.
+  final List<EchoTab> tabs;
   final EchoTab current;
   final void Function(EchoTab tab) onSelect;
 
@@ -181,11 +253,14 @@ class _FloatingBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final items = [
-      (EchoTab.home, Icons.space_dashboard_outlined, Icons.space_dashboard, l10n.navHome),
-      (EchoTab.meeting, Icons.closed_caption_outlined, Icons.closed_caption, l10n.navMeeting),
-      (EchoTab.sounds, Icons.vibration_outlined, Icons.vibration, l10n.navSounds),
-      (EchoTab.alarm, Icons.emergency_share_outlined, Icons.emergency_share, l10n.navAlarm),
-      (EchoTab.settings, Icons.settings_outlined, Icons.settings, l10n.navSettings),
+      for (final item in [
+        (EchoTab.home, Icons.space_dashboard_outlined, Icons.space_dashboard, l10n.navHome),
+        (EchoTab.meeting, Icons.closed_caption_outlined, Icons.closed_caption, l10n.navMeeting),
+        (EchoTab.sounds, Icons.vibration_outlined, Icons.vibration, l10n.navSounds),
+        (EchoTab.alarm, Icons.emergency_share_outlined, Icons.emergency_share, l10n.navAlarm),
+        (EchoTab.settings, Icons.settings_outlined, Icons.settings, l10n.navSettings),
+      ])
+        if (tabs.contains(item.$1)) item,
     ];
     // Five labels share a phone's width: like iOS tab bars, they grow with the text size only up to
     // 130%, so all five stay whole and the same size. The screens above keep growing to 200%.
@@ -227,7 +302,7 @@ class _FloatingBar extends StatelessWidget {
                         builder: (context, box) => Stack(
                           children: [
                             GlassPill(
-                              index: current.index,
+                              index: tabs.indexOf(current),
                               count: items.length,
                               height: box.maxHeight,
                               width: box.maxWidth,

@@ -80,9 +80,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get joinTitle => 'Conectează-te la speaker';
 
   @override
-  String get joinIntro => 'Scrie codul de pe laptopul speakerului.';
-
-  @override
   String get joinServerChange => 'Schimbă';
 
   @override
@@ -538,10 +535,6 @@ class AppLocalizationsRo extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Alertele automate nu merg pe acest dispozitiv. Poți testa vibrațiile mai jos.';
-
-  @override
-  String get soundsExplain =>
-      'Telefonul vibrează și îți arată pe ecran când se întâmplă ceva important în jur. Totul rămâne pe telefon.';
 
   @override
   String get soundsSwitch => 'Alerte prin vibrații';
@@ -1534,10 +1527,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get presentIntroTitle => 'Tu ții meetingul';
 
   @override
-  String get presentIntroBody =>
-      'Echo ascultă sala de pe acest dispozitiv și face subtitrarea în timp ce vorbești.';
-
-  @override
   String get presentPointCode =>
       'Participanții intră cu codul sau cu QR-ul de pe ecran';
 
@@ -1562,14 +1551,6 @@ class AppLocalizationsRo extends AppLocalizations {
   String get signInRoleEmployee => 'Angajat';
 
   @override
-  String get signInAdminIntro =>
-      'Pentru cine administrează echipa. Îți faci compania și le dai colegilor codul ei. Nu ai nevoie de parolă.';
-
-  @override
-  String get signInEmployeeIntro =>
-      'Scrie codul primit de la administrator, numele tău și cum folosești Echo. Apoi confirmi emailul cu un cod.';
-
-  @override
   String get companyCodeLabel => 'Codul companiei';
 
   @override
@@ -1579,22 +1560,17 @@ class AppLocalizationsRo extends AppLocalizations {
   String get joinExperienceTitle => 'Cum folosești Echo?';
 
   @override
-  String get experienceVisual => 'Citesc ce se spune';
+  String get experienceVisual => 'Echo mă ajută să urmăresc';
 
   @override
-  String get experienceVisualHint =>
-      'Subtitrări, sunete și alarme pe ecran și prin vibrații';
-
-  @override
-  String get experienceStandard => 'Aud ce se spune';
-
-  @override
-  String get experienceStandardHint =>
-      'Uneltele colegului care vorbește: conversație, alarmă pentru un coleg';
+  String get experienceStandard => 'Folosesc Echo ca să-mi ajut colegii';
 
   @override
   String get joinPrivacy =>
       'Intri în compania care ți-a dat codul. Administratorii ei văd numele, emailul și cum folosești Echo, ca să știe cum te anunță la o alarmă. Poți ieși oricând din Compania mea.';
+
+  @override
+  String get joinPrivacyLink => 'Ce vede compania?';
 
   @override
   String get companyCodeInvalid =>
@@ -1659,7 +1635,7 @@ class AppLocalizationsRo extends AppLocalizations {
   String get memberHears => 'Aude ce se spune';
 
   @override
-  String get signInWelcome => 'Intră în cont sau creează-ți unul';
+  String get signInWelcome => 'Bine ai venit!';
 
   @override
   String get signInPresentWithout => 'Prezinți un meeting? Intră fără cont';
@@ -1682,4 +1658,81 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get demoSignInFailed => 'Emailul sau parola nu sunt bune.';
+
+  @override
+  String get announcementsTitle => 'Anunțuri';
+
+  @override
+  String announcementsNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count de anunțuri noi',
+      few: '$count anunțuri noi',
+      one: '1 anunț nou',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get announcementsEmpty => 'Niciun anunț acum.';
+
+  @override
+  String get announcementsEmptyAdmin =>
+      'Scrie primul anunț pentru echipă: apare pe telefonul fiecărui coleg.';
+
+  @override
+  String get announcementImportant => 'Important';
+
+  @override
+  String get announcementNew => 'Nou';
+
+  @override
+  String announcementSeenBy(int seen, int audience) {
+    return 'Văzut de $seen din $audience';
+  }
+
+  @override
+  String get announcementDelete => 'Șterge anunțul';
+
+  @override
+  String get announcementDeleteTitle => 'Ștergi anunțul?';
+
+  @override
+  String get announcementDeleteBody =>
+      'Dispare de pe telefoanele tuturor colegilor.';
+
+  @override
+  String get announcementDeleteConfirm => 'Șterge';
+
+  @override
+  String get composeTitle => 'Anunț nou';
+
+  @override
+  String get composeCompany => 'Compania';
+
+  @override
+  String get composeTitleLabel => 'Titlu';
+
+  @override
+  String get composeBodyLabel => 'Mesajul';
+
+  @override
+  String get composeImportant => 'Important';
+
+  @override
+  String get composeImportantHint => 'Apare primul, cu eticheta Important';
+
+  @override
+  String get composePrivacy =>
+      'Toți angajații companiei văd anunțul. Nu scrie date despre sănătatea sau viața cuiva.';
+
+  @override
+  String get composePublish => 'Publică anunțul';
+
+  @override
+  String get composeMissing => 'Scrie un titlu și un mesaj.';
+
+  @override
+  String get orgAnnouncementHint => 'Apare pe Dashboard-ul fiecărui coleg';
 }

@@ -9,6 +9,7 @@ import '../../settings/app_settings.dart';
 import '../../widgets/caption_tile.dart';
 import '../participant/meeting_ai.dart';
 import 'history_screen.dart';
+import '../../widgets/page_column.dart';
 
 /// One saved meeting: its summary (if made), the numbered transcript, and the
 /// same summary and "Întreabă meetingul" tools as during the meeting.
@@ -130,7 +131,7 @@ class _SavedMeetingScreenState extends State<SavedMeetingScreen> {
           ),
         ],
       ),
-      body: SafeArea(child: _body(context, l10n)),
+      body: PageColumn(child: SafeArea(child: _body(context, l10n))),
     );
   }
 

@@ -148,7 +148,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(h.account!.deleted, isTrue);
-    expect(find.text('Intră în cont sau creează-ți unul'), findsOneWidget);
+    expect(find.text('Bine ai venit!'), findsOneWidget);
     expect(history, findsNothing);
   });
 

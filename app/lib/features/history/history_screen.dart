@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/history/meeting_store.dart';
 import '../../l10n/app_localizations.dart';
 import 'saved_meeting_screen.dart';
+import '../../widgets/page_column.dart';
 
 /// "28 oct. 2026, 14:05" in the UI language.
 String meetingDate(BuildContext context, DateTime date) {
@@ -103,7 +104,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.homeHistory)),
-      body: SafeArea(
+      body: PageColumn(child: SafeArea(
         child: Column(
           children: [
             Padding(
@@ -173,7 +174,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ],
         ),
-      ),
+      )),
     );
   }
 }

@@ -66,4 +66,12 @@ void main() {
     expect(theme.dialogTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(20));
     expect(theme.dialogTheme.contentTextStyle?.fontSize, greaterThanOrEqualTo(16));
   });
+
+  test('every small bold label has one size: group headings, labels above fields and field labels', () async {
+    SharedPreferences.setMockInitialValues({});
+    final theme = buildTheme(AppSettings(await SharedPreferences.getInstance()));
+    expect(theme.textTheme.titleSmall?.fontSize, 17);
+    // A field's label is drawn at 75% once it sits on the border: it shows at the same 17 px.
+    expect(theme.inputDecorationTheme.floatingLabelStyle!.fontSize! * 0.75, closeTo(17, 0.01));
+  });
 }

@@ -54,7 +54,7 @@ void main() {
 
     expect(find.byType(SignInScreen), findsOneWidget);
     expect(find.byKey(PhoneShell.barKey), findsNothing);
-    expect(find.text('Intră în cont sau creează-ți unul'), findsOneWidget);
+    expect(find.text('Bine ai venit!'), findsOneWidget);
     final logo = find.byType(EchoLogo);
     expect(tester.getSize(logo).height, greaterThanOrEqualTo(80));
     expect(tester.getCenter(logo).dx, moreOrLessEquals(390 / 2, epsilon: 1));
@@ -83,7 +83,7 @@ void main() {
     await tapText(tester, 'Angajat');
     await fill(tester, 'Codul companiei', 'ABCD-EFGH');
     await fill(tester, 'Numele tău', 'Ana Pop');
-    await tapText(tester, 'Citesc ce se spune');
+    await tapText(tester, 'Echo mă ajută să urmăresc');
     await signInWithCode(tester, 'ana@firma.ro');
 
     expect(h.orgStore!.people[org]!['u-ana@firma.ro']!.displayName, 'Ana Pop');
@@ -123,7 +123,7 @@ void main() {
     expect(find.byType(PresenterScreen), findsOneWidget);
   });
 
-  testWidgets('the laptop page opens without signing in', (tester) async {
+  testWidgets('the laptop page also opens on sign-in, then goes to the laptop page', (tester) async {
     tester.view.physicalSize = const Size(1366, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -142,7 +142,14 @@ void main() {
       ),
     ));
     await tester.pumpAndSettle();
-    expect(find.byType(SignInScreen), findsNothing);
+    expect(find.byType(SignInScreen), findsOneWidget);
+    expect(find.text('Eu prezint'), findsNothing);
+    // The presenter still needs no account (rule 6).
+    expect(find.text('Prezinți un meeting? Intră fără cont'), findsOneWidget);
+
+    await signInWithCode(tester, 'sef@firma.ro');
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
     expect(find.text('Eu prezint'), findsOneWidget);
   });
 
@@ -167,5 +174,27 @@ void main() {
     expect(find.byKey(PhoneShell.barKey), findsOneWidget);
     expect(find.byType(OrgScreen), findsNothing);
     expect(h.account!.sentCodes, isEmpty);
+  });
+
+  testWidgets('on a wide screen the sign-in form keeps a narrow column', (tester) async {
+    final h = await phone(tester);
+    tester.view.physicalSize = const Size(1536, 800);
+    await tester.pumpWidget(ServicesScope(
+      services: AppServices(speech: h.speech, sounds: h.sounds, account: h.account, organizations: h.organizations),
+      child: SettingsScope(
+        settings: h.settings,
+        child: MaterialApp(
+          locale: const Locale('ro'),
+          supportedLocales: AppLocalizations.supportedLocales,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          theme: buildTheme(h.settings),
+          home: SignInScreen(account: h.account!),
+        ),
+      ),
+    ));
+    await tester.pumpAndSettle();
+    final field = tester.getSize(find.widgetWithText(TextField, 'Adresa de email'));
+    expect(field.width, lessThanOrEqualTo(440));
+    expect(tester.getCenter(find.widgetWithText(TextField, 'Adresa de email')).dx, moreOrLessEquals(1536 / 2, epsilon: 1));
   });
 }

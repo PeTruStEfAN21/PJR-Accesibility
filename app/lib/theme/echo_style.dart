@@ -18,6 +18,8 @@ class EchoPalette {
     required this.accentTint,
     required this.primary,
     required this.onPrimary,
+    required this.button,
+    required this.onButton,
   });
 
   /// The page.
@@ -46,6 +48,10 @@ class EchoPalette {
   final Color primary;
   final Color onPrimary;
 
+  /// Filled buttons: the logo's turquoise with near-black text (6.3:1; white on it would be 2.9:1).
+  final Color button;
+  final Color onButton;
+
   /// The Deaf community's turquoise (the colour of sign language on the Deaf flag), on white. The bright
   /// turquoise is for the logo and decoration only; actions use a deep turquoise (7:1 on white), text is
   /// near-black, panels a very light turquoise.
@@ -71,6 +77,8 @@ class EchoPalette {
     accentTint: Color(0xFFDFF5F6),
     primary: Color(0xFF005A63),
     onPrimary: Color(0xFFFFFFFF),
+    button: turquoise,
+    onButton: Color(0xFF0A1A1C),
   );
 
   static const highContrast = EchoPalette(
@@ -86,6 +94,8 @@ class EchoPalette {
     accentTint: Colors.white,
     primary: Colors.black,
     onPrimary: Colors.white,
+    button: Colors.black,
+    onButton: Colors.white,
   );
 
   static EchoPalette of(BuildContext context) => SettingsScope.of(context).highContrast ? highContrast : standard;
@@ -95,15 +105,15 @@ class EchoPalette {
 /// button darkens a little when pressed, the link underlines on hover, press and keyboard focus.
 abstract final class EchoButtons {
   static ButtonStyle primary(EchoPalette p) => FilledButton.styleFrom(
-        backgroundColor: p.primary,
-        foregroundColor: p.onPrimary,
+        backgroundColor: p.button,
+        foregroundColor: p.onButton,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         minimumSize: const Size(64, 50),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         splashFactory: NoSplash.splashFactory,
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered) ? p.onPrimary.withValues(alpha: 0.12) : null),
+            states.contains(WidgetState.pressed) || states.contains(WidgetState.hovered) ? p.onButton.withValues(alpha: 0.12) : null),
         side: WidgetStateProperty.resolveWith(
             (states) => states.contains(WidgetState.focused) ? BorderSide(color: p.accent, width: 3, strokeAlign: 2) : null),
       );

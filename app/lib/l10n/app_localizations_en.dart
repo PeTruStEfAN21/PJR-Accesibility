@@ -79,9 +79,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get joinTitle => 'Connect to the speaker';
 
   @override
-  String get joinIntro => 'Type the code shown on the speaker\'s laptop.';
-
-  @override
   String get joinServerChange => 'Change';
 
   @override
@@ -534,10 +531,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get soundsDetectorMissing =>
       'Automatic alerts don\'t work on this device. You can test the vibrations below.';
-
-  @override
-  String get soundsExplain =>
-      'Your phone vibrates and shows you on screen when something important happens around you. Everything stays on the phone.';
 
   @override
   String get soundsSwitch => 'Vibration alerts';
@@ -1529,10 +1522,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get presentIntroTitle => 'You run the meeting';
 
   @override
-  String get presentIntroBody =>
-      'Echo listens to the room on this device and captions you as you speak.';
-
-  @override
   String get presentPointCode =>
       'Participants join with the code or the QR code on screen';
 
@@ -1557,14 +1546,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInRoleEmployee => 'Employee';
 
   @override
-  String get signInAdminIntro =>
-      'For whoever runs the team. Set up your company and give colleagues its code. No password needed.';
-
-  @override
-  String get signInEmployeeIntro =>
-      'Type the code your admin gave you, your name and how you use Echo. Then confirm your email with a code.';
-
-  @override
   String get companyCodeLabel => 'Company code';
 
   @override
@@ -1574,22 +1555,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get joinExperienceTitle => 'How do you use Echo?';
 
   @override
-  String get experienceVisual => 'I read what is said';
+  String get experienceVisual => 'Echo helps me follow along';
 
   @override
-  String get experienceVisualHint =>
-      'Captions, sounds and alarms on screen and by vibration';
-
-  @override
-  String get experienceStandard => 'I hear what is said';
-
-  @override
-  String get experienceStandardHint =>
-      'Tools for the colleague who speaks: conversation, an alarm for a colleague';
+  String get experienceStandard => 'I use Echo to help my colleagues';
 
   @override
   String get joinPrivacy =>
       'You join the company that gave you the code. Its admins see your name, email and how you use Echo, so they know how to reach you during an alarm. You can leave any time from My company.';
+
+  @override
+  String get joinPrivacyLink => 'What does the company see?';
 
   @override
   String get companyCodeInvalid =>
@@ -1653,7 +1629,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get memberHears => 'Hears what is said';
 
   @override
-  String get signInWelcome => 'Sign in or create your account';
+  String get signInWelcome => 'Welcome!';
 
   @override
   String get signInPresentWithout =>
@@ -1677,4 +1653,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get demoSignInFailed => 'The email or the password is wrong.';
+
+  @override
+  String get announcementsTitle => 'Announcements';
+
+  @override
+  String announcementsNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count new announcements',
+      one: '1 new announcement',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get announcementsEmpty => 'No announcements right now.';
+
+  @override
+  String get announcementsEmptyAdmin =>
+      'Write the first announcement for your team: it shows on every colleague\'s phone.';
+
+  @override
+  String get announcementImportant => 'Important';
+
+  @override
+  String get announcementNew => 'New';
+
+  @override
+  String announcementSeenBy(int seen, int audience) {
+    return 'Seen by $seen of $audience';
+  }
+
+  @override
+  String get announcementDelete => 'Delete the announcement';
+
+  @override
+  String get announcementDeleteTitle => 'Delete the announcement?';
+
+  @override
+  String get announcementDeleteBody =>
+      'It disappears from every colleague\'s phone.';
+
+  @override
+  String get announcementDeleteConfirm => 'Delete';
+
+  @override
+  String get composeTitle => 'New announcement';
+
+  @override
+  String get composeCompany => 'Company';
+
+  @override
+  String get composeTitleLabel => 'Title';
+
+  @override
+  String get composeBodyLabel => 'Message';
+
+  @override
+  String get composeImportant => 'Important';
+
+  @override
+  String get composeImportantHint => 'Shows first, labelled Important';
+
+  @override
+  String get composePrivacy =>
+      'Everyone in the company sees the announcement. Do not write anything about someone\'s health or private life.';
+
+  @override
+  String get composePublish => 'Post the announcement';
+
+  @override
+  String get composeMissing => 'Write a title and a message.';
+
+  @override
+  String get orgAnnouncementHint => 'Shows on every colleague\'s Dashboard';
 }

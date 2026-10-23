@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
+import '../../core/org/org_store.dart';
 import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
@@ -9,6 +10,7 @@ import '../../widgets/grouped_list.dart';
 import '../../widgets/pressable.dart';
 import '../../theme/echo_style.dart';
 import '../account/account_screen.dart';
+import '../announcements/announcements_section.dart';
 import '../account/sign_in_screen.dart';
 import '../coach/coach_screen.dart';
 import '../conversation/conversation_screen.dart';
@@ -56,10 +58,15 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final account = ServicesScope.of(context).account;
+    final services = ServicesScope.of(context);
+    final account = services.account;
     // Accounts are optional: without Supabase configured the home screen is unchanged.
     if (account == null) return _build(context);
-    return ListenableBuilder(listenable: account, builder: (context, _) => _build(context));
+    // The companies arrive after signing in and pick the employee's laptop page.
+    return ListenableBuilder(
+      listenable: Listenable.merge([account, ?services.organizations]),
+      builder: (context, _) => _build(context),
+    );
   }
 
   Widget _build(BuildContext context) {
@@ -67,7 +74,6 @@ class HomeScreen extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final settings = SettingsScope.of(context);
     final palette = EchoPalette.of(context);
-    final theme = Theme.of(context);
     final services = ServicesScope.of(context);
     final account = services.account;
     final meetings = services.signedInMeetings;
@@ -89,9 +95,16 @@ class HomeScreen extends StatelessWidget {
 
     Widget joinAction({bool fill = false}) => _MainAction(icon: Icons.closed_caption_outlined, title: l10n.homeJoin, hint: l10n.homeJoinHint, onTap: () => openFromCard(const JoinScreen(), tab: EchoTab.meeting), fill: fill);
 
-    Widget mainAction({bool fill = false}) => presenterFirst
-        ? _MainAction(icon: Icons.co_present_outlined, title: l10n.homePresent, hint: l10n.homePresentHint, onTap: () => openFromCard(const PresenterScreen()), fill: fill)
-        : joinAction(fill: fill);
+    Widget presentAction({bool fill = false}) => _MainAction(icon: Icons.co_present_outlined, title: l10n.homePresent, hint: l10n.homePresentHint, onTap: () => openFromCard(const PresenterScreen()), fill: fill);
+
+    Widget mainAction({bool fill = false}) => presenterFirst ? presentAction(fill: fill) : joinAction(fill: fill);
+
+    // An employee's laptop page follows how they take part (docs/superpowers/specs/2026-10-23-taburi-dupa-tip-design.md):
+    // announcements, then joining large, then presenting next to Vibrații (reads) or Urgență (hears).
+    // The admin and someone in no company keep the presenter's page for now.
+    final experience = presenterFirst ? services.organizations?.employeeExperience : null;
+    // The admin's laptop page: no Vibrații card and no Vorbesc cu cineva.
+    final admin = presenterFirst && (services.organizations?.isAdminAnywhere ?? false);
 
     // Sound recognition runs on the phone (TFLite) and in the browser (TensorFlow.js), so both show it.
     Widget soundsAction({bool fill = false}) => ListenableBuilder(
@@ -116,28 +129,38 @@ class HomeScreen extends StatelessWidget {
           },
         );
 
+    Widget emergencyScreen() => EmergencyScreen(
+          api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
+          positions: services.positions,
+          onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
+          memory: AlarmScope.maybeOf(context)?.sentAlarm,
+        );
+
+    Widget emergencyAction({bool fill = false}) => _MainAction(
+          icon: Icons.emergency_share_outlined,
+          title: l10n.emergencyTitle,
+          hint: l10n.emergencyHomeHint,
+          onTap: () => openFromCard(emergencyScreen(), tab: EchoTab.alarm),
+          fill: fill,
+        );
+
     Widget elsewhere() => _Elsewhere(
           title: l10n.homeElsewhere,
           rows: [
-            _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
+            // Not on an employee's or the admin's page (the team chose to leave it out there).
+            if (experience == null && !admin)
+              _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
             if (meetings != null)
               _ToolRow(icon: Icons.history_rounded, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
             // Raising an alarm needs an account: the name is kept with it.
-            // In the phone's frame the alarm has its own entry in the bar.
-            if (account?.isSignedIn == true && shell == null)
+            // In the phone's frame the alarm has its own entry in the bar; an employee's laptop page has it
+            // as a card (hears) or not at all (reads what is said: colleagues raise it for them).
+            if (account?.isSignedIn == true && shell == null && experience == null)
               _ToolRow(
                 icon: Icons.emergency_share_outlined,
                 title: l10n.emergencyTitle,
                 hint: l10n.emergencyHomeHint,
-                onTap: () => openFromCard(
-                  EmergencyScreen(
-                    api: AlarmApi(defaultServer(settings), client: services.httpClient, token: () => services.account?.accessToken),
-                    positions: services.positions,
-                    onRaised: AlarmScope.maybeOf(context)?.markOwn ?? (_) {},
-                    memory: AlarmScope.maybeOf(context)?.sentAlarm,
-                  ),
-                  tab: EchoTab.alarm,
-                ),
+                onTap: () => openFromCard(emergencyScreen(), tab: EchoTab.alarm),
               ),
           ],
         );
@@ -223,16 +246,34 @@ class HomeScreen extends StatelessWidget {
             return ListView(
               padding: EdgeInsets.fromLTRB(side, wide ? 56 : 12, side, 32 + MediaQuery.paddingOf(context).bottom),
               children: [
-                Semantics(
-                  header: true,
-                  child: Text(
-                    l10n.homeTitle,
-                    style: (wide ? theme.textTheme.headlineMedium : theme.textTheme.headlineSmall)
-                        ?.copyWith(color: palette.text, fontWeight: FontWeight.w400, letterSpacing: -0.3),
-                  ),
-                ),
-                SizedBox(height: wide ? 48 : 24),
-                if (wide && showTip)
+                // No greeting: the phone's Dashboard opens on the announcements, the laptop on its cards.
+                if (shell != null) const AnnouncementsSection(first: true),
+                if (experience != null) ...[
+                  const AnnouncementsSection(first: true),
+                  joinAction(),
+                  const SizedBox(height: 16),
+                  if (wide)
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(child: presentAction(fill: true)),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: experience == MemberExperience.visual
+                                ? soundsAction(fill: true)
+                                : emergencyAction(fill: true),
+                          ),
+                        ],
+                      ),
+                    )
+                  else ...[
+                    presentAction(),
+                    const SizedBox(height: 16),
+                    experience == MemberExperience.visual ? soundsAction() : emergencyAction(),
+                  ],
+                  if (showTip) ...[const SizedBox(height: 16), tip()],
+                ] else if (wide && showTip)
                   // 7 + 5 of the 12 columns; both panels end on one bottom edge.
                   IntrinsicHeight(
                     child: Row(
@@ -249,8 +290,13 @@ class HomeScreen extends StatelessWidget {
                   // In the phone's frame, joining and sounds are in the bar: Acasă does not repeat them.
                   if (shell == null) mainAction(),
                 ],
+                // Right under the main action, like a landing page; nothing for someone in no company.
+                if (shell == null && experience == null) const AnnouncementsSection(),
                 // The laptop also has everything the phone app has: joining and sounds side by side.
-                if (presenterFirst) ...[
+                if (presenterFirst && experience == null && admin) ...[
+                  const SizedBox(height: 16),
+                  joinAction(),
+                ] else if (presenterFirst && experience == null) ...[
                   const SizedBox(height: 16),
                   if (wide)
                     IntrinsicHeight(
@@ -268,7 +314,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     soundsAction(),
                   ],
-                ] else if (shell == null) ...[
+                ] else if (shell == null && !presenterFirst) ...[
                   const SizedBox(height: 16),
                   soundsAction(),
                 ],

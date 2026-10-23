@@ -59,14 +59,13 @@ void main() {
     expect(find.textContaining('Pornite, și cu telefonul blocat'), findsOneWidget);
   });
 
-  testWidgets('the Sounds screen explains itself and switches listening', (tester) async {
+  testWidgets('the Vibrations screen has no explaining paragraph and switches listening', (tester) async {
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
     await openSounds(tester);
-    final l10n = l10nOf(tester);
     final listening = ServicesScope.of(tester.element(find.byType(SoundsScreen))).soundListening;
 
-    expect(find.text(l10n.soundsExplain), findsOneWidget);
+    expect(find.textContaining('Telefonul vibrează și îți arată'), findsNothing);
     await tester.tap(find.byType(Switch));
     await tester.pumpAndSettle();
     expect(listening.wanted, isTrue);

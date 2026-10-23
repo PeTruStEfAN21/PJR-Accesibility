@@ -13,7 +13,9 @@ import '../../widgets/grouped_list.dart';
 import '../activity/activity_screen.dart';
 import '../alerts/alert_overlay.dart';
 import '../alerts/sound_alert.dart';
+import '../announcements/announcements_section.dart';
 import 'company_meetings_screen.dart';
+import '../../widgets/page_column.dart';
 
 /// "My company": invitations and creating a company when the user has none;
 /// the employee's needs; for admins, employees, invitations and alarm roll calls.
@@ -28,7 +30,7 @@ class OrgScreen extends StatelessWidget {
       listenable: organizations,
       builder: (context, _) => Scaffold(
         appBar: AppBar(title: Text(l10n.orgTitle)),
-        body: SafeArea(
+        body: PageColumn(child: SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -40,7 +42,7 @@ class OrgScreen extends StatelessWidget {
                     : _EmployeeView(key: ValueKey('employee-${m.orgId}'), organizations: organizations, membership: m),
             ],
           ),
-        ),
+        )),
       ),
     );
   }
@@ -386,6 +388,19 @@ class _AdminViewState extends State<_AdminView> {
         _privacyNote(context, l10n.orgEmployeeNotice),
         const SizedBox(height: 24),
         _JoinCodeSection(store: _store, orgId: _orgId),
+        const SizedBox(height: 24),
+        EchoGroup(
+          title: l10n.announcementsTitle,
+          rows: [
+            EchoGroupRow(
+              leading: const RowIcon(Icons.campaign_outlined),
+              title: l10n.composeTitle,
+              subtitle: [l10n.orgAnnouncementHint],
+              trailing: const Icon(Icons.chevron_right_rounded),
+              onTap: () => showComposeAnnouncement(context, [widget.membership], _store),
+            ),
+          ],
+        ),
 
         _header(context, l10n.orgAlarms),
         if (_alarms.isEmpty) Text(l10n.orgNoAlarms),
