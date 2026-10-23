@@ -1063,3 +1063,113 @@ def test_new_functions_are_not_executable_by_everyone_by_default(db):
             db.execute("select public.tmp_probe()")
     finally:
         db.execute("drop function public.tmp_probe()")
+
+
+# How each member uses Echo (standard / visual) ---------------------------------------------
+
+
+def experience_of(db, user, org):
+    return db.execute(
+        "select experience, experience_confirmed_at is not null from public.org_members"
+        " where org_id = %s and user_id = %s",
+        (org, user),
+    ).fetchone()
+
+
+def invite_visual(db, admin, org, user) -> uuid.UUID:
+    return run(
+        db, admin,
+        "insert into public.org_invites (org_id, email, experience) values (%s, %s, 'visual') returning id",
+        (org, email_of(db, user)),
+    )[0]
+
+
+def test_a_new_member_uses_echo_the_standard_way_until_they_choose(db):
+    org, admin, worker = company(db)
+    assert experience_of(db, worker, org) == ("standard", False)
+    assert experience_of(db, admin, org) == ("standard", False)
+
+
+def test_the_invited_person_sees_the_type_chosen_for_them_before_joining(db):
+    org, admin, _ = company(db)
+    worker = new_user(db)
+    invite_visual(db, admin, org, worker)
+    with as_user(db, worker):
+        assert db.execute("select experience from public.my_invites()").fetchall() == [("visual",)]
+
+
+def test_an_invite_brings_its_type_unconfirmed_and_it_is_in_the_history(db):
+    org, admin, _ = company(db)
+    worker = new_user(db)
+    run(db, worker, "select public.accept_invite(%s)", (invite_visual(db, admin, org, worker),))
+    assert experience_of(db, worker, org) == ("visual", False)
+    assert events_seen_by(db, worker) == ["member_experience_changed"]
+    assert events_seen_by(db, admin, org) == ["member_experience_changed"]
+
+
+def test_the_member_changes_their_own_type_and_that_confirms_it(db):
+    org, _, worker = company(db)
+    run(db, worker, "update public.org_members set experience = 'visual' where user_id = %s", (worker,))
+    assert experience_of(db, worker, org) == ("visual", True)
+    # Their own choice is not logged: nobody decided it for them.
+    assert events_seen_by(db, worker) == []
+
+
+def test_the_member_confirms_a_type_an_admin_set_at_the_servers_time(db):
+    org, admin, _ = company(db)
+    worker = new_user(db)
+    run(db, worker, "select public.accept_invite(%s)", (invite_visual(db, admin, org, worker),))
+    run(db, worker, "update public.org_members set experience_confirmed_at = '2000-01-01' where user_id = %s",
+        (worker,))
+    confirmed = db.execute(
+        "select experience_confirmed_at > now() - interval '1 minute' from public.org_members where user_id = %s",
+        (worker,),
+    ).fetchone()
+    assert confirmed == (True,)
+
+
+def test_an_admin_changes_the_type_unconfirmed_and_logged_without_the_value(db):
+    org, admin, worker = company(db)
+    run(db, worker, "update public.org_members set experience = 'visual' where user_id = %s", (worker,))
+    run(db, admin, "update public.org_members set experience = 'standard' where user_id = %s", (worker,))
+    assert experience_of(db, worker, org) == ("standard", False)
+    with as_user(db, worker):
+        row = db.execute("select event, actor_id, subject_user_id, ref, title from public.my_activity()").fetchone()
+    assert row == ("member_experience_changed", admin, worker, str(org), None)
+
+
+def test_an_admin_cannot_confirm_for_the_member(db):
+    _, admin, worker = company(db)
+    with as_user(db, admin), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("update public.org_members set experience_confirmed_at = now() where user_id = %s", (worker,))
+
+
+def test_an_employee_cannot_change_a_colleagues_type(db):
+    org, admin, worker = company(db)
+    colleague = new_user(db)
+    join(db, admin, org, colleague)
+    with as_user(db, worker):
+        assert db.execute(
+            "update public.org_members set experience = 'visual' where user_id = %s", (colleague,)
+        ).rowcount == 0
+    assert experience_of(db, colleague, org) == ("standard", False)
+
+
+def test_an_admin_has_a_type_too(db):
+    org, admin, _ = company(db)
+    run(db, admin, "update public.org_members set experience = 'visual' where user_id = %s", (admin,))
+    assert experience_of(db, admin, org) == ("visual", True)
+    with as_user(db, admin):
+        assert db.execute("select role from public.org_members where user_id = %s", (admin,)).fetchone() == ("admin",)
+
+
+def test_leaving_the_company_removes_the_type_changes_from_its_history(db):
+    org, admin, worker = company(db)
+    other_org, other_admin, _ = company(db)
+    join(db, other_admin, other_org, worker)
+    run(db, admin, "update public.org_members set experience = 'visual' where user_id = %s", (worker,))
+    run(db, other_admin, "update public.org_members set experience = 'visual' where user_id = %s", (worker,))
+    run(db, worker, "delete from public.org_members where org_id = %s and user_id = %s", (org, worker))
+    assert events_seen_by(db, admin, org) == []
+    # The other company's change stays while they are still there.
+    assert events_seen_by(db, other_admin, other_org) == ["member_experience_changed"]
