@@ -31,7 +31,9 @@ class _TfliteYamnet implements YamnetModel {
     return YamnetOutput(_floats(interpreter.getOutputTensor(0)), _floats(interpreter.getOutputTensor(1)));
   }
 
-  Float32List _floats(Tensor tensor) => (tensor.copyTo(Uint8List(0)) as Uint8List).buffer.asFloat32List();
+  // copyTo rejects a buffer of another size; data is a view of the interpreter's memory,
+  // so it is copied before the next invoke overwrites it.
+  Float32List _floats(Tensor tensor) => Uint8List.fromList(tensor.data).buffer.asFloat32List();
 
   @override
   void close() {
