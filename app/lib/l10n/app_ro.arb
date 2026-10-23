@@ -121,6 +121,7 @@
   "enrollText": "Bună ziua tuturor. Astăzi vorbim despre planurile echipei pentru luna următoare. Trecem prin bugetul proiectului, prin termenele importante și prin sarcinile fiecăruia. Dacă aveți întrebări, le puteți pune oricând. Vă mulțumesc că sunteți aici și sper să avem o discuție utilă, clară și scurtă. Să începem cu subiectele cele mai urgente.",
   "enrollStart": "Începe",
   "enrollListening": "Te ascult… citește textul",
+  "enrollFinish": "Am terminat de citit",
   "enrollDone": "Vocea ta e învățată",
   "enrollTooShort": "Am auzit prea puțin. Citește din nou textul, cu voce normală.",
   "enrollFailed": "Nu am putut învăța vocea. Încearcă din nou.",

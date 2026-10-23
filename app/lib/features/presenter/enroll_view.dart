@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Learning the speaker's voice: a text to read in a normal voice for [duration], with a progress bar.
-/// [onRecorded] runs when the time is up; [message] tells the speaker how the last attempt went; [intro]
+/// [onRecorded] runs when the time is up, or earlier when the speaker closes the timer; [message] tells the speaker how the last attempt went; [intro]
 /// replaces the presenter's explanation (the clarity coach explains it for an online meeting).
 class EnrollView extends StatefulWidget {
   const EnrollView({
@@ -27,6 +27,9 @@ class _EnrollViewState extends State<EnrollView> with SingleTickerProviderStateM
   late final AnimationController _progress;
   bool _recording = false;
 
+  /// True from the moment the recording ends until [EnrollView.onRecorded] is done, so it runs once.
+  bool _finishing = false;
+
   @override
   void initState() {
     super.initState();
@@ -40,8 +43,16 @@ class _EnrollViewState extends State<EnrollView> with SingleTickerProviderStateM
   }
 
   Future<void> _onStatus(AnimationStatus status) async {
-    if (status != AnimationStatus.completed) return;
+    if (status == AnimationStatus.completed) await _finish();
+  }
+
+  /// The time is up, or the speaker finished reading early and closed the timer.
+  Future<void> _finish() async {
+    if (_finishing) return;
+    _finishing = true;
+    _progress.stop();
     await widget.onRecorded();
+    _finishing = false;
     if (mounted) setState(() => _recording = false);
   }
 
@@ -84,9 +95,26 @@ class _EnrollViewState extends State<EnrollView> with SingleTickerProviderStateM
           if (_recording) ...[
             Text(l10n.enrollListening, style: theme.textTheme.titleMedium),
             const SizedBox(height: 8),
-            AnimatedBuilder(
-              animation: _progress,
-              builder: (_, _) => LinearProgressIndicator(value: _progress.value, minHeight: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: AnimatedBuilder(
+                    animation: _progress,
+                    builder: (_, _) => LinearProgressIndicator(
+                      value: _progress.value,
+                      minHeight: 12,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                // Done reading before the time is up: learn the voice from what was heard so far.
+                IconButton(
+                  onPressed: _finishing ? null : _finish,
+                  tooltip: l10n.enrollFinish,
+                  icon: const Icon(Icons.close_rounded),
+                ),
+              ],
             ),
           ] else
             FilledButton(
