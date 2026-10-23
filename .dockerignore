@@ -1,0 +1,16 @@
+# Only app/ and server/ go into the Render image (Dockerfile.render).
+.git
+**/.env
+**/.env.*
+**/.venv
+**/__pycache__
+**/node_modules
+app/build
+app/.dart_tool
+app/ios
+app/test
+server/tests
+ml
+docs
+tools
+supabase
