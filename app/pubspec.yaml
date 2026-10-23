@@ -72,7 +72,6 @@ flutter:
   generate: true
 
   assets:
-    - assets/fonts/OpenDyslexic-OFL.txt
     - assets/fonts/Roboto-OFL.txt
     - assets/models/yamnet.tflite
     - assets/models/yamnet_class_map.csv
@@ -89,9 +88,4 @@ flutter:
         - asset: assets/fonts/Roboto-Medium.ttf
           weight: 500
         - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
-    - family: OpenDyslexic
-      fonts:
-        - asset: assets/fonts/OpenDyslexic-Regular.otf
-        - asset: assets/fonts/OpenDyslexic-Bold.otf
           weight: 700

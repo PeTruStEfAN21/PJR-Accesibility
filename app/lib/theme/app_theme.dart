@@ -5,6 +5,7 @@ import '../settings/app_settings.dart';
 import 'echo_style.dart';
 import 'role_palette.dart';
 
+/// Not shipped any more (dyslexia mode left Settings): kept only so old code paths still compile.
 const dyslexiaFont = 'OpenDyslexic';
 
 /// One size for every small bold label in Echo (see [buildTheme]).

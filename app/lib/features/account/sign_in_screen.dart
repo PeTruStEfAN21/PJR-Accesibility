@@ -100,7 +100,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Future<void> _companiesLoaded() async {
     final organizations = ServicesScope.of(context).organizations;
     if (organizations == null) return;
-    await organizations.refresh().timeout(const Duration(seconds: 5), onTimeout: () {}).catchError((Object _) {});
+    await organizations.whenLoaded().timeout(const Duration(seconds: 5), onTimeout: () {}).catchError((Object _) {});
   }
 
   Future<void> _finish(NavigatorState navigator) async {

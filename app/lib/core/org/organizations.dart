@@ -39,17 +39,40 @@ class Organizations extends ChangeNotifier {
   bool get receivesColleagueAlarms =>
       memberships.isEmpty || memberships.any((m) => m.experience == MemberExperience.visual);
 
-  /// Reloads everything; a network error keeps what was loaded before.
-  Future<void> refresh() async {
+  Future<void>? _loading;
+
+  /// Whose companies were loaded last (null: nobody yet, or signed out).
+  String? _loadedFor;
+
+  /// Reloads everything, after any load already running (something changed, so it must be fresh);
+  /// a network error keeps what was loaded before.
+  Future<void> refresh() {
+    final next = (_loading ?? Future<void>.value()).then((_) => _refresh(), onError: (Object _) => _refresh());
+    _loading = next;
+    void done() {
+      if (identical(_loading, next)) _loading = null;
+    }
+    next.then((_) => done(), onError: (Object _) => done());
+    return next;
+  }
+
+  /// The companies loaded at least once for whoever is signed in: waits for the load already running
+  /// (signing in starts one) instead of asking the server a second time.
+  Future<void> whenLoaded() =>
+      _loading ?? (_loadedFor == account.user?.id && _loadedFor != null ? Future<void>.value() : refresh());
+
+  Future<void> _refresh() async {
     if (!account.isSignedIn) {
       memberships = const [];
       invites = const [];
+      _loadedFor = null;
       await sounds?.replaceShared(const []);
       notifyListeners();
       return;
     }
     try {
       memberships = await store.myOrganizations();
+      _loadedFor = account.user?.id;
       invites = await store.myInvites();
       if (sounds != null) {
         await sounds!.replaceShared([

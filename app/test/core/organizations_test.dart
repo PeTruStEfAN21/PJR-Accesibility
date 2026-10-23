@@ -53,6 +53,17 @@ void main() {
     expect(sounds.shared.map((s) => s.label), ['Alarma halei']);
   });
 
+  test('waiting for the companies while they load reuses that load instead of asking again', () async {
+    final org = store.addOrg('Fabrica');
+    store.addMember(org, 'u-ana@firma.ro');
+    final orgs = create();
+    account.signInAs('ana@firma.ro'); // the sign-in itself starts a load
+    final calls = store.myOrganizationsCalls;
+    await Future.wait([orgs.whenLoaded(), orgs.whenLoaded()]);
+    expect(store.myOrganizationsCalls - calls, lessThanOrEqualTo(1));
+    expect(orgs.memberships.single.orgName, 'Fabrica');
+  });
+
   test('signing out forgets the companies and their sounds', () async {
     final org = store.addOrg('Fabrica');
     store.addMember(org, 'u-ana@firma.ro');
