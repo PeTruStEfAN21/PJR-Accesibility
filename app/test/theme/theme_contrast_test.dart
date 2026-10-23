@@ -40,8 +40,8 @@ void main() {
 
   for (final highContrast in [false, true]) {
     test('the Material theme follows the palette (high contrast: $highContrast)', () async {
-      SharedPreferences.setMockInitialValues({'highContrast': highContrast});
-      final settings = AppSettings(await SharedPreferences.getInstance());
+      SharedPreferences.setMockInitialValues({});
+      final settings = AppSettings(await SharedPreferences.getInstance())..highContrast = highContrast;
       final scheme = buildTheme(settings).colorScheme;
       final palette = highContrast ? EchoPalette.highContrast : EchoPalette.standard;
 
@@ -62,7 +62,7 @@ void main() {
   test('styles given to the top bar and dialogs carry their own size, not the 14 px fallback', () async {
     SharedPreferences.setMockInitialValues({});
     final theme = buildTheme(AppSettings(await SharedPreferences.getInstance()));
-    expect(theme.appBarTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(20));
+    expect(theme.appBarTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(17));
     expect(theme.dialogTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(20));
     expect(theme.dialogTheme.contentTextStyle?.fontSize, greaterThanOrEqualTo(16));
   });

@@ -17,7 +17,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpAndSettle();
-    await openTab(tester, 'Sunete');
+    await openTab(tester, 'Vibrații');
   }
 
   AppLocalizations l10nOf(WidgetTester tester) => AppLocalizations.of(tester.element(find.byType(SoundsScreen)));
@@ -34,12 +34,12 @@ void main() {
     expect(h.sounds.listening, isTrue);
 
     // Leaves Sunete for another screen of the bar, then comes back.
-    await openTab(tester, 'Acasă');
-    await openTab(tester, 'Sunete');
+    await openTab(tester, 'Dashboard');
+    await openTab(tester, 'Vibrații');
 
     expect(h.sounds.listening, isTrue);
     expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
-    expect(find.textContaining('Ascult sunetele din jur'), findsOneWidget);
+    expect(find.textContaining('Pornite, și cu telefonul blocat'), findsOneWidget);
   });
 
   testWidgets('while captions run, the screen says listening is paused', (tester) async {
@@ -56,7 +56,7 @@ void main() {
 
     await listening.release();
     await tester.pumpAndSettle();
-    expect(find.textContaining('Ascult sunetele din jur'), findsOneWidget);
+    expect(find.textContaining('Pornite, și cu telefonul blocat'), findsOneWidget);
   });
 
   testWidgets('the Sounds screen explains itself and switches listening', (tester) async {

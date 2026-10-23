@@ -5,6 +5,7 @@ import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../widgets/echo_logo.dart';
+import '../../widgets/grouped_list.dart';
 import '../../widgets/pressable.dart';
 import '../../theme/echo_style.dart';
 import '../account/account_screen.dart';
@@ -99,7 +100,7 @@ class HomeScreen extends StatelessWidget {
             final listening = services.soundListening;
             final on = services.sounds.isAvailable && listening.wanted && !listening.paused;
             return _MainAction(
-              icon: on ? Icons.hearing : Icons.hearing_disabled,
+              icon: on ? Icons.vibration_outlined : Icons.notifications_off_outlined,
               title: l10n.homeSounds,
               hint: !services.sounds.isAvailable
                   ? l10n.homeSoundsUnavailable
@@ -120,12 +121,12 @@ class HomeScreen extends StatelessWidget {
           rows: [
             _ToolRow(icon: Icons.forum_outlined, title: l10n.homeConversation, hint: l10n.homeConversationHint, onTap: () => open(const ConversationScreen())),
             if (meetings != null)
-              _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
+              _ToolRow(icon: Icons.history_rounded, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
             // Raising an alarm needs an account: the name is kept with it.
             // In the phone's frame the alarm has its own entry in the bar.
             if (account?.isSignedIn == true && shell == null)
               _ToolRow(
-                icon: Icons.emergency_share,
+                icon: Icons.emergency_share_outlined,
                 title: l10n.emergencyTitle,
                 hint: l10n.emergencyHomeHint,
                 onTap: () => openFromCard(
@@ -194,7 +195,7 @@ class HomeScreen extends StatelessWidget {
           if (account != null)
             IconButton(
               tooltip: account.isSignedIn ? l10n.account : l10n.signIn,
-              icon: Icon(account.isSignedIn ? Icons.account_circle : Icons.login, color: palette.brand),
+              icon: Icon(account.isSignedIn ? Icons.account_circle_outlined : Icons.login_rounded, color: palette.brand),
               onPressed: () => open(
                 meetings != null
                     ? AccountScreen(account: account, meetings: meetings)
@@ -479,12 +480,7 @@ class _ToolRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               child: Row(
                 children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(color: palette.accentTint, borderRadius: BorderRadius.circular(12)),
-                    child: Icon(icon, size: 22, color: palette.accent),
-                  ),
+                  RowIcon(icon),
                   const SizedBox(width: 14),
                   Expanded(
                     child: Column(
@@ -497,7 +493,7 @@ class _ToolRow extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Icon(Icons.chevron_right, color: palette.muted),
+                  Icon(Icons.chevron_right_rounded, color: palette.muted),
                 ],
               ),
             ),

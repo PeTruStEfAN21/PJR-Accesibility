@@ -498,28 +498,29 @@ class AppLocalizationsRo extends AppLocalizations {
       'Semnal de la un utilaj. Fii atent la mașinile din jur.';
 
   @override
-  String get soundsTitle => 'Sunetul vizibil';
+  String get soundsTitle => 'Vibrații';
 
   @override
   String get soundsListening =>
-      'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.';
+      'Pornite, și cu telefonul blocat. Pornesc singure la fiecare deschidere a aplicației.';
 
   @override
-  String get soundsIdle => 'Ascultarea e oprită.';
+  String get soundsIdle => 'Alertele sunt oprite.';
 
   @override
   String get soundsPaused =>
-      'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.';
+      'În pauză cât merge subtitrarea. Pornesc din nou singure după.';
 
   @override
-  String get homeSounds => 'Sunete';
+  String get homeSounds => 'Vibrații';
 
   @override
   String get homeSoundsOn =>
-      'Pornit: telefonul te alertează la alarme, claxoane și numele tău.';
+      'Pornite: telefonul vibrează la alarme, claxoane și numele tău.';
 
   @override
-  String get homeSoundsOff => 'Oprit: atinge ca să pornești alertele de sunet.';
+  String get homeSoundsOff =>
+      'Oprite: atinge ca să pornești alertele prin vibrații.';
 
   @override
   String get homeSoundsPaused => 'Pe pauză cât rulează subtitrările.';
@@ -533,17 +534,17 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get soundsDetectorMissing =>
-      'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.';
+      'Alertele automate nu merg pe acest dispozitiv. Poți testa vibrațiile mai jos.';
 
   @override
   String get soundsExplain =>
-      'Sunetele importante din jur devin alerte pe ecran și vibrații. Totul rămâne pe telefon.';
+      'Telefonul vibrează și îți arată pe ecran când se întâmplă ceva important în jur. Totul rămâne pe telefon.';
 
   @override
-  String get soundsSwitch => 'Alerte de sunet';
+  String get soundsSwitch => 'Alerte prin vibrații';
 
   @override
-  String get soundsVibrations => 'Vibrații';
+  String get soundsVibrations => 'Vibrația pentru fiecare nivel';
 
   @override
   String get soundsLevelExamplesCritical => 'Alarmă de incendiu, sirenă';
@@ -1220,10 +1221,10 @@ class AppLocalizationsRo extends AppLocalizations {
   }
 
   @override
-  String get emergencyTitle => 'Alarmă de urgență';
+  String get emergencyTitle => 'Urgență';
 
   @override
-  String get emergencyHomeHint => 'Când aplicația nu aude pericolul';
+  String get emergencyHomeHint => 'Anunță colegii din apropiere';
 
   @override
   String get emergencyIntro =>
@@ -1492,27 +1493,27 @@ class AppLocalizationsRo extends AppLocalizations {
   String get navLabel => 'Navigare principală';
 
   @override
-  String get navHome => 'Acasă';
+  String get navHome => 'Dashboard';
 
   @override
   String get navMeeting => 'Meeting';
 
   @override
-  String get navSounds => 'Sunete';
+  String get navSounds => 'Vibrații';
 
   @override
-  String get navAlarm => 'Alarmă';
+  String get navAlarm => 'Urgență';
 
   @override
   String get navSettings => 'Setări';
 
   @override
   String get alarmNeedsAccount =>
-      'Alarma de urgență cere un cont: numele tău pleacă împreună cu alarma, ca colegii să știe cine a dat-o.';
+      'Urgența cere un cont: numele tău pleacă împreună cu ea, ca colegii să știe cine a trimis-o.';
 
   @override
   String get alarmAccountsOff =>
-      'Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.';
+      'Conturile nu sunt pornite pe acest server, așa că urgența nu poate fi trimisă de aici.';
 
   @override
   String get meetingTitle => 'Meeting';

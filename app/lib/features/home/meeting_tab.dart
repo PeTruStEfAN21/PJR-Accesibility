@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme/echo_style.dart';
 import '../../widgets/glass.dart';
+import '../../widgets/grouped_list.dart';
+import '../../widgets/large_title.dart';
 import '../../widgets/pressable.dart';
 import '../participant/join_screen.dart';
 import '../presenter/presenter_screen.dart';
@@ -25,11 +27,18 @@ class _MeetingTabState extends State<MeetingTab> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.meetingTitle)),
-      body: Column(
+      appBar: backBarIfPushed(context, l10n.meetingTitle),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+            child: LargeTitle(l10n.meetingTitle),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
             child: GlassSegmented<MeetingMode>(
               semanticLabel: l10n.meetingModeLabel,
               selected: _mode,
@@ -50,6 +59,7 @@ class _MeetingTabState extends State<MeetingTab> {
             ),
           ),
         ],
+        ),
       ),
     );
   }
@@ -69,11 +79,11 @@ class _PresentPanel extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _IconChip(icon: icon),
+          RowIcon(icon),
           const SizedBox(width: 14),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.only(top: 8),
+              padding: const EdgeInsets.only(top: 6),
               child: Text(text, style: theme.textTheme.bodyLarge),
             ),
           ),
@@ -87,7 +97,7 @@ class _PresentPanel extends StatelessWidget {
         const SizedBox(height: 10),
         Text(l10n.presentIntroBody, style: theme.textTheme.bodyLarge?.copyWith(color: palette.muted)),
         const SizedBox(height: 24),
-        point(Icons.qr_code_2, l10n.presentPointCode),
+        point(Icons.qr_code_2_rounded, l10n.presentPointCode),
         point(Icons.mark_chat_unread_outlined, l10n.presentPointQuestions),
         point(Icons.record_voice_over_outlined, l10n.presentPointVoice),
         const SizedBox(height: 16),
@@ -99,28 +109,6 @@ class _PresentPanel extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-/// An icon in a soft rounded chip, the small premium accent used across Echo's lists.
-class _IconChip extends StatelessWidget {
-  const _IconChip({required this.icon});
-
-  final IconData icon;
-
-  @override
-  Widget build(BuildContext context) {
-    final palette = EchoPalette.of(context);
-    return Container(
-      width: 44,
-      height: 44,
-      decoration: BoxDecoration(
-        color: palette.accentTint,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.8)),
-      ),
-      child: Icon(icon, size: 22, color: palette.accent),
     );
   }
 }

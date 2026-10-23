@@ -959,43 +959,43 @@ abstract class AppLocalizations {
   /// No description provided for @soundsTitle.
   ///
   /// In ro, this message translates to:
-  /// **'Sunetul vizibil'**
+  /// **'Vibrații'**
   String get soundsTitle;
 
   /// No description provided for @soundsListening.
   ///
   /// In ro, this message translates to:
-  /// **'Ascult sunetele din jur, și cu telefonul blocat. Pornesc singur la fiecare deschidere a aplicației.'**
+  /// **'Pornite, și cu telefonul blocat. Pornesc singure la fiecare deschidere a aplicației.'**
   String get soundsListening;
 
   /// No description provided for @soundsIdle.
   ///
   /// In ro, this message translates to:
-  /// **'Ascultarea e oprită.'**
+  /// **'Alertele sunt oprite.'**
   String get soundsIdle;
 
   /// No description provided for @soundsPaused.
   ///
   /// In ro, this message translates to:
-  /// **'Ascultarea e în pauză cât merge subtitrarea. Pornește din nou singură după.'**
+  /// **'În pauză cât merge subtitrarea. Pornesc din nou singure după.'**
   String get soundsPaused;
 
   /// No description provided for @homeSounds.
   ///
   /// In ro, this message translates to:
-  /// **'Sunete'**
+  /// **'Vibrații'**
   String get homeSounds;
 
   /// No description provided for @homeSoundsOn.
   ///
   /// In ro, this message translates to:
-  /// **'Pornit: telefonul te alertează la alarme, claxoane și numele tău.'**
+  /// **'Pornite: telefonul vibrează la alarme, claxoane și numele tău.'**
   String get homeSoundsOn;
 
   /// No description provided for @homeSoundsOff.
   ///
   /// In ro, this message translates to:
-  /// **'Oprit: atinge ca să pornești alertele de sunet.'**
+  /// **'Oprite: atinge ca să pornești alertele prin vibrații.'**
   String get homeSoundsOff;
 
   /// No description provided for @homeSoundsPaused.
@@ -1019,25 +1019,25 @@ abstract class AppLocalizations {
   /// No description provided for @soundsDetectorMissing.
   ///
   /// In ro, this message translates to:
-  /// **'Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.'**
+  /// **'Alertele automate nu merg pe acest dispozitiv. Poți testa vibrațiile mai jos.'**
   String get soundsDetectorMissing;
 
   /// No description provided for @soundsExplain.
   ///
   /// In ro, this message translates to:
-  /// **'Sunetele importante din jur devin alerte pe ecran și vibrații. Totul rămâne pe telefon.'**
+  /// **'Telefonul vibrează și îți arată pe ecran când se întâmplă ceva important în jur. Totul rămâne pe telefon.'**
   String get soundsExplain;
 
   /// No description provided for @soundsSwitch.
   ///
   /// In ro, this message translates to:
-  /// **'Alerte de sunet'**
+  /// **'Alerte prin vibrații'**
   String get soundsSwitch;
 
   /// No description provided for @soundsVibrations.
   ///
   /// In ro, this message translates to:
-  /// **'Vibrații'**
+  /// **'Vibrația pentru fiecare nivel'**
   String get soundsVibrations;
 
   /// No description provided for @soundsLevelExamplesCritical.
@@ -2231,13 +2231,13 @@ abstract class AppLocalizations {
   /// No description provided for @emergencyTitle.
   ///
   /// In ro, this message translates to:
-  /// **'Alarmă de urgență'**
+  /// **'Urgență'**
   String get emergencyTitle;
 
   /// No description provided for @emergencyHomeHint.
   ///
   /// In ro, this message translates to:
-  /// **'Când aplicația nu aude pericolul'**
+  /// **'Anunță colegii din apropiere'**
   String get emergencyHomeHint;
 
   /// No description provided for @emergencyIntro.
@@ -2639,7 +2639,7 @@ abstract class AppLocalizations {
   /// No description provided for @navHome.
   ///
   /// In ro, this message translates to:
-  /// **'Acasă'**
+  /// **'Dashboard'**
   String get navHome;
 
   /// No description provided for @navMeeting.
@@ -2651,13 +2651,13 @@ abstract class AppLocalizations {
   /// No description provided for @navSounds.
   ///
   /// In ro, this message translates to:
-  /// **'Sunete'**
+  /// **'Vibrații'**
   String get navSounds;
 
   /// No description provided for @navAlarm.
   ///
   /// In ro, this message translates to:
-  /// **'Alarmă'**
+  /// **'Urgență'**
   String get navAlarm;
 
   /// No description provided for @navSettings.
@@ -2669,13 +2669,13 @@ abstract class AppLocalizations {
   /// No description provided for @alarmNeedsAccount.
   ///
   /// In ro, this message translates to:
-  /// **'Alarma de urgență cere un cont: numele tău pleacă împreună cu alarma, ca colegii să știe cine a dat-o.'**
+  /// **'Urgența cere un cont: numele tău pleacă împreună cu ea, ca colegii să știe cine a trimis-o.'**
   String get alarmNeedsAccount;
 
   /// No description provided for @alarmAccountsOff.
   ///
   /// In ro, this message translates to:
-  /// **'Conturile nu sunt pornite pe acest server, așa că alarma de urgență nu poate fi trimisă de aici.'**
+  /// **'Conturile nu sunt pornite pe acest server, așa că urgența nu poate fi trimisă de aici.'**
   String get alarmAccountsOff;
 
   /// No description provided for @meetingTitle.

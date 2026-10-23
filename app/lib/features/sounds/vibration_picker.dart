@@ -7,7 +7,7 @@ import '../../settings/app_settings.dart';
 import '../../theme/echo_style.dart';
 import '../alerts/alert_controller.dart';
 import '../alerts/sound_alert.dart';
-import 'grouped_list.dart';
+import '../../widgets/grouped_list.dart';
 
 String hapticName(AppLocalizations l10n, Haptic haptic) => switch (haptic) {
       Haptic.long => l10n.hapticLong,
@@ -29,9 +29,9 @@ String levelLabel(AppLocalizations l10n, AlertLevel level) => switch (level) {
 
 /// The same icons as the alert screens, so a level is never told by colour alone.
 IconData levelIcon(AlertLevel level) => switch (level) {
-      AlertLevel.critical => Icons.emergency,
+      AlertLevel.critical => Icons.error_outline_rounded,
       AlertLevel.warning => Icons.warning_amber_rounded,
-      AlertLevel.info => Icons.info_outline,
+      AlertLevel.info => Icons.info_outline_rounded,
     };
 
 /// Picks the vibration of one alert level, like picking a ringtone: a tap plays the vibration and

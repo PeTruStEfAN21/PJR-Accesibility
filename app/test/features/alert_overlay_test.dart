@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 
@@ -25,7 +26,7 @@ void main() {
     final h = await TestHarness.create(prefs: {'uiLanguage': 'en'});
     await tester.pumpWidget(h.app());
     expect(find.text('Hi! Where do we start?'), findsOneWidget);
-    expect(inBar('Home'), findsOneWidget);
+    expect(inBar('Dashboard'), findsOneWidget);
     h.alerts.dispose();
   });
 
@@ -69,6 +70,29 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Ușă sau sonerie'), findsOneWidget);
     expect(find.text('Am înțeles'), findsNothing);
+    h.alerts.dispose();
+  });
+
+  testWidgets('a small alert drops in at the top, like a phone notification, and swipes away upward', (tester) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'tipsEnabled': false});
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    h.sounds.controller.add(SoundAlert(SoundKind.name, at: DateTime(2026)));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 40));
+    final label = find.text('Cineva te strigă');
+    final entering = tester.getTopLeft(label).dy;
+    await tester.pumpAndSettle();
+    final settled = tester.getTopLeft(label).dy;
+    expect(settled, lessThan(844 / 4));
+    expect(entering, lessThan(settled));
+
+    await tester.fling(label, const Offset(0, -300), 1500);
+    await tester.pumpAndSettle();
+    expect(label, findsNothing);
     h.alerts.dispose();
   });
 }

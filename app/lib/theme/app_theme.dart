@@ -60,7 +60,9 @@ ThemeData buildTheme(AppSettings settings) {
       .apply(bodyColor: p.text, displayColor: p.text);
 
   final edge = settings.highContrast ? BorderSide(color: p.border, width: 2) : BorderSide(color: p.border);
-  const pill = StadiumBorder();
+  // Buttons as on iOS: a rounded rectangle, 50 px tall, semibold 17 px text.
+  final button = RoundedRectangleBorder(borderRadius: BorderRadius.circular(14));
+  final buttonText = textTheme.titleMedium;
   final focusRing = WidgetStateProperty.resolveWith<BorderSide?>(
       (states) => states.contains(WidgetState.focused) ? BorderSide(color: p.accent, width: 3) : null);
 
@@ -79,8 +81,9 @@ ThemeData buildTheme(AppSettings settings) {
       surfaceTintColor: Colors.transparent,
       scrolledUnderElevation: 0,
       elevation: 0,
-      centerTitle: false,
-      titleTextStyle: textTheme.titleLarge?.copyWith(color: p.text),
+      // Inline titles centred and small, as on iOS; main screens show a large title in the page instead.
+      centerTitle: true,
+      titleTextStyle: textTheme.titleMedium?.copyWith(color: p.text),
       iconTheme: IconThemeData(color: p.text),
     ),
     cardTheme: CardThemeData(
@@ -94,10 +97,10 @@ ThemeData buildTheme(AppSettings settings) {
       style: FilledButton.styleFrom(
         backgroundColor: p.primary,
         foregroundColor: p.onPrimary,
-        minimumSize: const Size(64, 52),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        shape: pill,
-        textStyle: textTheme.labelLarge,
+        minimumSize: const Size(64, 50),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        shape: button,
+        textStyle: buttonText,
       ).copyWith(side: focusRing),
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
@@ -105,20 +108,20 @@ ThemeData buildTheme(AppSettings settings) {
         backgroundColor: p.primary,
         foregroundColor: p.onPrimary,
         elevation: 0,
-        minimumSize: const Size(64, 52),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        shape: pill,
-        textStyle: textTheme.labelLarge,
+        minimumSize: const Size(64, 50),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        shape: button,
+        textStyle: buttonText,
       ).copyWith(side: focusRing),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         foregroundColor: p.accent,
-        minimumSize: const Size(64, 52),
-        padding: const EdgeInsets.symmetric(horizontal: 22),
-        shape: pill,
+        minimumSize: const Size(64, 50),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        shape: button,
         side: BorderSide(color: p.control),
-        textStyle: textTheme.labelLarge,
+        textStyle: buttonText,
       ),
     ),
     textButtonTheme: TextButtonThemeData(

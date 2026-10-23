@@ -38,14 +38,14 @@ Future<TestHarness> sized(WidgetTester tester, Size size) async {
 Finder bar(String label) => find.descendant(of: find.byKey(PhoneShell.barKey), matching: find.text(label));
 
 void main() {
-  testWidgets('on a phone a floating bar holds Acasă, Meeting, Sunete, Alarmă and Setări', (tester) async {
+  testWidgets('on a phone a floating bar holds Dashboard, Meeting, Vibrații, Urgență and Setări', (tester) async {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    for (final label in ['Acasă', 'Meeting', 'Sunete', 'Alarmă', 'Setări']) {
+    for (final label in ['Dashboard', 'Meeting', 'Vibrații', 'Urgență', 'Setări']) {
       expect(bar(label), findsOneWidget, reason: label);
     }
-    expect(tester.getSemantics(bar('Acasă')), isSemantics(isSelected: true, isButton: true));
+    expect(tester.getSemantics(bar('Dashboard')), isSemantics(isSelected: true, isButton: true));
   });
 
   testWidgets('the bar switches between the main screens', (tester) async {
@@ -58,7 +58,7 @@ void main() {
     expect(find.byType(JoinScreen), findsOneWidget);
     expect(tester.getSemantics(bar('Meeting')), isSemantics(isSelected: true, isButton: true));
 
-    await tester.tap(bar('Sunete'));
+    await tester.tap(bar('Vibrații'));
     await tester.pumpAndSettle();
     expect(find.byType(SoundsScreen), findsOneWidget);
 
@@ -67,13 +67,13 @@ void main() {
     expect(find.byType(SettingsScreen), findsOneWidget);
   });
 
-  testWidgets('on the phone, Acasă shows only the greeting: the bar holds the rest', (tester) async {
+  testWidgets('on the phone, Dashboard shows only the greeting: the bar holds the rest', (tester) async {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
     final home = find.byType(HomeScreen);
     expect(find.text('Bună! Cu ce începem?'), findsOneWidget);
-    for (final gone in ['Conectează-te la speaker', 'Sunete', 'Vorbesc cu cineva', 'Tu prezinți? Deschide modul prezentator']) {
+    for (final gone in ['Conectează-te la speaker', 'Vibrații', 'Vorbesc cu cineva', 'Tu prezinți? Deschide modul prezentator']) {
       expect(find.descendant(of: home, matching: find.text(gone)), findsNothing, reason: gone);
     }
   });
@@ -94,7 +94,7 @@ void main() {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    await tester.tap(bar('Alarmă'));
+    await tester.tap(bar('Urgență'));
     await tester.pumpAndSettle();
     expect(find.textContaining('Conturile nu sunt pornite'), findsOneWidget);
   });
@@ -113,7 +113,7 @@ void main() {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    await tester.tap(bar('Sunete'));
+    await tester.tap(bar('Vibrații'));
     await tester.pumpAndSettle();
     final item = find.text('Învață un sunet');
     final list = find.descendant(of: find.byType(SoundsScreen), matching: find.byType(Scrollable)).first;
@@ -131,7 +131,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    final heights = {for (final label in ['Acasă', 'Meeting', 'Sunete', 'Alarmă', 'Setări']) tester.getRect(bar(label)).height.round()};
+    final heights = {for (final label in ['Dashboard', 'Meeting', 'Vibrații', 'Urgență', 'Setări']) tester.getRect(bar(label)).height.round()};
     expect(heights, hasLength(1));
     expect(tester.takeException(), isNull);
   });
@@ -159,5 +159,60 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(PresenterScreen), findsOneWidget);
     expect(find.byKey(PhoneShell.barKey), findsNothing);
+  });
+
+  testWidgets('the bar shows Dashboard with a dashboard icon', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    expect(find.descendant(of: find.byKey(PhoneShell.barKey), matching: find.byIcon(Icons.space_dashboard)), findsOneWidget);
+    expect(find.descendant(of: find.byKey(PhoneShell.barKey), matching: find.byIcon(Icons.vibration_outlined)), findsOneWidget);
+  });
+
+  testWidgets('main screens open on a large title, without a top bar', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    for (final (label, title) in [('Meeting', 'Meeting'), ('Vibrații', 'Vibrații'), ('Urgență', 'Urgență'), ('Setări', 'Setări')]) {
+      await tester.tap(bar(label));
+      await tester.pumpAndSettle();
+      expect(find.byType(AppBar), findsNothing, reason: label);
+      final heading = find.byWidgetPredicate((w) => w is Text && w.data == title && (w.style?.fontSize ?? 0) >= 30);
+      expect(heading, findsOneWidget, reason: label);
+    }
+  });
+
+  testWidgets('switching tabs crossfades: both screens show for a moment, then only the new one', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Setări'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(SettingsScreen), findsOneWidget);
+    final fade = tester.widget<FadeTransition>(
+      find.ancestor(of: find.byType(SettingsScreen), matching: find.byType(FadeTransition)).first,
+    );
+    expect(fade.opacity.value, inExclusiveRange(0, 1));
+
+    await tester.pumpAndSettle();
+    expect(find.byType(HomeScreen), findsNothing);
+    expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('a tab keeps its state after switching away and back', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Meeting'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Prezint'));
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Setări'));
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Meeting'));
+    await tester.pumpAndSettle();
+    expect(tester.getSemantics(find.text('Prezint')), isSemantics(isSelected: true, isButton: true));
   });
 }

@@ -82,9 +82,8 @@ class AppSettings extends ChangeNotifier {
     uiLanguage = _prefs.getString('uiLanguage');
     speechLanguage = _prefs.getString('speechLanguage') ?? speechLanguage;
     textScale = (_prefs.getDouble('textScale') ?? textScale).clamp(minTextScale, maxTextScale);
-    dyslexiaMode = _prefs.getBool('dyslexiaMode') ?? dyslexiaMode;
-    palette = RolePaletteKind.values.asNameMap()[_prefs.getString('palette')] ?? palette;
-    highContrast = _prefs.getBool('highContrast') ?? highContrast;
+    // The dyslexia font, high contrast and role colours are no longer offered in Settings, so one saved
+    // before is not loaded: nobody stays stuck with a look they cannot turn off.
     autoScroll = _prefs.getBool('autoScroll') ?? autoScroll;
     emergencyExit = _prefs.getString('emergencyExit') ?? emergencyExit;
     serverUrl = _prefs.getString('serverUrl') ?? serverUrl;

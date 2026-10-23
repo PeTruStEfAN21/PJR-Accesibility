@@ -97,9 +97,9 @@ abstract final class EchoButtons {
   static ButtonStyle primary(EchoPalette p) => FilledButton.styleFrom(
         backgroundColor: p.primary,
         foregroundColor: p.onPrimary,
-        shape: const StadiumBorder(),
-        minimumSize: const Size(64, 48),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        minimumSize: const Size(64, 50),
+        padding: const EdgeInsets.symmetric(horizontal: 20),
         splashFactory: NoSplash.splashFactory,
       ).copyWith(
         overlayColor: WidgetStateProperty.resolveWith((states) =>
