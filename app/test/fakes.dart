@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
+import 'package:pjr_accesibilitate/core/join_link.dart';
 import 'package:pjr_accesibilitate/core/account/account_service.dart';
 import 'package:pjr_accesibilitate/core/history/meeting_store.dart';
 import 'package:pjr_accesibilitate/core/org/activity_store.dart';
@@ -498,9 +499,11 @@ class TestHarness {
     );
   }
 
-  Widget app() => EchoApp(
+  /// [link]: opened from a meeting's QR link, as a guest.
+  Widget app({JoinLink? link}) => EchoApp(
         settings: settings,
         alerts: alerts,
+        link: link,
         services: AppServices(
           speech: speech,
           sounds: sounds,

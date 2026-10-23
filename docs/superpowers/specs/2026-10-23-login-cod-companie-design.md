@@ -38,6 +38,8 @@ Aplicația merge în trei direcții: **adminul** care administrează echipa, **a
 
 ## 4. Aplicația
 
+- **Pornirea** (cerut de Ayan după prima variantă): cu conturi, aplicația de telefon pornește pe login, cu logo-ul Echo mare pe mijloc și „Intră în cont sau creează-ți unul”, apoi intră în aplicație. Ieșirea din cont duce înapoi la login. Fără login rămân: pagina de laptop, „Prezinți un meeting? Intră fără cont” (regula 6) și linkul din QR al participantului.
+- La Angajat, **emailul e primul câmp**, apoi codul companiei, numele și tipul.
 - `SignInScreen`: selector **Admin / Angajat**.
   - **Admin**: email → cod → (dacă nu are companie) numele companiei → ecranul companiei.
   - **Angajat**: codul companiei, numele, „Citesc ce se spune” / „Aud ce se spune”, email → cod → intrarea în companie. Dacă codul companiei e greșit sau expirat, omul rămâne logat și îl poate rescrie.

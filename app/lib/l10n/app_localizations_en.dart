@@ -1651,4 +1651,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get memberHears => 'Hears what is said';
+
+  @override
+  String get signInWelcome => 'Sign in or create your account';
+
+  @override
+  String get signInPresentWithout =>
+      'Presenting a meeting? Go in without an account';
 }

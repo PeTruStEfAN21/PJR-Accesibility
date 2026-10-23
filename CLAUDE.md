@@ -47,7 +47,7 @@
 
 ## Conturi și date (`supabase/`, `server/app/auth.py`, `hub.py`, `limits.py`)
 
-- **Contul e opțional.** Fără `SUPABASE_URL` / `SUPABASE_ANON_KEY` aplicația și serverul merg exact ca înainte, anonim. Prezentatorul nu are niciodată cont.
+- **Contul.** Fără `SUPABASE_URL` / `SUPABASE_ANON_KEY` aplicația și serverul merg exact ca înainte, anonim. Cu ele, **aplicația de telefon pornește pe ecranul de login** (logo mare, Admin / Angajat) și intră în aplicație după login. Fără cont rămân: pagina de laptop, linkul „Prezinți un meeting? Intră fără cont” și linkul din QR al participantului. Prezentatorul nu are niciodată cont.
 - **Login fără parolă**: cod de 6 cifre pe email și Google. Fără Apple deocamdată (decizie de echipă). Fără CAPTCHA și fără coduri dictate prin apel (utilizatori surzi).
 - **Admin / Angajat** (`docs/superpowers/specs/2026-10-23-login-cod-companie-design.md`): adminul intră cu email (sau Google) și își face compania; din Compania mea generează **codul companiei** (8 caractere, 7 zile, păstrat doar ca amprentă, 5 încercări greșite pe oră). Angajatul intră cu codul, numele, „Citesc / Aud ce se spune” și emailul confirmat; adminul îl vede în listă și îl poate scoate.
 - **Ce se salvează**: doar replicile finale (text), rezumatul și setările, în contul participantului, plus istoricul activității (alarme și meetinguri, `activity_log`). Niciodată audio sau video.

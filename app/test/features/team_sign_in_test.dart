@@ -6,14 +6,14 @@ import 'package:pjr_accesibilitate/features/organization/org_screen.dart';
 import '../fakes.dart';
 
 /// The sign-in screen from the Dashboard, on a phone.
-Future<TestHarness> openSignIn(WidgetTester tester, {double height = 844}) async {
+/// A phone's width; tall, so the whole form stays built while it is filled in any order.
+Future<TestHarness> openSignIn(WidgetTester tester, {double height = 1800}) async {
   tester.view.physicalSize = Size(390, height);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final h = await TestHarness.create(accounts: true);
+  // With accounts, the phone app opens on sign-in.
   await tester.pumpWidget(h.app());
-  await tester.pumpAndSettle();
-  await tester.tap(find.byTooltip('Intră în cont'));
   await tester.pumpAndSettle();
   return h;
 }

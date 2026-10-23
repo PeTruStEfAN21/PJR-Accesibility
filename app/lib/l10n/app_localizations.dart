@@ -2929,6 +2929,18 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Aude ce se spune'**
   String get memberHears;
+
+  /// No description provided for @signInWelcome.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în cont sau creează-ți unul'**
+  String get signInWelcome;
+
+  /// No description provided for @signInPresentWithout.
+  ///
+  /// In ro, this message translates to:
+  /// **'Prezinți un meeting? Intră fără cont'**
+  String get signInPresentWithout;
 }
 
 class _AppLocalizationsDelegate
