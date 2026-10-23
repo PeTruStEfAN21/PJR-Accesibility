@@ -1173,3 +1173,30 @@ def test_leaving_the_company_removes_the_type_changes_from_its_history(db):
     assert events_seen_by(db, admin, org) == []
     # The other company's change stays while they are still there.
     assert events_seen_by(db, other_admin, other_org) == ["member_experience_changed"]
+
+
+def test_every_table_has_row_level_security(db):
+    without = db.execute(
+        "select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace"
+        " where n.nspname = 'public' and c.relkind = 'r' and not c.relrowsecurity"
+    ).fetchall()
+    assert without == []
+
+
+@pytest.mark.parametrize("role", ["anon", "authenticated"])
+def test_trigger_functions_cannot_be_called_from_the_app(db, role):
+    callable_triggers = db.execute(
+        "select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace"
+        " where n.nspname = 'public' and p.prorettype = 'trigger'::regtype"
+        " and has_function_privilege(%s, p.oid, 'execute') order by 1",
+        (role,),
+    ).fetchall()
+    assert callable_triggers == []
+
+
+def test_signed_out_requests_call_no_function(db):
+    callable_functions = db.execute(
+        "select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace"
+        " where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute') order by 1"
+    ).fetchall()
+    assert callable_functions == []
