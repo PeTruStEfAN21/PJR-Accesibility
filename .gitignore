@@ -95,3 +95,4 @@ app/supabase.env.json
 
 # Regulile pentru asistentul AI rămân doar local, nu în repo
 /CLAUDE.md
+/docs/claude-code.md

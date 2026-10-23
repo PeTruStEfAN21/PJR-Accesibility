@@ -2,7 +2,6 @@
 
 Regulile de mai jos vin din [Web Interface Guidelines](https://vercel.com/design/guidelines) ale Vercel ([vercel-labs/web-interface-guidelines](https://github.com/vercel-labs/web-interface-guidelines), licență MIT), adaptate pentru Flutter (iPhone și pagina prezentatorului în Chrome). Se aplică la orice ecran nou sau modificat, împreună cu regulile de accesibilitate ale proiectului (etichete pentru VoiceOver, mărimea textului respectată, contrast WCAG AA, ținte de atingere de minim 48 px, nimic care depinde doar de sunet sau de culoare), care au prioritate.
 
-Verificare automată: skillul `web-design-guidelines` (în `.claude/skills/`) citește lista la zi și raportează abaterile ca `fișier:linie`.
 
 ## Interacțiuni
 
@@ -42,7 +41,7 @@ Verificare automată: skillul `web-design-guidelines` (în `.claude/skills/`) ci
 - **Starea nu se arată doar prin culoare**: mereu și text sau iconiță (regulă de bază a proiectului).
 - **Iconițele singure au etichetă** (`tooltip` sau `Semantics(label:)`); decorul e ascuns cu `ExcludeSemantics`.
 - **Titluri ierarhice**: `Semantics(header: true)` pe titlurile de ecran și de secțiune.
-- **Texte lungi**: layoutul rezistă la nume scurte, obișnuite și foarte lungi (vezi skillul `break-ui`).
+- **Texte lungi**: layoutul rezistă la nume scurte, obișnuite și foarte lungi.
 - **Formate după limbă**: date, ore și numere prin `intl`, după limba aleasă.
 - **Spațiu care nu se rupe** între număr și unitate: `10 min`.
 
