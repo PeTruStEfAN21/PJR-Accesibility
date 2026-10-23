@@ -2,7 +2,7 @@
 
 ## Proiectul
 
-Platformă care face meetingurile față în față accesibile persoanelor surde. Designul în `docs/specs/`.
+Platformă care face meetingurile față în față accesibile persoanelor surde. Prezentarea produsului e în `docs/prezentare-generala.tex`, designul în `docs/specs/`.
 
 - `app/`: aplicația Flutter (iPhone + pagina prezentatorului în Chrome)
 - `server/`: serverul Python (FastAPI): legătura telefon–laptop și partea de AI
@@ -27,6 +27,7 @@ Fără pașii de mai jos aplicația merge anonim, ca înainte. Detalii în `docs
 5. În `.env`: `SUPABASE_URL`. Pentru aplicație creează `app/supabase.env.json` (ignorat de git) cu `{"SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "<cheia publishable>"}`, apoi `flutter run --dart-define-from-file=supabase.env.json` (la fel pentru `flutter build web`).
 
 Local, fără cloud: `npx supabase start` (cere Docker), iar emailurile apar în Mailpit pe http://localhost:54324.
+
 ### Aplicația Android (APK)
 
 ```
@@ -34,7 +35,6 @@ cd app && flutter build apk --release --dart-define-from-file=supabase.env.json 
 ```
 
 Rezultatul e `app/build/app/outputs/flutter-apk/app-release.apk` (toate arhitecturile, ~96 MB), cu conturile din `supabase.env.json` și serverul găzduit pe Render ca adresă implicită. Cere Android SDK și un JDK (`flutter doctor`). Semnătura e cea de debug a calculatorului care îl construiește: un APK nou se instalează peste cel vechi doar dacă vine de pe același calculator. Iconițele aplicației (Android, notificări, iOS) se refac din logo cu `python tools/app_icon.py`.
-
 
 ### Companii (organizații)
 
