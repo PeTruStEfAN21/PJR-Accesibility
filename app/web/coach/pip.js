@@ -8,7 +8,7 @@ window.echoPip = (() => {
     main {
       box-sizing: border-box; height: 100%; display: flex; align-items: center; gap: 14px;
       padding: 12px 16px; border-left: 8px solid #3a3a3a;
-      font: 600 calc(20px * var(--scale)) / 1.3 system-ui, -apple-system, "Segoe UI", sans-serif;
+      font: 700 calc(20px * var(--scale)) / 1.3 Roboto, sans-serif;
     }
     main.alert { border-left-color: #ffc857; }
     .icon { font-size: calc(34px * var(--scale)); line-height: 1; }
@@ -44,7 +44,9 @@ window.echoPip = (() => {
       doc.documentElement.lang = language;
       doc.documentElement.style.setProperty('--scale', String(scale));
       const style = doc.createElement('style');
-      style.textContent = CSS;
+      // The app's own Roboto (bundled with the build), like every other text in Echo.
+      const roboto = new URL('assets/assets/fonts/Roboto-Bold.ttf', document.baseURI).href;
+      style.textContent = `@font-face { font-family: Roboto; font-weight: 700; src: url(${roboto}) format('truetype'); }` + CSS;
       doc.head.append(style);
       box = doc.createElement('main');
       box.setAttribute('role', 'status');
