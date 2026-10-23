@@ -2941,6 +2941,42 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Prezinți un meeting? Intră fără cont'**
   String get signInPresentWithout;
+
+  /// No description provided for @demoSignInLink.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cont de test pentru demo'**
+  String get demoSignInLink;
+
+  /// No description provided for @demoSignInTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cont de test'**
+  String get demoSignInTitle;
+
+  /// No description provided for @demoSignInHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Doar pentru conturile de demo făcute de echipă. Conturile reale intră cu un cod pe email.'**
+  String get demoSignInHint;
+
+  /// No description provided for @demoSignInPassword.
+  ///
+  /// In ro, this message translates to:
+  /// **'Parola'**
+  String get demoSignInPassword;
+
+  /// No description provided for @demoSignInGo.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră'**
+  String get demoSignInGo;
+
+  /// No description provided for @demoSignInFailed.
+  ///
+  /// In ro, this message translates to:
+  /// **'Emailul sau parola nu sunt bune.'**
+  String get demoSignInFailed;
 }
 
 class _AppLocalizationsDelegate

@@ -1658,4 +1658,23 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get signInPresentWithout =>
       'Presenting a meeting? Go in without an account';
+
+  @override
+  String get demoSignInLink => 'Demo test account';
+
+  @override
+  String get demoSignInTitle => 'Test account';
+
+  @override
+  String get demoSignInHint =>
+      'Only for the demo accounts the team made. Real accounts sign in with an emailed code.';
+
+  @override
+  String get demoSignInPassword => 'Password';
+
+  @override
+  String get demoSignInGo => 'Sign in';
+
+  @override
+  String get demoSignInFailed => 'The email or the password is wrong.';
 }

@@ -52,6 +52,9 @@ class _SignInScreenState extends State<SignInScreen> {
   /// Signed in as an employee, but the company code did not work: they type it again.
   bool _joinPending = false;
 
+  /// A demo account is signing in with its password: it goes straight in, already in its company.
+  bool _demo = false;
+
   @override
   void initState() {
     super.initState();
@@ -72,7 +75,7 @@ class _SignInScreenState extends State<SignInScreen> {
   /// The admin goes on to the company screen (where the company is made the first time).
   /// The employee's joining runs after the email code is confirmed, in [_verify].
   void _onAccountChanged() {
-    if (!widget.account.isSignedIn || _closed || !mounted || _role != SignInRole.admin) return;
+    if (!widget.account.isSignedIn || _closed || _demo || !mounted || _role != SignInRole.admin) return;
     _closed = true;
     final organizations = ServicesScope.of(context).organizations;
     final navigator = Navigator.of(context);
@@ -172,6 +175,27 @@ class _SignInScreenState extends State<SignInScreen> {
     final joined = organizations.memberships.where((m) => m.orgId == orgId).firstOrNull;
     if (joined != null) messenger.showSnackBar(SnackBar(content: Text(l10n.joinDone(joined.orgName))));
     _finish(navigator);
+  }
+
+  /// The demo accounts' way in (tools/seed_test_accounts.py), in a sheet; true once signed in.
+  Future<void> _openDemoSignIn() async {
+    final navigator = Navigator.of(context);
+    final signedIn = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _DemoSignInSheet(
+        signIn: (email, password) async {
+          _demo = true;
+          try {
+            await widget.account.signInWithPassword(email, password);
+          } on Object {
+            _demo = false;
+            rethrow;
+          }
+        },
+      ),
+    );
+    if (signedIn == true && mounted) _finish(navigator);
   }
 
   void _stayToFix(String error) {
@@ -387,8 +411,18 @@ class _SignInScreenState extends State<SignInScreen> {
                   label: Text(l10n.signInGoogle),
                 ),
               ],
+              if (sentTo == null && !_joinPending) ...[
+                const SizedBox(height: 16),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: _busy ? null : _openDemoSignIn,
+                    icon: const Icon(Icons.science_outlined),
+                    label: Text(l10n.demoSignInLink),
+                  ),
+                ),
+              ],
               if (widget.onDone != null && sentTo == null && !_joinPending) ...[
-                const SizedBox(height: 24),
+                const SizedBox(height: 4),
                 Center(
                   child: TextButton.icon(
                     onPressed: () =>
@@ -400,6 +434,121 @@ class _SignInScreenState extends State<SignInScreen> {
               ],
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Email and password for a demo account; closes with true once signed in.
+class _DemoSignInSheet extends StatefulWidget {
+  const _DemoSignInSheet({required this.signIn});
+  final Future<void> Function(String email, String password) signIn;
+
+  @override
+  State<_DemoSignInSheet> createState() => _DemoSignInSheetState();
+}
+
+class _DemoSignInSheetState extends State<_DemoSignInSheet> {
+  final _email = TextEditingController();
+  final _password = TextEditingController();
+  bool _busy = false;
+  bool _failed = false;
+
+  @override
+  void dispose() {
+    _email.dispose();
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _go() async {
+    final navigator = Navigator.of(context);
+    setState(() {
+      _busy = true;
+      _failed = false;
+    });
+    try {
+      await widget.signIn(_email.text, _password.text);
+      navigator.pop(true);
+    } on Object {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _failed = true;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final palette = EchoPalette.of(context);
+    return Padding(
+      // Above the keyboard.
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: SafeArea(
+        child: ListView(
+          shrinkWrap: true,
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
+          children: [
+            Semantics(
+              header: true,
+              child: Text(l10n.demoSignInTitle, textAlign: TextAlign.center, style: theme.textTheme.titleLarge),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.demoSignInHint,
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(color: palette.muted),
+            ),
+            const SizedBox(height: 20),
+            AutofillGroup(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _email,
+                    decoration: InputDecoration(labelText: l10n.signInEmailLabel),
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
+                    autocorrect: false,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _password,
+                    decoration: InputDecoration(labelText: l10n.demoSignInPassword),
+                    obscureText: true,
+                    autofillHints: const [AutofillHints.password],
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => _busy ? null : _go(),
+                  ),
+                ],
+              ),
+            ),
+            if (_failed) ...[
+              const SizedBox(height: 12),
+              Semantics(
+                liveRegion: true,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.error_outline_rounded, color: theme.colorScheme.error),
+                    const SizedBox(width: 10),
+                    Expanded(child: Text(l10n.demoSignInFailed, style: theme.textTheme.bodyLarge)),
+                  ],
+                ),
+              ),
+            ],
+            const SizedBox(height: 16),
+            FilledButton(
+              style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+              onPressed: _busy ? null : _go,
+              child: Text(l10n.demoSignInGo),
+            ),
+          ],
         ),
       ),
     );

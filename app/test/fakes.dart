@@ -331,6 +331,15 @@ class FakeAccountService extends AccountService {
   @override
   Future<void> signInWithGoogle() async => signInAs('google@example.com');
 
+  /// Demo accounts with a password (tools/seed_test_accounts.py makes the real ones).
+  final passwords = <String, String>{};
+
+  @override
+  Future<void> signInWithPassword(String email, String password) async {
+    if (passwords[email.trim()] != password) throw StateError('invalid login credentials');
+    signInAs(email.trim());
+  }
+
   @override
   Future<void> signOut() async {
     _user = null;
