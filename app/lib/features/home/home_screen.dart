@@ -122,7 +122,8 @@ class HomeScreen extends StatelessWidget {
             if (meetings != null)
               _ToolRow(icon: Icons.history, title: l10n.homeHistory, hint: l10n.homeHistoryHint, onTap: () => open(HistoryScreen(meetings: meetings))),
             // Raising an alarm needs an account: the name is kept with it.
-            if (account?.isSignedIn == true)
+            // In the phone's frame the alarm has its own entry in the bar.
+            if (account?.isSignedIn == true && shell == null)
               _ToolRow(
                 icon: Icons.emergency_share,
                 title: l10n.emergencyTitle,
@@ -244,7 +245,8 @@ class HomeScreen extends StatelessWidget {
                   )
                 else ...[
                   if (showTip) ...[tip(), const SizedBox(height: 16)],
-                  mainAction(),
+                  // In the phone's frame, joining and sounds are in the bar: Acasă does not repeat them.
+                  if (shell == null) mainAction(),
                 ],
                 // The laptop also has everything the phone app has: joining and sounds side by side.
                 if (presenterFirst) ...[
@@ -265,7 +267,7 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 16),
                     soundsAction(),
                   ],
-                ] else ...[
+                ] else if (shell == null) ...[
                   const SizedBox(height: 16),
                   soundsAction(),
                 ],
@@ -280,10 +282,10 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ],
-                const SizedBox(height: 16),
-                elsewhere(),
-                // The laptop shows joining as a card; the phone links to presenting.
-                if (!presenterFirst) ...[
+                if (shell == null) ...[const SizedBox(height: 16), elsewhere()],
+                // The laptop shows joining as a card; the phone without the frame links to presenting
+                // (in the frame, presenting is in the Meeting tab).
+                if (!presenterFirst && shell == null) ...[
                   const SizedBox(height: 24),
                   Align(
                     alignment: AlignmentDirectional.centerStart,
@@ -334,7 +336,7 @@ class _MainAction extends StatelessWidget {
             borderRadius: shape,
             boxShadow: highContrast
                 ? null
-                : [BoxShadow(color: const Color(0xFF0B3A46).withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 10))],
+                : [BoxShadow(color: EchoPalette.shadow.withValues(alpha: 0.08), blurRadius: 24, offset: const Offset(0, 10))],
           ),
           child: Material(
           color: Colors.transparent,
@@ -349,7 +351,7 @@ class _MainAction extends StatelessWidget {
                   : const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [Color(0xFFEAF8FB), Color(0xFFD5EFF5)],
+                      colors: [EchoPalette.cardTop, EchoPalette.cardBottom],
                     ),
               border: Border.all(color: highContrast ? palette.border : Colors.white, width: highContrast ? 2 : 1.5),
             ),
@@ -408,7 +410,7 @@ class _Chip extends StatelessWidget {
         border: Border.all(color: highContrast ? palette.border : Colors.white, width: highContrast ? 2 : 1),
         boxShadow: highContrast
             ? null
-            : [BoxShadow(color: const Color(0xFF0B3A46).withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
+            : [BoxShadow(color: EchoPalette.shadow.withValues(alpha: 0.06), blurRadius: 8, offset: const Offset(0, 2))],
       ),
       child: Center(child: child),
     );

@@ -537,7 +537,7 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get soundsExplain =>
-      'Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.';
+      'Sunetele importante din jur devin alerte pe ecran și vibrații. Totul rămâne pe telefon.';
 
   @override
   String get soundsSwitch => 'Alerte de sunet';

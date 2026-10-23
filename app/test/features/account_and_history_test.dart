@@ -7,8 +7,8 @@ import 'participant_screen_test.dart' show caption, joinMeeting, settle;
 final history = find.text('Meetingurile mele', skipOffstage: false);
 
 Future<void> openHistory(WidgetTester tester) async {
-  // The Sounds card pushed the list's last rows past what the list has built.
-  await tester.scrollUntilVisible(find.text('Meetingurile mele'), 100);
+  // On the phone, saved meetings are in the account screen (top right of Acasă).
+  await tester.tap(find.byTooltip('Contul meu'));
   await tester.pumpAndSettle();
   await tester.tap(find.text('Meetingurile mele'));
   await tester.pumpAndSettle();
@@ -53,7 +53,9 @@ void main() {
 
     expect(find.text('Confirmă codul'), findsNothing);
     expect(find.byTooltip('Contul meu'), findsOneWidget);
-    expect(history, findsOneWidget);
+    await openHistory(tester);
+    expect(find.byType(Scaffold), findsWidgets);
+    expect(find.text('Meetingurile mele'), findsWidgets);
   });
 
   testWidgets('an invalid email is explained in text before anything is sent', (tester) async {

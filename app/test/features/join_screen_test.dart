@@ -5,8 +5,7 @@ import '../fakes.dart';
 
 Future<void> openJoin(WidgetTester tester, TestHarness h) async {
   await tester.pumpWidget(h.app());
-  await tester.tap(find.text('Conectează-te la speaker'));
-  await tester.pumpAndSettle();
+  await openTab(tester, 'Meeting');
 }
 
 void main() {

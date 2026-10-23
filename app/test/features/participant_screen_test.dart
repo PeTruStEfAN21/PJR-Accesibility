@@ -9,10 +9,7 @@ import '../fakes.dart';
 
 Future<void> joinMeeting(WidgetTester tester, TestHarness h) async {
   await tester.pumpWidget(h.app());
-  await tester.ensureVisible(find.text('Conectează-te la speaker'));
-  await tester.pumpAndSettle();
-  await tester.tap(find.text('Conectează-te la speaker'));
-  await tester.pumpAndSettle();
+  await openTab(tester, 'Meeting');
   await tester.enterText(find.byType(TextFormField).first, 'abc234');
   await tester.tap(find.text('Schimbă'));
   await tester.pump();
@@ -65,8 +62,7 @@ void main() {
   testWidgets('an invalid code is rejected before connecting', (tester) async {
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
-    await tester.tap(find.text('Conectează-te la speaker'));
-    await tester.pumpAndSettle();
+    await openTab(tester, 'Meeting');
     await tester.enterText(find.byType(TextFormField).first, 'abc');
     await tester.tap(find.text('Intră'));
     await tester.pumpAndSettle();

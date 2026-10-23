@@ -171,7 +171,7 @@
   "homeSoundsUnavailable": "Indisponibil pe acest dispozitiv: atinge pentru detalii.",
   "soundsTest": "Testează alertele",
   "soundsDetectorMissing": "Recunoașterea sunetelor nu merge pe acest dispozitiv. Poți testa alertele de mai jos.",
-  "soundsExplain": "Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.",
+  "soundsExplain": "Sunetele importante din jur devin alerte pe ecran și vibrații. Totul rămâne pe telefon.",
   "soundsSwitch": "Alerte de sunet",
   "soundsVibrations": "Vibrații",
   "soundsLevelExamplesCritical": "Alarmă de incendiu, sirenă",

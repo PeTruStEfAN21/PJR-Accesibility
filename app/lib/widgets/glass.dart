@@ -41,12 +41,12 @@ class GlassSurface extends StatelessWidget {
         boxShadow: shadow
             ? [
                 BoxShadow(
-                  color: const Color(0xFF0B3A46).withValues(alpha: 0.12),
+                  color: EchoPalette.shadow.withValues(alpha: 0.12),
                   blurRadius: 30,
                   offset: const Offset(0, 12),
                 ),
                 BoxShadow(
-                  color: const Color(0xFF0B3A46).withValues(alpha: 0.06),
+                  color: EchoPalette.shadow.withValues(alpha: 0.06),
                   blurRadius: 4,
                   offset: const Offset(0, 1),
                 ),
@@ -115,7 +115,7 @@ class GlassPill extends StatelessWidget {
               : const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFFD9F2F7), Color(0xFFC6EAF2)],
+                  colors: [EchoPalette.pillTop, EchoPalette.pillBottom],
                 ),
           color: highContrast ? palette.raised : null,
           border: Border.all(
@@ -126,7 +126,7 @@ class GlassPill extends StatelessWidget {
               ? null
               : [
                   BoxShadow(
-                    color: const Color(0xFF005C70).withValues(alpha: 0.14),
+                    color: EchoPalette.shadow.withValues(alpha: 0.14),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),

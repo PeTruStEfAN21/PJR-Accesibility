@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/echo_style.dart';
+
 /// The Echo wordmark: "echo" in lowercase, with the "e" sitting inside an ear.
 ///
 /// Drawn from app/assets/brand/echo-logo.svg (viewBox 22 18 300 154): the same paths, stroke and
@@ -8,7 +10,8 @@ import 'package:flutter/material.dart';
 class EchoLogo extends StatelessWidget {
   const EchoLogo({super.key, this.height = 46, required this.semanticLabel, this.color = brandColor});
 
-  static const brandColor = Color(0xFF18B5D1);
+  /// The Deaf community's turquoise ([EchoPalette.turquoise]).
+  static const brandColor = EchoPalette.turquoise;
 
   final double height;
   final String semanticLabel;

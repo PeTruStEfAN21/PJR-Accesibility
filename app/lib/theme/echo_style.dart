@@ -36,30 +36,40 @@ class EchoPalette {
   final Color muted;
   final Color accent;
 
-  /// Icons that carry the brand (main actions, settings): a deeper shade of the logo's cyan, 3:1 or more.
+  /// Icons that carry the brand (main actions, settings): a deeper shade of the turquoise, 3:1 or more.
   final Color brand;
 
   /// The main action's panel: a pale tint of the accent.
   final Color accentTint;
 
-  /// The filled button: the deep cyan, with white text.
+  /// The filled button: the deep turquoise, with white text.
   final Color primary;
   final Color onPrimary;
 
-  /// Calm, built around the logo's cyan: the cyan itself only in the logo, a deeper cyan from the same
-  /// family for actions (7:1 on white), near-black text, a very light cyan tint for panels.
+  /// The Deaf community's turquoise (the colour of sign language on the Deaf flag), on white. The bright
+  /// turquoise is for the logo and decoration only; actions use a deep turquoise (7:1 on white), text is
+  /// near-black, panels a very light turquoise.
+  static const turquoise = Color(0xFF10A9B6);
+
+  /// Card gradient, glass pill and soft shadows, all from the same turquoise family.
+  static const cardTop = Color(0xFFE8F8F9);
+  static const cardBottom = Color(0xFFD2EFF1);
+  static const pillTop = Color(0xFFD6F2F4);
+  static const pillBottom = Color(0xFFBEE8EC);
+  static const shadow = Color(0xFF07393E);
+
   static const standard = EchoPalette(
     ground: Color(0xFFFFFFFF),
-    surface: Color(0xFFF3F9FB),
+    surface: Color(0xFFF2FAFA),
     raised: Color(0xFFFFFFFF),
-    border: Color(0xFFD3E6EB),
-    control: Color(0xFF5F7A83),
-    text: Color(0xFF0B1A20),
-    muted: Color(0xFF34494F),
-    accent: Color(0xFF005C70),
-    brand: Color(0xFF00788F),
-    accentTint: Color(0xFFE2F4F8),
-    primary: Color(0xFF005C70),
+    border: Color(0xFFCFE8EA),
+    control: Color(0xFF5B7B7F),
+    text: Color(0xFF0A1A1C),
+    muted: Color(0xFF32494C),
+    accent: Color(0xFF005A63),
+    brand: Color(0xFF00818F),
+    accentTint: Color(0xFFDFF5F6),
+    primary: Color(0xFF005A63),
     onPrimary: Color(0xFFFFFFFF),
   );
 

@@ -752,3 +752,17 @@ Future<void> openTab(WidgetTester tester, String label) async {
   await tester.tap(inBar(label));
   await tester.pumpAndSettle();
 }
+
+/// Starts presenting the phone's way: Meeting in the bar, then Prezint, then Pornește meetingul.
+Future<void> startPresenting(WidgetTester tester) async {
+  await tester.pumpAndSettle();
+  await openTab(tester, 'Meeting');
+  await tester.tap(find.text('Prezint'));
+  await tester.pumpAndSettle();
+  final start = find.text('Pornește meetingul');
+  await tester.scrollUntilVisible(start, 200, scrollable: find.byType(Scrollable).last);
+  await Scrollable.ensureVisible(tester.element(start), alignment: 0.5);
+  await tester.pumpAndSettle();
+  await tester.tap(start);
+  await tester.pumpAndSettle();
+}

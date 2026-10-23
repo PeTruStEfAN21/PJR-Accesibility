@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
-import 'package:pjr_accesibilitate/features/conversation/conversation_screen.dart';
 import 'package:pjr_accesibilitate/features/home/echo_home.dart';
+import 'package:pjr_accesibilitate/features/home/home_screen.dart';
 import 'package:pjr_accesibilitate/features/home/phone_shell.dart';
 import 'package:pjr_accesibilitate/features/participant/join_screen.dart';
 import 'package:pjr_accesibilitate/features/presenter/presenter_screen.dart';
@@ -67,28 +67,22 @@ void main() {
     expect(find.byType(SettingsScreen), findsOneWidget);
   });
 
-  testWidgets('a card on Acasă switches the bar instead of opening a second copy', (tester) async {
+  testWidgets('on the phone, Acasă shows only the greeting: the bar holds the rest', (tester) async {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    final card = find.text('Conectează-te la speaker');
-    await tester.ensureVisible(card);
-    await tester.tap(card);
-    await tester.pumpAndSettle();
-    expect(tester.getSemantics(bar('Meeting')), isSemantics(isSelected: true, isButton: true));
+    final home = find.byType(HomeScreen);
+    expect(find.text('Bună! Cu ce începem?'), findsOneWidget);
+    for (final gone in ['Conectează-te la speaker', 'Sunete', 'Vorbesc cu cineva', 'Tu prezinți? Deschide modul prezentator']) {
+      expect(find.descendant(of: home, matching: find.text(gone)), findsNothing, reason: gone);
+    }
   });
 
   testWidgets('a screen opened from a tab covers the bar; back brings it again', (tester) async {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
-    await tester.pumpAndSettle();
-    final row = find.text('Vorbesc cu cineva');
-    await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).first);
-    await Scrollable.ensureVisible(tester.element(row), alignment: 0.5);
-    await tester.pumpAndSettle();
-    await tester.tap(row);
-    await tester.pumpAndSettle();
-    expect(find.byType(ConversationScreen), findsOneWidget);
+    await startPresenting(tester);
+    expect(find.byType(PresenterScreen), findsOneWidget);
     expect(find.byKey(PhoneShell.barKey), findsNothing);
 
     tester.state<NavigatorState>(find.byType(Navigator).first).pop();
@@ -113,20 +107,9 @@ void main() {
     expect(find.text('Eu prezint'), findsOneWidget);
   });
 
-  testWidgets('content is not hidden under the bar', (tester) async {
-    final h = await sized(tester, const Size(390, 844));
-    await tester.pumpWidget(h.app());
-    await tester.pumpAndSettle();
-    final scrollable = find.byType(Scrollable).first;
-    await tester.drag(scrollable, const Offset(0, -3000));
-    await tester.pumpAndSettle();
-    // The last thing on Acasă ends above the bar.
-    final barTop = tester.getTopLeft(find.byKey(PhoneShell.barKey)).dy;
-    final last = find.text('Tu prezinți? Deschide modul prezentator');
-    expect(tester.getBottomLeft(last).dy, lessThanOrEqualTo(barTop));
-  });
-
   testWidgets('the last thing on a tab ends above the bar, even on a screen with its own padding', (tester) async {
+    showLocationSounds = true;
+    addTearDown(() => showLocationSounds = false);
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
