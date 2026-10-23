@@ -746,6 +746,12 @@ abstract class AppLocalizations {
   /// **'Te ascult… citește textul'**
   String get enrollListening;
 
+  /// No description provided for @enrollFinish.
+  ///
+  /// In ro, this message translates to:
+  /// **'Am terminat de citit'**
+  String get enrollFinish;
+
   /// No description provided for @enrollDone.
   ///
   /// In ro, this message translates to:

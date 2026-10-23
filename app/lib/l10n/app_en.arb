@@ -121,6 +121,7 @@
   "enrollText": "Good afternoon, everyone. Today we talk about the team's plans for next month. We go through the project budget, the important deadlines and everyone's tasks. If you have questions, you can ask them at any time. Thank you for being here, and I hope we have a useful, clear and short discussion. Let's start with the most urgent topics.",
   "enrollStart": "Start",
   "enrollListening": "Listening… read the text",
+  "enrollFinish": "I'm done reading",
   "enrollDone": "Your voice is learned",
   "enrollTooShort": "I heard too little. Read the text again, in your normal voice.",
   "enrollFailed": "Could not learn your voice. Try again.",

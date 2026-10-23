@@ -372,6 +372,9 @@ class AppLocalizationsRo extends AppLocalizations {
   String get enrollListening => 'Te ascult… citește textul';
 
   @override
+  String get enrollFinish => 'Am terminat de citit';
+
+  @override
   String get enrollDone => 'Vocea ta e învățată';
 
   @override

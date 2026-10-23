@@ -371,6 +371,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enrollListening => 'Listening… read the text';
 
   @override
+  String get enrollFinish => 'I\'m done reading';
+
+  @override
   String get enrollDone => 'Your voice is learned';
 
   @override
