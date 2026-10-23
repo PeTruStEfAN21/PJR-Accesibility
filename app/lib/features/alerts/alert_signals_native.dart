@@ -20,7 +20,8 @@ class _MobileAlertSignals implements AlertSignals {
     _ready = _plugin
         .initialize(
           settings: const InitializationSettings(
-            android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+            // Android draws the small icon in one colour: the mark alone, white on transparent (tools/app_icon.py).
+            android: AndroidInitializationSettings('ic_notification'),
             iOS: DarwinInitializationSettings(
               requestAlertPermission: false,
               requestSoundPermission: false,
