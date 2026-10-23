@@ -7,7 +7,7 @@ import re
 import unicodedata
 from typing import Any
 
-from app.ai import create, language_name, render_line, text_of
+from app.ai import DATA_NOT_INSTRUCTIONS, AIIncomplete, create, language_name, render_line, text_of
 from app.schemas import AskResponse, Line
 
 MAX_STEPS = 6
@@ -24,7 +24,9 @@ synonyms or related words when a first search finds nothing.
 
 Answer in {language}, briefly and in plain language. Back every statement with the lines it \
 comes from, written like [#12]. If the transcript does not contain the answer, say so plainly \
-instead of guessing."""
+instead of guessing.
+
+""" + DATA_NOT_INSTRUCTIONS
 
 TOOLS = [
     {
@@ -61,6 +63,7 @@ TOOLS = [
 ]
 
 _CITATION = re.compile(r"\[#(\d+)\]")
+_CITATION_WITH_SPACE = re.compile(r"\s?\[#(\d+)\]")
 
 
 def _normalize(text: str) -> str:
@@ -137,6 +140,10 @@ async def ask(client: Any, lang: str, lines: list[Line], question: str) -> AskRe
         messages.append({"role": "user", "content": results})
 
     answer = text_of(response)
+    if not answer:
+        raise AIIncomplete("The AI gave no answer.")
     known = {line.id for line in lines}
+    # A citation to a line that does not exist would send the reader looking for it: drop it from the text too.
+    answer = _CITATION_WITH_SPACE.sub(lambda m: m.group(0) if int(m.group(1)) in known else "", answer)
     citations = list(dict.fromkeys(int(match) for match in _CITATION.findall(answer)))
-    return AskResponse(answer=answer, citations=[ref for ref in citations if ref in known])
+    return AskResponse(answer=answer, citations=citations)
