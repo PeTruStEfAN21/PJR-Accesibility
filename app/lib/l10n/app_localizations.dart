@@ -1025,7 +1025,7 @@ abstract class AppLocalizations {
   /// No description provided for @soundsExplain.
   ///
   /// In ro, this message translates to:
-  /// **'Telefonul ascultă sunetele din jur, direct pe dispozitiv: nimic nu pleacă pe internet. Când recunoaște un sunet, ecranul se schimbă și telefonul vibrează. Alertele critice acoperă orice ecran până le închizi.'**
+  /// **'Sunetele importante din jur devin alerte pe ecran și vibrații. Totul rămâne pe telefon.'**
   String get soundsExplain;
 
   /// No description provided for @soundsSwitch.

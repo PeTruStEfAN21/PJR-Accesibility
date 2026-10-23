@@ -6,6 +6,8 @@ import 'package:pjr_accesibilitate/core/org/org_store.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/features/alerts/yamnet_logic.dart';
 
+import 'package:pjr_accesibilitate/features/sounds/sounds_screen.dart';
+
 import '../fakes.dart';
 
 const _ana = 'ana@firma.ro';
@@ -49,6 +51,10 @@ Future<void> tapShown(WidgetTester tester, Finder finder) async {
 }
 
 void main() {
+  // Learning location sounds is hidden from the Sounds screen for now; these tests keep it working.
+  setUp(() => showLocationSounds = true);
+  tearDown(() => showLocationSounds = false);
+
   testWidgets('learns a sound of this place from 3 samples, then deletes it', (tester) async {
     final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'tipsEnabled': false});
     h.sounds.samples.addAll([print(1), print(1.1), print(0.9)]);

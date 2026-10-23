@@ -534,7 +534,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsExplain =>
-      'Your phone listens to the sounds around you, right on the device: nothing goes to the internet. When it recognises a sound, the screen changes and the phone vibrates. Critical alerts cover any screen until you close them.';
+      'Important sounds around you become alerts on screen and vibrations. Everything stays on the phone.';
 
   @override
   String get soundsSwitch => 'Sound alerts';

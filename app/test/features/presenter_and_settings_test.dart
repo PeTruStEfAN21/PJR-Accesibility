@@ -47,8 +47,7 @@ Future<TestHarness> openPresenter(WidgetTester tester, {bool voice = false, Map<
   final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000', ...prefs});
   h.voice.available = voice;
   await tester.pumpWidget(presenterApp(h));
-  await tester.tap(find.text('Tu prezinți? Deschide modul prezentator'));
-  await tester.pumpAndSettle();
+  await startPresenting(tester);
   h.channel.receive({'type': 'joined', 'code': 'ABC234', 'role': 'presenter', 'peers': {'presenter': 1}});
   await tester.pump();
   await tester.pump();
@@ -107,8 +106,7 @@ void main() {
             }),
       ),
     ));
-    await tester.tap(find.text('Tu prezinți? Deschide modul prezentator'));
-    await tester.pumpAndSettle();
+    await startPresenting(tester);
     expect(find.text('A B C 2 3 4'), findsNothing);
 
     await tester.tap(find.text('Reîncearcă'));
@@ -125,8 +123,7 @@ void main() {
 
     final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000'});
     await tester.pumpWidget(presenterApp(h));
-    await tester.tap(find.text('Tu prezinți? Deschide modul prezentator'));
-    await tester.pumpAndSettle();
+    await startPresenting(tester);
 
     expect(find.text('A B C 2 3 4'), findsOneWidget);
     expect(h.channel.uri.toString(), 'ws://localhost:8000/ws/ABC234?role=presenter');

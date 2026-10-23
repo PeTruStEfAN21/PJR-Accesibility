@@ -171,7 +171,7 @@
   "homeSoundsUnavailable": "Not available on this device: tap for details.",
   "soundsTest": "Test the alerts",
   "soundsDetectorMissing": "Sound recognition does not work on this device. You can test the alerts below.",
-  "soundsExplain": "Your phone listens to the sounds around you, right on the device: nothing goes to the internet. When it recognises a sound, the screen changes and the phone vibrates. Critical alerts cover any screen until you close them.",
+  "soundsExplain": "Important sounds around you become alerts on screen and vibrations. Everything stays on the phone.",
   "soundsSwitch": "Sound alerts",
   "soundsVibrations": "Vibrations",
   "soundsLevelExamplesCritical": "Fire alarm, siren",

@@ -7,8 +7,7 @@ void main() {
   testWidgets('a detected fire alarm covers any screen with the exit and needs acknowledging', (tester) async {
     final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'emergencyExit': 'Scara B'});
     await tester.pumpWidget(h.app());
-    await tester.tap(find.text('Conectează-te la speaker'));
-    await tester.pumpAndSettle();
+    await openTab(tester, 'Meeting');
 
     h.sounds.controller.add(SoundAlert(SoundKind.fireAlarm, at: DateTime(2026)));
     await tester.pump();
@@ -25,7 +24,8 @@ void main() {
   testWidgets('the interface switches to English', (tester) async {
     final h = await TestHarness.create(prefs: {'uiLanguage': 'en'});
     await tester.pumpWidget(h.app());
-    expect(find.text('Connect to the speaker'), findsOneWidget);
+    expect(find.text('Hi! Where do we start?'), findsOneWidget);
+    expect(inBar('Home'), findsOneWidget);
     h.alerts.dispose();
   });
 

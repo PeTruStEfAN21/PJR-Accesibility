@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
+import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
 import 'package:pjr_accesibilitate/features/emergency/emergency_screen.dart';
 import 'package:pjr_accesibilitate/features/home/home_screen.dart';
-import 'package:pjr_accesibilitate/features/participant/join_screen.dart';
 import 'package:pjr_accesibilitate/features/sounds/sounds_screen.dart';
 import 'package:pjr_accesibilitate/l10n/app_localizations.dart';
 import 'package:pjr_accesibilitate/settings/app_settings.dart';
+import 'package:pjr_accesibilitate/theme/app_theme.dart';
 
 import '../fakes.dart';
 
@@ -20,6 +21,25 @@ Widget laptopHome(TestHarness h) => ServicesScope(
           supportedLocales: AppLocalizations.supportedLocales,
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           home: const HomeScreen(presenterFirst: true),
+        ),
+      ),
+    );
+
+/// The laptop home with the whole app around it (alerts, accounts, theme): the cards for joining,
+/// sounds and the alarm live here now; on the phone they are in the floating bar.
+Widget laptopApp(TestHarness h) => ServicesScope(
+      services: AppServices(speech: h.speech, sounds: h.sounds, account: h.account, meetings: h.meetings),
+      child: SettingsScope(
+        settings: h.settings,
+        child: AlertScope(
+          controller: h.alerts,
+          child: MaterialApp(
+            locale: const Locale('ro'),
+            supportedLocales: AppLocalizations.supportedLocales,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            theme: buildTheme(h.settings),
+            home: const HomeScreen(presenterFirst: true),
+          ),
         ),
       ),
     );
@@ -68,13 +88,13 @@ void main() {
     expect(find.text('Participi la meeting? Intră de aici'), findsNothing);
   });
 
-  testWidgets('phone: the Sounds card says the state and opens the Sounds screen', (tester) async {
-    tester.view.physicalSize = const Size(390, 1600);
+  testWidgets('laptop: the Sounds card says the state and opens the Sounds screen', (tester) async {
+    tester.view.physicalSize = const Size(1366, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
     final h = await TestHarness.create();
-    await tester.pumpWidget(h.app());
+    await tester.pumpWidget(laptopApp(h));
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
 
@@ -88,14 +108,14 @@ void main() {
     expect(find.byType(SoundsScreen), findsOneWidget);
   });
 
-  testWidgets('phone: without a detector the card says it is unavailable', (tester) async {
-    tester.view.physicalSize = const Size(390, 1600);
+  testWidgets('laptop: without a detector the card says it is unavailable', (tester) async {
+    tester.view.physicalSize = const Size(1366, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
     final h = await TestHarness.create();
     h.sounds.available = false;
-    await tester.pumpWidget(h.app());
+    await tester.pumpWidget(laptopApp(h));
     await tester.pumpAndSettle();
     final l10n = AppLocalizations.of(tester.element(find.byType(HomeScreen)));
 
@@ -110,28 +130,6 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byIcon(Icons.hearing_disabled), findsOneWidget);
     expect(find.byIcon(Icons.hearing), findsNothing);
-  });
-
-  testWidgets('phone: one main action, other tools grouped, presenter as a quiet link', (tester) async {
-    tester.view.physicalSize = const Size(390, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-
-    final h = await TestHarness.create();
-    await tester.pumpWidget(h.app());
-    await tester.pumpAndSettle();
-
-    expect(find.text('Conectează-te la speaker'), findsOneWidget);
-    expect(find.text('În afara meetingurilor'), findsOneWidget);
-    // Visible sound is its own card under the main action, not a row.
-    expect(find.text('Sunetele din jur'), findsNothing);
-    expect(find.descendant(of: find.byType(HomeScreen), matching: find.text('Sunete')), findsOneWidget);
-    expect(find.text('Vorbesc cu cineva'), findsOneWidget);
-    expect(find.text('Tu prezinți? Deschide modul prezentator'), findsOneWidget);
-
-    await tester.tap(find.text('Conectează-te la speaker'));
-    await tester.pumpAndSettle();
-    expect(find.byType(JoinScreen), findsOneWidget);
   });
 
   testWidgets('first-run tip: "Am înțeles" hides it for good', (tester) async {
@@ -158,9 +156,12 @@ void main() {
     expect(h.settings.tipsEnabled, isFalse);
   });
 
-  testWidgets('using the main action counts as having seen the tip', (tester) async {
+  testWidgets('using a main card counts as having seen the tip', (tester) async {
+    tester.view.physicalSize = const Size(1366, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final h = await TestHarness.create();
-    await tester.pumpWidget(h.app());
+    await tester.pumpWidget(laptopApp(h));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Conectează-te la speaker'));
@@ -195,16 +196,16 @@ void main() {
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    expect(Theme.of(tester.element(find.text('Conectează-te la speaker'))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.text('Bună! Cu ce începem?'))).brightness, Brightness.light);
   });
 
-  testWidgets('home: the emergency row appears only when signed in', (tester) async {
-    tester.view.physicalSize = const Size(390, 1600);
+  testWidgets('laptop: the emergency row appears only when signed in', (tester) async {
+    tester.view.physicalSize = const Size(1366, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
 
     final h = await TestHarness.create(accounts: true);
-    await tester.pumpWidget(h.app());
+    await tester.pumpWidget(laptopApp(h));
     await tester.pumpAndSettle();
     expect(find.text('Alarmă de urgență'), findsNothing);
 

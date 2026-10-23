@@ -30,7 +30,7 @@ ThemeData buildTheme(AppSettings settings) {
     surfaceContainerLow: p.surface,
     surfaceContainer: p.surface,
     surfaceContainerHigh: p.surface,
-    surfaceContainerHighest: settings.highContrast ? p.ground : const Color(0xFFE8F2F5),
+    surfaceContainerHighest: settings.highContrast ? p.ground : const Color(0xFFE5F3F4),
     outline: p.control,
     outlineVariant: p.border,
   );

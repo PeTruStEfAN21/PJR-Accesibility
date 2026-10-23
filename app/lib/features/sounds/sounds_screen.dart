@@ -15,6 +15,10 @@ import 'vibration_picker.dart';
 /// Explains sound alerts, turns "always listen" on or off and picks each level's vibration.
 /// Listening keeps running after leaving this screen; alerts are shown app-wide by AlertOverlay,
 /// over whatever screen is open.
+/// "Sunetele locației" (learning the sounds of a place) is hidden for now; the feature is unchanged.
+/// Tests of the feature turn it on.
+var showLocationSounds = false;
+
 class SoundsScreen extends StatelessWidget {
   const SoundsScreen({super.key});
 
@@ -119,7 +123,7 @@ class SoundsScreen extends StatelessWidget {
                 ),
             ],
           ),
-          if (services.locationSounds != null) ...[
+          if (services.locationSounds != null && showLocationSounds) ...[
             const SizedBox(height: 32),
             _LocationSounds(store: services.locationSounds!),
           ],
