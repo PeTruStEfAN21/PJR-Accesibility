@@ -6,9 +6,11 @@ import '../../core/org/org_store.dart';
 import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../theme/echo_style.dart';
+import '../../widgets/echo_logo.dart';
 import '../../widgets/glass.dart';
 import '../../widgets/grouped_list.dart';
 import '../organization/org_screen.dart';
+import '../presenter/presenter_screen.dart';
 
 final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 final _codePattern = RegExp(r'^\d{6,10}$');
@@ -23,9 +25,13 @@ String _plainCompanyCode(String typed) => typed.toUpperCase().replaceAll(RegExp(
 /// and nothing that relies on hearing (WCAG 2.2, 3.3.8).
 /// docs/specs/2026-10-23-login-cod-companie-design.md: the admin lands on the company
 /// screen; the employee gives the company code, their name and how they use Echo, and joins.
+///
+/// With [onDone] it is the phone app's first screen (EchoHome): no back button, a way in without an
+/// account for the presenter (rule 6), and [onDone] instead of closing, once the person is in.
 class SignInScreen extends StatefulWidget {
-  const SignInScreen({super.key, required this.account});
+  const SignInScreen({super.key, required this.account, this.onDone});
   final AccountService account;
+  final VoidCallback? onDone;
 
   @override
   State<SignInScreen> createState() => _SignInScreenState();
@@ -70,10 +76,27 @@ class _SignInScreenState extends State<SignInScreen> {
     _closed = true;
     final organizations = ServicesScope.of(context).organizations;
     final navigator = Navigator.of(context);
-    if (organizations == null) {
-      navigator.pop();
+    final company = organizations == null
+        ? null
+        : MaterialPageRoute<void>(builder: (_) => OrgScreen(organizations: organizations));
+    if (widget.onDone case final done?) {
+      // The app takes this screen's place; the company screen opens over it.
+      done();
+      if (company != null) navigator.push(company);
+    } else if (company != null) {
+      navigator.pushReplacement(company);
     } else {
-      navigator.pushReplacement(MaterialPageRoute(builder: (_) => OrgScreen(organizations: organizations)));
+      navigator.pop();
+    }
+  }
+
+  /// In: back to the app (first screen) or to where sign-in was opened from.
+  void _finish(NavigatorState navigator) {
+    _closed = true;
+    if (widget.onDone case final done?) {
+      done();
+    } else {
+      navigator.pop();
     }
   }
 
@@ -131,8 +154,7 @@ class _SignInScreenState extends State<SignInScreen> {
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     if (organizations == null) {
-      _closed = true;
-      navigator.pop();
+      _finish(navigator);
       return;
     }
     String? orgId;
@@ -148,9 +170,8 @@ class _SignInScreenState extends State<SignInScreen> {
     }
     await organizations.refresh();
     final joined = organizations.memberships.where((m) => m.orgId == orgId).firstOrNull;
-    _closed = true;
     if (joined != null) messenger.showSnackBar(SnackBar(content: Text(l10n.joinDone(joined.orgName))));
-    navigator.pop();
+    _finish(navigator);
   }
 
   void _stayToFix(String error) {
@@ -213,13 +234,35 @@ class _SignInScreenState extends State<SignInScreen> {
           }),
         );
 
+    final emailField = TextField(
+      controller: _email,
+      decoration: InputDecoration(labelText: l10n.signInEmailLabel),
+      keyboardType: TextInputType.emailAddress,
+      autofillHints: const [AutofillHints.email],
+      autocorrect: false,
+      textInputAction: employee ? TextInputAction.next : TextInputAction.send,
+      onSubmitted: employee ? null : (_) => _sendCode(),
+    );
+
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.signIn)),
+      // Opened from the app: only the back button; as the first screen: nothing above the logo.
+      appBar: widget.onDone == null ? AppBar(backgroundColor: Colors.transparent) : null,
       body: SafeArea(
         child: AutofillGroup(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+            padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
             children: [
+              Center(child: EchoLogo(height: 96, semanticLabel: l10n.appTitle)),
+              const SizedBox(height: 16),
+              Semantics(
+                header: true,
+                child: Text(
+                  l10n.signInWelcome,
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.titleLarge?.copyWith(color: palette.text),
+                ),
+              ),
+              const SizedBox(height: 28),
               if (sentTo == null && !_joinPending) ...[
                 GlassSegmented<SignInRole>(
                   semanticLabel: l10n.signInRoleLabel,
@@ -242,6 +285,8 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                emailField,
+                const SizedBox(height: 16),
                 if (employee) ...[
                   companyCodeField(),
                   const SizedBox(height: 16),
@@ -251,7 +296,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     textCapitalization: TextCapitalization.words,
                     autofillHints: const [AutofillHints.name],
                     inputFormatters: [LengthLimitingTextInputFormatter(100)],
-                    textInputAction: TextInputAction.next,
+                    textInputAction: TextInputAction.done,
                   ),
                   const SizedBox(height: 28),
                   EchoGroup(
@@ -273,18 +318,8 @@ class _SignInScreenState extends State<SignInScreen> {
                       Expanded(child: Text(l10n.joinPrivacy, style: theme.textTheme.bodyMedium?.copyWith(color: palette.muted))),
                     ],
                   ),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 24),
                 ],
-                TextField(
-                  controller: _email,
-                  decoration: InputDecoration(labelText: l10n.signInEmailLabel),
-                  keyboardType: TextInputType.emailAddress,
-                  autofillHints: const [AutofillHints.email],
-                  autocorrect: false,
-                  textInputAction: TextInputAction.send,
-                  onSubmitted: (_) => _sendCode(),
-                ),
-                const SizedBox(height: 16),
                 FilledButton(style: big, onPressed: _busy ? null : _sendCode, child: Text(l10n.signInSendCode)),
               ] else if (_joinPending) ...[
                 companyCodeField(),
@@ -350,6 +385,17 @@ class _SignInScreenState extends State<SignInScreen> {
                   onPressed: _busy ? null : () => _run(widget.account.signInWithGoogle),
                   icon: const Icon(Icons.account_circle_outlined),
                   label: Text(l10n.signInGoogle),
+                ),
+              ],
+              if (widget.onDone != null && sentTo == null && !_joinPending) ...[
+                const SizedBox(height: 24),
+                Center(
+                  child: TextButton.icon(
+                    onPressed: () =>
+                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PresenterScreen())),
+                    icon: const Icon(Icons.co_present_outlined),
+                    label: Text(l10n.signInPresentWithout, textAlign: TextAlign.center),
+                  ),
                 ),
               ],
             ],

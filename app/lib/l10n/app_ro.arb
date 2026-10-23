@@ -536,5 +536,7 @@
   "orgCodeCopied": "Codul a fost copiat",
   "orgCodeRevoke": "Anulează codul",
   "memberReads": "Citește ce se spune",
-  "memberHears": "Aude ce se spune"
+  "memberHears": "Aude ce se spune",
+  "signInWelcome": "Intră în cont sau creează-ți unul",
+  "signInPresentWithout": "Prezinți un meeting? Intră fără cont"
 }

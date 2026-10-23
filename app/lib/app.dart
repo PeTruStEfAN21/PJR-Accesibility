@@ -17,11 +17,14 @@ import 'settings/app_settings.dart';
 import 'theme/app_theme.dart';
 
 class EchoApp extends StatefulWidget {
-  const EchoApp({super.key, required this.settings, required this.services, this.alerts});
+  const EchoApp({super.key, required this.settings, required this.services, this.alerts, this.link});
 
   final AppSettings settings;
   final AppServices services;
   final AlertController? alerts;
+
+  /// The QR link the app was opened with; in the browser it is read from the address when not given.
+  final JoinLink? link;
 
   @override
   State<EchoApp> createState() => _EchoAppState();
@@ -145,11 +148,10 @@ class _EchoAppState extends State<EchoApp> {
   }
 
   /// The QR link opened in a browser (`/?code=ABC123`) goes straight to the captions.
+  /// A guest from the QR link needs no account: it opens before any sign-in.
   Widget _initialScreen() {
-    if (kIsWeb) {
-      final link = JoinLink.parse(Uri.base.toString());
-      if (link != null) return ParticipantScreen(link: link);
-    }
+    final link = widget.link ?? (kIsWeb ? JoinLink.parse(Uri.base.toString()) : null);
+    if (link != null) return ParticipantScreen(link: link);
     return const EchoHome();
   }
 }

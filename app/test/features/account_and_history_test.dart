@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:pjr_accesibilitate/core/join_link.dart';
+
 import '../fakes.dart';
 import 'participant_screen_test.dart' show caption, joinMeeting, settle;
 
@@ -34,7 +36,7 @@ void main() {
     await tester.pumpWidget(h.app());
     expect(history, findsNothing);
 
-    await tester.tap(find.byTooltip('Intră în cont'));
+    // With accounts, the phone app opens on sign-in.
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'ana@example.com');
     await tester.tap(find.text('Trimite-mi un cod'));
@@ -65,7 +67,6 @@ void main() {
   testWidgets('an invalid email is explained in text before anything is sent', (tester) async {
     final h = await TestHarness.create(accounts: true);
     await tester.pumpWidget(h.app());
-    await tester.tap(find.byTooltip('Intră în cont'));
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'ana');
     await tester.tap(find.text('Trimite-mi un cod'));
@@ -147,7 +148,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(h.account!.deleted, isTrue);
-    expect(find.byTooltip('Intră în cont'), findsOneWidget);
+    expect(find.text('Intră în cont sau creează-ți unul'), findsOneWidget);
     expect(history, findsNothing);
   });
 
@@ -167,9 +168,12 @@ void main() {
     expect(h.meetings!.finished, {saved.id});
   });
 
-  testWidgets('signed out, nothing is saved', (tester) async {
+  testWidgets('a guest from the QR link, signed out, saves nothing', (tester) async {
     final h = await TestHarness.create(accounts: true);
-    await joinMeeting(tester, h);
+    await tester.pumpWidget(h.app(link: JoinLink(server: Uri.parse('http://172.20.10.2:8000'), code: 'ABC234')));
+    await tester.pumpAndSettle();
+    h.channel.receive({'type': 'joined', 'code': 'ABC234', 'role': 'participant', 'peers': {'presenter': 1, 'participant': 1}});
+    await settle(tester);
     expect(find.text('Transcrierea se salvează în contul tău'), findsNothing);
 
     h.channel.receive(caption('c1', 'coordinator', 'Bună ziua'));

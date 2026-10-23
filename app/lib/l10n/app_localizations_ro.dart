@@ -1657,4 +1657,10 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get memberHears => 'Aude ce se spune';
+
+  @override
+  String get signInWelcome => 'Intră în cont sau creează-ți unul';
+
+  @override
+  String get signInPresentWithout => 'Prezinți un meeting? Intră fără cont';
 }
