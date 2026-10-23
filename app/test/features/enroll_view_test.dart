@@ -29,4 +29,11 @@ void main() {
     await tester.pump(const Duration(seconds: 30));
     expect(recorded, 1);
   });
+
+  testWidgets('the Începe button sits in the middle', (tester) async {
+    await tester.pumpWidget(_app(EnrollView(onRecorded: () async {})));
+    final button = find.ancestor(of: find.text('Începe'), matching: find.byType(FilledButton));
+    final screen = tester.getSize(find.byType(Scaffold));
+    expect(tester.getCenter(button).dx, moreOrLessEquals(screen.width / 2, epsilon: 1));
+  });
 }
