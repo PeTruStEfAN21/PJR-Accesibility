@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/org/org_store.dart';
@@ -40,8 +42,29 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
   /// The tab fading out under the new one, until the fade ends.
   EchoTab? _leaving;
 
-  /// Tabs are built the first time they are shown, then kept (their state survives switching).
+  /// Tabs are built the first time they are shown, or ahead while the app is idle ([_warmUp]), then kept
+  /// (their state survives switching).
   late final _visited = <EchoTab>{widget.initial};
+
+  /// Builds the other tabs offstage, one at a time, shortly after the app appears: building a whole
+  /// screen at the first tap made that switch stall (300 ms on a phone-like CPU).
+  Timer? _warmUp;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _warmUp = Timer(const Duration(milliseconds: 800), _warmNext);
+    });
+  }
+
+  void _warmNext() {
+    if (!mounted) return;
+    final next = _tabs.where((t) => !_visited.contains(t)).firstOrNull;
+    if (next == null) return;
+    setState(() => _visited.add(next));
+    _warmUp = Timer(const Duration(milliseconds: 300), _warmNext);
+  }
 
   /// +1 when the new tab is to the right of the old one in the bar, -1 to the left.
   int _direction = 1;
@@ -99,6 +122,7 @@ class _PhoneShellState extends State<PhoneShell> with SingleTickerProviderStateM
 
   @override
   void dispose() {
+    _warmUp?.cancel();
     _organizations?.removeListener(_onOrganizations);
     _curve.dispose();
     _switch.dispose();

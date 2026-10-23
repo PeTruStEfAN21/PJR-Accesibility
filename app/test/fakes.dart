@@ -621,8 +621,11 @@ class FakeOrgStore implements OrgStore {
     return id;
   }
 
+  int myOrganizationsCalls = 0;
+
   @override
   Future<List<OrgMembership>> myOrganizations() async => [
+        if (++myOrganizationsCalls > 0) ...[
         for (final MapEntry(key: orgId, value: people) in people.entries)
           if (account.user != null && people.containsKey(_me))
             OrgMembership(
@@ -631,6 +634,7 @@ class FakeOrgStore implements OrgStore {
               role: people[_me]!.role,
               experience: people[_me]!.experience,
             ),
+        ],
       ];
 
   @override

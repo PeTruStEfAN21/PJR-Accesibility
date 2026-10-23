@@ -277,4 +277,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.textContaining('Echo ascultă sala de pe acest dispozitiv'), findsNothing);
   });
+
+  testWidgets('the other tabs are built ahead, while the app is idle, so the first visit does not stall',
+      (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    // Built but offstage: nothing visible changed.
+    expect(find.byType(SettingsScreen), findsNothing);
+    expect(find.byType(SettingsScreen, skipOffstage: false), findsOneWidget);
+    expect(find.byType(SoundsScreen, skipOffstage: false), findsOneWidget);
+    expect(tester.getSemantics(bar('Dashboard')), isSemantics(isSelected: true, isButton: true));
+  });
 }

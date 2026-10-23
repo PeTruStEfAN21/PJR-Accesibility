@@ -12,6 +12,7 @@ from typing import Any
 import anthropic
 from fastapi import Depends, FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
@@ -124,6 +125,9 @@ def create_app(
     app = FastAPI(title="Echo", lifespan=lifespan)
     # The presenter page is served from this server, but `flutter run -d chrome` uses its own port.
     app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
+    # The browser build is several MB of JavaScript: compressed, it reaches phones on the room's Wi-Fi
+    # in a fraction of the time. Only for browsers that ask for it, and not for tiny replies.
+    app.add_middleware(GZipMiddleware, minimum_size=1024)
 
     client = _default_ai_client() if ai_client is _DEFAULT else ai_client
 
