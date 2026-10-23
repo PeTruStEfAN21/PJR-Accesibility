@@ -90,3 +90,4 @@ supabase/.env
 # Adresa și cheia publică Supabase pentru flutter --dart-define-from-file (vezi README)
 app/supabase.env.json
 
+
