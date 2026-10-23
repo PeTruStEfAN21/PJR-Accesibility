@@ -102,15 +102,22 @@ class ServicesScope extends InheritedWidget {
   bool updateShouldNotify(ServicesScope oldWidget) => services != oldWidget.services;
 }
 
-const _devServer = 'http://localhost:8000';
+/// The server when nothing is saved; a build for a hosted server passes ECHO_SERVER.
+const _devServer = String.fromEnvironment('ECHO_SERVER', defaultValue: 'http://localhost:8000');
 
 /// Where the server is: the saved address, else the page's own origin when the
-/// presenter page is served by the server itself, else localhost.
-Uri defaultServer(AppSettings settings) {
-  final saved = Uri.tryParse(settings.serverUrl.trim());
-  if (saved != null && saved.hasScheme && saved.host.isNotEmpty) return saved;
-  if (kIsWeb && Uri.base.port == 8000) {
-    return Uri(scheme: Uri.base.scheme, host: Uri.base.host, port: Uri.base.port);
+/// presenter page is served by the server itself, else the build's server.
+Uri defaultServer(AppSettings settings) =>
+    resolveServer(saved: settings.serverUrl, web: kIsWeb, page: Uri.base, fallback: Uri.parse(_devServer));
+
+/// The server itself serves the page on port 8000 locally, and over HTTPS when hosted
+/// (Render); `flutter run -d chrome` serves it on another port, without the server.
+@visibleForTesting
+Uri resolveServer({required String saved, required bool web, required Uri page, required Uri fallback}) {
+  final savedUri = Uri.tryParse(saved.trim());
+  if (savedUri != null && savedUri.hasScheme && savedUri.host.isNotEmpty) return savedUri;
+  if (web && (page.port == 8000 || page.scheme == 'https')) {
+    return Uri(scheme: page.scheme, host: page.host, port: page.port);
   }
-  return Uri.parse(_devServer);
+  return fallback;
 }
