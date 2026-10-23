@@ -44,7 +44,7 @@ void main() {
     expect(await labeler.enroll(tone(12)), EnrollResult.ok);
   }
 
-  test('enrollment needs at least ten seconds of voice', () async {
+  test('enrollment needs at least seven seconds of voice', () async {
     final result = await labeler.enroll(join([tone(6), silence(14)]));
     expect(result, EnrollResult.tooLittleSpeech);
     expect(labeler.enrolled, isFalse);
@@ -148,8 +148,28 @@ void main() {
     expect(engine.embedded.length, embedded);
   });
 
-  test('enrollment in room noise still needs ten seconds of real voice', () async {
+  test('eight seconds of voice in twenty are enough to learn it', () async {
+    expect(await labeler.enroll(withNoise(join([tone(8), silence(12)]))), EnrollResult.ok);
+  });
+
+  test('enrollment in room noise still needs seven seconds of real voice', () async {
     expect(await labeler.enroll(withNoise(join([tone(6), silence(14)]))), EnrollResult.tooLittleSpeech);
+  });
+
+  test('a raw laptop microphone: syllables 10 dB above the room still count as voice', () async {
+    // As measured on a presenter's laptop: room at about -37 dBFS, most syllables about 10 dB above it,
+    // a few stressed ones about 22 dB above. 20 s read as 0.6 s of voice and 0.4 s of pause.
+    final random = Random(3);
+    final clip = Float32List(round(20));
+    for (var i = 0; i < clip.length; i++) {
+      final t = i / rate;
+      final inSyllable = t % 1 < 0.6;
+      final stressed = t % 4 < 0.3;
+      final amplitude = inSyllable ? (stressed ? 0.25 : 0.06) : 0.0;
+      clip[i] = amplitude * sin(2 * pi * 220 * t) + 0.0245 * (random.nextDouble() * 2 - 1);
+    }
+    expect(voicedOnly(clip).length, greaterThan(round(10)));
+    expect(await labeler.enroll(clip), EnrollResult.ok);
   });
 
   test('an error of the model keeps the line, with the previous label', () async {
