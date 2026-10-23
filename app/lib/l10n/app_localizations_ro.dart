@@ -1551,4 +1551,110 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get presentStart => 'Pornește meetingul';
+
+  @override
+  String get signInRoleLabel => 'Cum intri în Echo';
+
+  @override
+  String get signInRoleAdmin => 'Admin';
+
+  @override
+  String get signInRoleEmployee => 'Angajat';
+
+  @override
+  String get signInAdminIntro =>
+      'Pentru cine administrează echipa. Îți faci compania și le dai colegilor codul ei. Nu ai nevoie de parolă.';
+
+  @override
+  String get signInEmployeeIntro =>
+      'Scrie codul primit de la administrator, numele tău și cum folosești Echo. Apoi confirmi emailul cu un cod.';
+
+  @override
+  String get companyCodeLabel => 'Codul companiei';
+
+  @override
+  String get joinNameLabel => 'Numele tău';
+
+  @override
+  String get joinExperienceTitle => 'Cum folosești Echo?';
+
+  @override
+  String get experienceVisual => 'Citesc ce se spune';
+
+  @override
+  String get experienceVisualHint =>
+      'Subtitrări, sunete și alarme pe ecran și prin vibrații';
+
+  @override
+  String get experienceStandard => 'Aud ce se spune';
+
+  @override
+  String get experienceStandardHint =>
+      'Uneltele colegului care vorbește: conversație, alarmă pentru un coleg';
+
+  @override
+  String get joinPrivacy =>
+      'Intri în compania care ți-a dat codul. Administratorii ei văd numele, emailul și cum folosești Echo, ca să știe cum te anunță la o alarmă. Poți ieși oricând din Compania mea.';
+
+  @override
+  String get companyCodeInvalid =>
+      'Codul companiei are 8 litere și cifre, de exemplu ABCD-EFGH.';
+
+  @override
+  String get joinNameMissing => 'Scrie-ți numele.';
+
+  @override
+  String get joinExperienceMissing => 'Alege cum folosești Echo.';
+
+  @override
+  String get joinWrongCode =>
+      'Codul companiei nu e bun sau a expirat. Cere-l din nou administratorului.';
+
+  @override
+  String get joinTooMany =>
+      'Prea multe coduri greșite. Încearcă din nou peste o oră.';
+
+  @override
+  String get joinRetry => 'Intră în companie';
+
+  @override
+  String joinDone(String company) {
+    return 'Ai intrat în $company.';
+  }
+
+  @override
+  String get orgCodeTitle => 'Codul companiei';
+
+  @override
+  String get orgCodeHint =>
+      'Colegii intră cu el din Intră în cont → Angajat. Merge 7 zile.';
+
+  @override
+  String orgCodeActiveUntil(String date) {
+    return 'Un cod merge până pe $date. Din motive de siguranță, îl vezi doar când îl generezi.';
+  }
+
+  @override
+  String get orgCodeNone => 'Nu ai niciun cod activ.';
+
+  @override
+  String get orgCodeShown => 'Dă-le colegilor acest cod:';
+
+  @override
+  String get orgCodeNew => 'Generează un cod nou';
+
+  @override
+  String get orgCodeCopy => 'Copiază codul';
+
+  @override
+  String get orgCodeCopied => 'Codul a fost copiat';
+
+  @override
+  String get orgCodeRevoke => 'Anulează codul';
+
+  @override
+  String get memberReads => 'Citește ce se spune';
+
+  @override
+  String get memberHears => 'Aude ce se spune';
 }

@@ -534,6 +534,14 @@ class FakeOrgStore implements OrgStore {
   final sounds = <String, List<(LocationSound, SoundModel)>>{};
   final alarms = <String, ({String orgId, String kind, DateTime startedAt, bool open})>{};
   final answers = <String, Map<String, AlarmAnswer>>{};
+
+  /// Company codes that work, without dashes, to their company.
+  final joinCodes = <String, String>{};
+
+  /// Makes joinWithCode refuse, as after five wrong codes in an hour.
+  bool tooManyAttempts = false;
+  static const _codes = ['ABCD-EFGH', 'JKMN-PQRS', 'TUVW-XYZ2'];
+  int _codesMade = 0;
   int _ids = 0;
 
   String get _me => account.user!.id;
@@ -544,8 +552,17 @@ class FakeOrgStore implements OrgStore {
   }
 
   /// Puts [userId] in an organization directly (test setup).
-  void addMember(String orgId, String userId, {OrgRole role = OrgRole.employee, String? email, MemberNeeds? needs}) {
-    people.putIfAbsent(orgId, () => {})[userId] = OrgMember(userId: userId, role: role, email: email);
+  void addMember(
+    String orgId,
+    String userId, {
+    OrgRole role = OrgRole.employee,
+    String? email,
+    MemberNeeds? needs,
+    String? displayName,
+    MemberExperience experience = MemberExperience.standard,
+  }) {
+    people.putIfAbsent(orgId, () => {})[userId] =
+        OrgMember(userId: userId, role: role, email: email, displayName: displayName, experience: experience);
     if (needs != null) this.needs['$orgId/$userId'] = needs;
   }
 
@@ -609,8 +626,50 @@ class FakeOrgStore implements OrgStore {
           displayName: m.displayName,
           department: m.department,
           needs: needs['$orgId/${m.userId}'],
+          experience: m.experience,
         ),
     ];
+  }
+
+  static String _plain(String code) => code.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
+
+  @override
+  Future<String> newJoinCode(String orgId) async {
+    _requireAdmin(orgId);
+    joinCodes.removeWhere((_, org) => org == orgId);
+    final code = _codes[_codesMade++ % _codes.length];
+    joinCodes[_plain(code)] = orgId;
+    return code;
+  }
+
+  @override
+  Future<DateTime?> joinCodeInfo(String orgId) async {
+    _requireAdmin(orgId);
+    return joinCodes.containsValue(orgId) ? DateTime(2026, 10, 30, 12) : null;
+  }
+
+  @override
+  Future<void> revokeJoinCode(String orgId) async {
+    _requireAdmin(orgId);
+    joinCodes.removeWhere((_, org) => org == orgId);
+  }
+
+  @override
+  Future<String?> joinWithCode(String code, String name, MemberExperience experience) async {
+    if (tooManyAttempts) throw const JoinCodeTooManyAttempts();
+    final org = joinCodes[_plain(code)];
+    if (org == null) return null;
+    people[org]!.putIfAbsent(
+      _me,
+      () => OrgMember(
+        userId: _me,
+        role: OrgRole.employee,
+        email: account.user!.email,
+        displayName: name.trim(),
+        experience: experience,
+      ),
+    );
+    return org;
   }
 
   @override

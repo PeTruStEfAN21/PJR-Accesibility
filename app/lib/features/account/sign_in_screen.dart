@@ -2,14 +2,27 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/account/account_service.dart';
+import '../../core/org/org_store.dart';
+import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
+import '../../theme/echo_style.dart';
+import '../../widgets/glass.dart';
+import '../../widgets/grouped_list.dart';
+import '../organization/org_screen.dart';
 
 final _emailPattern = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
 final _codePattern = RegExp(r'^\d{6,10}$');
 
-/// Passwordless sign-in: a code sent by email, or Google. No password to
-/// remember and nothing that relies on hearing (WCAG 2.2, 3.3.8).
-/// Closes itself once the user is signed in.
+/// Who is signing in: the admin who runs the team, or an employee joining with the company code.
+enum SignInRole { admin, employee }
+
+/// The company code as typed, without spaces or dashes: 8 letters and digits.
+String _plainCompanyCode(String typed) => typed.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');
+
+/// Passwordless sign-in: a code sent by email, or Google for the admin. No password to remember
+/// and nothing that relies on hearing (WCAG 2.2, 3.3.8).
+/// docs/superpowers/specs/2026-10-23-login-cod-companie-design.md: the admin lands on the company
+/// screen; the employee gives the company code, their name and how they use Echo, and joins.
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key, required this.account});
   final AccountService account;
@@ -21,33 +34,50 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final _email = TextEditingController();
   final _code = TextEditingController();
+  final _companyCode = TextEditingController();
+  final _name = TextEditingController();
+  SignInRole _role = SignInRole.admin;
+  MemberExperience? _experience;
   String? _sentTo;
   String? _error;
   bool _busy = false;
   bool _closed = false;
 
+  /// Signed in as an employee, but the company code did not work: they type it again.
+  bool _joinPending = false;
+
   @override
   void initState() {
     super.initState();
     // Google and the email link finish outside this screen.
-    widget.account.addListener(_closeWhenSignedIn);
+    widget.account.addListener(_onAccountChanged);
   }
 
   @override
   void dispose() {
-    widget.account.removeListener(_closeWhenSignedIn);
+    widget.account.removeListener(_onAccountChanged);
     _email.dispose();
     _code.dispose();
+    _companyCode.dispose();
+    _name.dispose();
     super.dispose();
   }
 
-  void _closeWhenSignedIn() {
-    if (!widget.account.isSignedIn || _closed || !mounted) return;
+  /// The admin goes on to the company screen (where the company is made the first time).
+  /// The employee's joining runs after the email code is confirmed, in [_verify].
+  void _onAccountChanged() {
+    if (!widget.account.isSignedIn || _closed || !mounted || _role != SignInRole.admin) return;
     _closed = true;
-    Navigator.of(context).pop();
+    final organizations = ServicesScope.of(context).organizations;
+    final navigator = Navigator.of(context);
+    if (organizations == null) {
+      navigator.pop();
+    } else {
+      navigator.pushReplacement(MaterialPageRoute(builder: (_) => OrgScreen(organizations: organizations)));
+    }
   }
 
-  Future<void> _run(Future<void> Function() action) async {
+  Future<void> _run(Future<void> Function() action, {String? failure}) async {
     setState(() {
       _busy = true;
       _error = null;
@@ -55,15 +85,25 @@ class _SignInScreenState extends State<SignInScreen> {
     try {
       await action();
     } on Object {
-      if (mounted) setState(() => _error = AppLocalizations.of(context).signInFailed);
+      if (mounted) setState(() => _error = failure ?? AppLocalizations.of(context).signInFailed);
     }
     if (mounted) setState(() => _busy = false);
   }
 
+  /// What the employee must give, checked before any email leaves; null when all is there.
+  String? _missingForEmployee(AppLocalizations l10n) {
+    if (_plainCompanyCode(_companyCode.text).length != 8) return l10n.companyCodeInvalid;
+    if (_name.text.trim().isEmpty) return l10n.joinNameMissing;
+    if (_experience == null) return l10n.joinExperienceMissing;
+    return null;
+  }
+
   void _sendCode() {
+    final l10n = AppLocalizations.of(context);
+    final missing = _role == SignInRole.employee ? _missingForEmployee(l10n) : null;
     final email = _email.text.trim();
-    if (!_emailPattern.hasMatch(email)) {
-      setState(() => _error = AppLocalizations.of(context).signInInvalidEmail);
+    if (missing != null || !_emailPattern.hasMatch(email)) {
+      setState(() => _error = missing ?? l10n.signInInvalidEmail);
       return;
     }
     _run(() async {
@@ -78,58 +118,193 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() => _error = AppLocalizations.of(context).signInInvalidCode);
       return;
     }
-    _run(() => widget.account.verifyEmailCode(_sentTo!, code));
+    _run(() async {
+      await widget.account.verifyEmailCode(_sentTo!, code);
+      if (_role == SignInRole.employee && mounted) await _join();
+    });
+  }
+
+  /// Joins the company of the code; a wrong code keeps the employee here, signed in, to fix it.
+  Future<void> _join() async {
+    final l10n = AppLocalizations.of(context);
+    final organizations = ServicesScope.of(context).organizations;
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    if (organizations == null) {
+      _closed = true;
+      navigator.pop();
+      return;
+    }
+    String? orgId;
+    try {
+      orgId = await organizations.store.joinWithCode(_companyCode.text, _name.text, _experience!);
+    } on JoinCodeTooManyAttempts {
+      _stayToFix(l10n.joinTooMany);
+      return;
+    }
+    if (orgId == null) {
+      _stayToFix(l10n.joinWrongCode);
+      return;
+    }
+    await organizations.refresh();
+    final joined = organizations.memberships.where((m) => m.orgId == orgId).firstOrNull;
+    _closed = true;
+    if (joined != null) messenger.showSnackBar(SnackBar(content: Text(l10n.joinDone(joined.orgName))));
+    navigator.pop();
+  }
+
+  void _stayToFix(String error) {
+    if (!mounted) return;
+    setState(() {
+      _joinPending = true;
+      _error = error;
+    });
+  }
+
+  void _retryJoin() {
+    final l10n = AppLocalizations.of(context);
+    if (_plainCompanyCode(_companyCode.text).length != 8) {
+      setState(() => _error = l10n.companyCodeInvalid);
+      return;
+    }
+    _run(_join, failure: l10n.orgError);
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
+    final palette = EchoPalette.of(context);
     final sentTo = _sentTo;
+    final employee = _role == SignInRole.employee;
+    final big = FilledButton.styleFrom(minimumSize: const Size.fromHeight(52));
+
+    Widget companyCodeField() => TextField(
+          controller: _companyCode,
+          decoration: InputDecoration(
+            labelText: l10n.companyCodeLabel,
+            hintText: 'ABCD-EFGH',
+            // Thin, so the example never looks like a code already typed.
+            hintStyle: theme.textTheme.titleMedium?.copyWith(
+              letterSpacing: 2,
+              fontWeight: FontWeight.w400,
+              color: palette.muted,
+            ),
+          ),
+          textCapitalization: TextCapitalization.characters,
+          autocorrect: false,
+          enableSuggestions: false,
+          inputFormatters: [LengthLimitingTextInputFormatter(12)],
+          style: theme.textTheme.titleMedium?.copyWith(letterSpacing: 2),
+          textInputAction: TextInputAction.next,
+        );
+
+    Widget experienceChoice(MemberExperience value, IconData icon, String title, String hint) => EchoGroupRow(
+          leading: RowIcon(icon),
+          title: title,
+          subtitle: [hint],
+          selected: _experience == value,
+          trailing: _experience == value
+              ? Icon(Icons.check_rounded, color: palette.accent)
+              : const SizedBox(width: 24),
+          onTap: () => setState(() {
+            _experience = value;
+            _error = null;
+          }),
+        );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.signIn)),
       body: SafeArea(
         child: AutofillGroup(
           child: ListView(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
             children: [
-              Text(l10n.signInIntro, style: theme.textTheme.bodyLarge),
-              const SizedBox(height: 24),
-              if (sentTo == null) ...[
+              if (sentTo == null && !_joinPending) ...[
+                GlassSegmented<SignInRole>(
+                  semanticLabel: l10n.signInRoleLabel,
+                  selected: _role,
+                  onChanged: (role) => setState(() {
+                    _role = role;
+                    _error = null;
+                  }),
+                  options: [
+                    (SignInRole.admin, Icons.admin_panel_settings_outlined, Icons.admin_panel_settings, l10n.signInRoleAdmin),
+                    (SignInRole.employee, Icons.badge_outlined, Icons.badge, l10n.signInRoleEmployee),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: Text(
+                    employee ? l10n.signInEmployeeIntro : l10n.signInAdminIntro,
+                    style: theme.textTheme.bodyLarge?.copyWith(color: palette.muted),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (employee) ...[
+                  companyCodeField(),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _name,
+                    decoration: InputDecoration(labelText: l10n.joinNameLabel),
+                    textCapitalization: TextCapitalization.words,
+                    autofillHints: const [AutofillHints.name],
+                    inputFormatters: [LengthLimitingTextInputFormatter(100)],
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 28),
+                  EchoGroup(
+                    title: l10n.joinExperienceTitle,
+                    rows: [
+                      experienceChoice(MemberExperience.visual, Icons.closed_caption_outlined, l10n.experienceVisual,
+                          l10n.experienceVisualHint),
+                      experienceChoice(MemberExperience.standard, Icons.record_voice_over_outlined,
+                          l10n.experienceStandard, l10n.experienceStandardHint),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  // What the company will see, said before anything is sent (GDPR art. 13).
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ExcludeSemantics(child: Icon(Icons.info_outline_rounded, color: palette.muted)),
+                      const SizedBox(width: 10),
+                      Expanded(child: Text(l10n.joinPrivacy, style: theme.textTheme.bodyMedium?.copyWith(color: palette.muted))),
+                    ],
+                  ),
+                  const SizedBox(height: 28),
+                ],
                 TextField(
                   controller: _email,
-                  decoration: InputDecoration(labelText: l10n.signInEmailLabel, border: const OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.signInEmailLabel),
                   keyboardType: TextInputType.emailAddress,
                   autofillHints: const [AutofillHints.email],
                   autocorrect: false,
                   textInputAction: TextInputAction.send,
                   onSubmitted: (_) => _sendCode(),
                 ),
-                const SizedBox(height: 12),
-                FilledButton(
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-                  onPressed: _busy ? null : _sendCode,
-                  child: Text(l10n.signInSendCode),
-                ),
+                const SizedBox(height: 16),
+                FilledButton(style: big, onPressed: _busy ? null : _sendCode, child: Text(l10n.signInSendCode)),
+              ] else if (_joinPending) ...[
+                companyCodeField(),
+                const SizedBox(height: 16),
+                FilledButton(style: big, onPressed: _busy ? null : _retryJoin, child: Text(l10n.joinRetry)),
               ] else ...[
-                Semantics(liveRegion: true, child: Text(l10n.signInCodeSent(sentTo), style: theme.textTheme.bodyLarge)),
-                const SizedBox(height: 12),
+                Semantics(liveRegion: true, child: Text(l10n.signInCodeSent(sentTo!), style: theme.textTheme.bodyLarge)),
+                const SizedBox(height: 16),
                 TextField(
                   controller: _code,
-                  decoration: InputDecoration(labelText: l10n.signInCodeLabel, border: const OutlineInputBorder()),
+                  decoration: InputDecoration(labelText: l10n.signInCodeLabel),
                   keyboardType: TextInputType.number,
                   autofillHints: const [AutofillHints.oneTimeCode],
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
                   textInputAction: TextInputAction.done,
                   onSubmitted: (_) => _verify(),
                 ),
-                const SizedBox(height: 12),
-                FilledButton(
-                  style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-                  onPressed: _busy ? null : _verify,
-                  child: Text(l10n.signInVerify),
-                ),
+                const SizedBox(height: 16),
+                FilledButton(style: big, onPressed: _busy ? null : _verify, child: Text(l10n.signInVerify)),
+                const SizedBox(height: 4),
                 TextButton(
                   onPressed: _busy
                       ? null
@@ -142,14 +317,15 @@ class _SignInScreenState extends State<SignInScreen> {
                 ),
               ],
               if (_error case final error?) ...[
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 // Icon + text, so the error never depends on colour alone.
                 Semantics(
                   liveRegion: true,
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.error_outline, color: theme.colorScheme.error),
-                      const SizedBox(width: 8),
+                      Icon(Icons.error_outline_rounded, color: theme.colorScheme.error),
+                      const SizedBox(width: 10),
                       Expanded(child: Text(error, style: theme.textTheme.bodyLarge)),
                     ],
                   ),
@@ -159,21 +335,23 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 16),
                 const Center(child: CircularProgressIndicator()),
               ],
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  const Expanded(child: Divider()),
-                  Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text(l10n.signInOr)),
-                  const Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(56)),
-                onPressed: _busy ? null : () => _run(widget.account.signInWithGoogle),
-                icon: const Icon(Icons.account_circle),
-                label: Text(l10n.signInGoogle),
-              ),
+              if (!employee && sentTo == null) ...[
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    const Expanded(child: Divider()),
+                    Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text(l10n.signInOr)),
+                    const Expanded(child: Divider()),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                  onPressed: _busy ? null : () => _run(widget.account.signInWithGoogle),
+                  icon: const Icon(Icons.account_circle_outlined),
+                  label: Text(l10n.signInGoogle),
+                ),
+              ],
             ],
           ),
         ),

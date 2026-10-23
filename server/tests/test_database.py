@@ -6,6 +6,7 @@ postgresql://postgres@localhost:5432/postgres. Skipped otherwise.
 
 import json
 import os
+import re
 import secrets
 import threading
 import uuid
@@ -962,7 +963,7 @@ def test_leaving_the_company_takes_the_meetings_away_but_keeps_the_history(db):
     assert db.execute("select org_id from public.meetings where id = %s", (meeting,)).fetchone() == (None,)
     with as_user(db, admin), pytest.raises(psycopg.errors.InsufficientPrivilege):
         db.execute("select public.company_meeting(%s)", (meeting,))
-    assert events_seen_by(db, admin, org) == ["meeting_started"]
+    assert events_seen_by(db, admin, org) == ["member_left", "meeting_started"]  # leaving is logged too
 
 
 def test_deleting_the_account_keeps_alarms_and_removes_meetings(db):
@@ -1170,7 +1171,7 @@ def test_leaving_the_company_removes_the_type_changes_from_its_history(db):
     run(db, admin, "update public.org_members set experience = 'visual' where user_id = %s", (worker,))
     run(db, other_admin, "update public.org_members set experience = 'visual' where user_id = %s", (worker,))
     run(db, worker, "delete from public.org_members where org_id = %s and user_id = %s", (org, worker))
-    assert events_seen_by(db, admin, org) == []
+    assert events_seen_by(db, admin, org) == ["member_left"]  # only the type changes go; leaving is logged
     # The other company's change stays while they are still there.
     assert events_seen_by(db, other_admin, other_org) == ["member_experience_changed"]
 
@@ -1200,3 +1201,148 @@ def test_signed_out_requests_call_no_function(db):
         " where n.nspname = 'public' and has_function_privilege('anon', p.oid, 'execute') order by 1"
     ).fetchall()
     assert callable_functions == []
+
+
+# Company join codes (docs/superpowers/specs/2026-10-23-login-cod-companie-design.md) ---------
+
+CODE_PATTERN = re.compile(r"[A-HJKMNP-Z2-9]{4}-[A-HJKMNP-Z2-9]{4}")
+
+
+def new_code(db, admin, org) -> str:
+    return run(db, admin, "select public.new_join_code(%s)", (org,))[0]
+
+
+def join_by_code(db, user, code, name="Ana Pop", experience="visual"):
+    return run(db, user, "select public.join_with_code(%s, %s, %s)", (code, name, experience))[0]
+
+
+def member_row(db, org, user):
+    return db.execute(
+        "select role, display_name, email, experience, experience_confirmed_at is not null"
+        " from public.org_members where org_id = %s and user_id = %s",
+        (org, user),
+    ).fetchone()
+
+
+def test_only_an_admin_makes_a_join_code_and_only_its_fingerprint_is_kept(db):
+    org, admin, worker = company(db)
+    code = new_code(db, admin, org)
+    assert CODE_PATTERN.fullmatch(code)
+    stored = db.execute("select code_hash from public.org_join_codes where org_id = %s", (org,)).fetchone()[0]
+    assert code.replace("-", "").encode() not in bytes(stored)
+    with as_user(db, admin):
+        (expires,) = db.execute("select expires_at from public.join_code_info(%s)", (org,)).fetchone()
+        assert db.execute("select %s > now() + interval '6 days'", (expires,)).fetchone()[0]
+    with as_user(db, worker), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("select public.new_join_code(%s)", (org,))
+    with as_user(db, worker):
+        assert db.execute("select * from public.join_code_info(%s)", (org,)).fetchall() == []
+
+
+def test_an_employee_joins_with_the_code_their_name_and_how_they_use_echo(db):
+    org, admin, _ = company(db)
+    code = new_code(db, admin, org)
+    worker = new_user(db)
+    # Spaces, a missing dash and small letters still match: people type codes as they read them.
+    typed = " " + code.replace("-", "").lower() + " "
+    assert join_by_code(db, worker, typed, "  Ana Pop ", "visual") == org
+    assert member_row(db, org, worker) == ("employee", "Ana Pop", email_of(db, worker), "visual", True)
+    with as_user(db, admin):
+        names = [r[0] for r in db.execute("select display_name from public.org_members where org_id = %s", (org,))]
+        assert "Ana Pop" in names
+
+
+def test_a_new_code_replaces_the_old_one_and_a_revoked_code_stops_working(db):
+    org, admin, _ = company(db)
+    old = new_code(db, admin, org)
+    new = new_code(db, admin, org)
+    assert join_by_code(db, new_user(db), old) is None
+    assert join_by_code(db, new_user(db), new) == org
+    run(db, admin, "select public.revoke_join_code(%s)", (org,))
+    assert join_by_code(db, new_user(db), new) is None
+    with as_user(db, admin):
+        assert db.execute("select * from public.join_code_info(%s)", (org,)).fetchall() == []
+
+
+def test_an_expired_code_does_not_work(db):
+    org, admin, _ = company(db)
+    code = new_code(db, admin, org)
+    db.execute("update public.org_join_codes set expires_at = now() - interval '1 minute' where org_id = %s", (org,))
+    assert join_by_code(db, new_user(db), code) is None
+    with as_user(db, admin):
+        assert db.execute("select * from public.join_code_info(%s)", (org,)).fetchall() == []
+
+
+def test_after_five_wrong_codes_in_an_hour_even_the_right_one_is_refused(db):
+    org, admin, _ = company(db)
+    code = new_code(db, admin, org)
+    guesser = new_user(db)
+    for _ in range(5):
+        assert join_by_code(db, guesser, "AAAA-AAAA") is None
+    with as_user(db, guesser), pytest.raises(psycopg.Error) as refused:
+        db.execute("select public.join_with_code(%s, 'Ana', 'standard')", (code,))
+    assert refused.value.sqlstate == "EJ002"
+    db.execute("update public.org_join_attempts set at = now() - interval '61 minutes' where user_id = %s", (guesser,))
+    assert join_by_code(db, guesser, code) == org
+
+
+def test_a_code_never_makes_an_admin_and_does_not_change_someone_already_inside(db):
+    org, admin, worker = company(db)
+    code = new_code(db, admin, org)
+    assert join_by_code(db, admin, code, "Altcineva", "visual") == org
+    assert member_row(db, org, admin)[0] == "admin"
+    assert member_row(db, org, admin)[1] != "Altcineva"
+    assert join_by_code(db, worker, code, "Ion", "visual") == org
+    assert member_row(db, org, worker)[0] == "employee"
+
+
+def test_the_name_is_required_and_short(db):
+    org, admin, _ = company(db)
+    code = new_code(db, admin, org)
+    for name in ("", "   ", "x" * 101):
+        with as_user(db, new_user(db)), pytest.raises(psycopg.errors.CheckViolation):
+            db.execute("select public.join_with_code(%s, %s, 'standard')", (code, name))
+
+
+def test_codes_and_attempts_cannot_be_read_or_written_directly(db):
+    org, admin, worker = company(db)
+    new_code(db, admin, org)
+    for user in (admin, worker):
+        for table in ("org_join_codes", "org_join_attempts"):
+            with as_user(db, user), pytest.raises(psycopg.errors.InsufficientPrivilege):
+                db.execute(f"select * from public.{table}")
+    with as_user(db, None), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("select public.join_with_code('AAAA-AAAA', 'Ana', 'standard')")
+
+
+def test_joining_leaving_and_being_removed_go_into_the_history(db):
+    # Only the founder: creating the company is not "joining" it.
+    admin = new_user(db)
+    org = new_org(db, admin)
+    code = new_code(db, admin, org)
+    stays, leaves, removed = new_user(db), new_user(db), new_user(db)
+    for user in (stays, leaves, removed):
+        join_by_code(db, user, code)
+    run(db, leaves, "delete from public.org_members where org_id = %s and user_id = %s", (org, leaves))
+    run(db, admin, "delete from public.org_members where org_id = %s and user_id = %s", (org, removed))
+
+    company_events = events_seen_by(db, admin, org)
+    assert company_events.count("member_joined") == 3
+    assert company_events.count("member_left") == 1
+    assert company_events.count("member_removed") == 1
+    assert events_seen_by(db, stays) == ["member_joined"]
+    assert events_seen_by(db, removed) == ["member_removed", "member_joined"]
+
+
+def test_deleting_the_account_forgets_the_attempts_and_the_join(db):
+    org, admin, _ = company(db)
+    code = new_code(db, admin, org)
+    worker = new_user(db)
+    join_by_code(db, worker, "AAAA-AAAA")
+    join_by_code(db, worker, code)
+    run(db, worker, "select public.delete_my_account()")
+    assert db.execute("select count(*) from public.org_join_attempts where user_id = %s", (worker,)).fetchone()[0] == 0
+    assert db.execute(
+        "select count(*) from public.activity_log where actor_id = %s or subject_user_id = %s", (worker, worker)
+    ).fetchone()[0] == 0
+    assert "member_joined" not in events_seen_by(db, admin, org)
