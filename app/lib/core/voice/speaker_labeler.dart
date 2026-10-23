@@ -121,9 +121,10 @@ class SpeakerLabeler {
   }
 }
 
-/// RMS of each 30 ms frame. A frame is voiced when it stands about 12 dB above the clip's noise floor (its
+/// RMS of each 30 ms frame. A frame is voiced when it stands about 6 dB above the clip's noise floor (its
 /// quietest fifth), and in any case within [relativeDb] of the loudest frame and above about -60 dBFS.
-/// Frames within 6 dB of the loudest always count, so a clip that is all voice stays voice.
+/// Frames within 6 dB of the loudest always count, so a clip that is all voice stays voice. 6 dB, not 12:
+/// the raw laptop microphone hears most syllables only about 10 dB above the room.
 List<bool> _voicedFrames(Float32List samples, int frame, double relativeDb) {
   final energies = <double>[];
   for (var start = 0; start < samples.length; start += frame) {
@@ -138,7 +139,7 @@ List<bool> _voicedFrames(Float32List samples, int frame, double relativeDb) {
   final loudest = energies.reduce(max);
   final sorted = [...energies]..sort();
   final noise = sorted[(sorted.length * 0.2).floor()];
-  final aboveNoise = min(noise * pow(10, 12 / 10), loudest * pow(10, -6 / 10));
+  final aboveNoise = min(noise * pow(10, 6 / 10), loudest * pow(10, -6 / 10));
   final floor = max(max(aboveNoise, loudest * pow(10, relativeDb / 10)), 1e-6);
   return [for (final e in energies) e >= floor];
 }

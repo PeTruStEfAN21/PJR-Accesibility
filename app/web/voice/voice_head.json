@@ -4,6 +4,6 @@
   "bias": -3.0425592203603564,
   "threshold": 0.8703038391237771,
   "min_voiced_ms": 500,
-  "enroll_min_voiced_ms": 10000,
+  "enroll_min_voiced_ms": 7000,
   "window_ms": 3000
 }
