@@ -137,6 +137,8 @@ def create_app(
             return await coro
         except ai.AIRefused as exc:
             raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, str(exc)) from exc
+        except ai.AIIncomplete as exc:
+            raise HTTPException(status.HTTP_502_BAD_GATEWAY, "The AI's answer was incomplete, try again") from exc
         except anthropic.AuthenticationError as exc:
             raise HTTPException(status.HTTP_503_SERVICE_UNAVAILABLE, "Invalid ANTHROPIC_API_KEY") from exc
         except (anthropic.APIConnectionError, anthropic.APIStatusError) as exc:
