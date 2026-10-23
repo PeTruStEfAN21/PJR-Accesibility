@@ -23,7 +23,7 @@ class MyQuestion extends ChangeNotifier {
     this.giveUp = const Duration(minutes: 5),
     this.checkTimeout = const Duration(seconds: 20),
   }) {
-    _finalCount = transcript.finalLines().length;
+    _seenNumber = transcript.lastNumber;
     transcript.addListener(_onTranscript);
   }
 
@@ -40,11 +40,12 @@ class MyQuestion extends ChangeNotifier {
   String? _text;
   MyQuestionState? _state;
   AnswerCheck? _result;
-  int _fromLine = 0;
-  int _finalCount = 0;
+  /// Lines numbered above this became final after the question was asked.
+  int _fromNumber = 0;
+  int _seenNumber = 0;
   bool _searching = false;
   bool _inFlight = false;
-  int _sentCount = 0;
+  int _sentUpTo = 0;
   int _generation = 0;
   Timer? _settleTimer;
   Timer? _giveUpTimer;
@@ -59,7 +60,7 @@ class MyQuestion extends ChangeNotifier {
     _id = id;
     _text = text;
     _state = MyQuestionState.sent;
-    _fromLine = transcript.finalLines().length;
+    _fromNumber = transcript.lastNumber;
     notifyListeners();
   }
 
@@ -116,22 +117,23 @@ class MyQuestion extends ChangeNotifier {
   }
 
   void _onTranscript() {
-    final count = transcript.finalLines().length;
-    if (count <= _finalCount) return;
-    _finalCount = count;
+    // Only a line that just became final counts; edits and removals do not.
+    final last = transcript.lastNumber;
+    if (last <= _seenNumber) return;
+    _seenNumber = last;
     if (!_searching || _inFlight) return;
     _settleTimer?.cancel();
     _settleTimer = Timer(settle, _check);
   }
 
   Future<void> _check() async {
-    final all = transcript.finalLines().skip(_fromLine).toList();
+    final all = [for (final line in transcript.finalLines()) if (line.number > _fromNumber) line];
     final lines = all.length > maxLines ? all.sublist(all.length - maxLines) : all;
     final question = _text;
     if (!_searching || _inFlight || lines.isEmpty || question == null) return;
     final generation = _generation;
     _inFlight = true;
-    _sentCount = all.length;
+    _sentUpTo = transcript.lastNumber;
     try {
       final result = await check(question, lines).timeout(checkTimeout);
       if (generation != _generation) return;
@@ -157,7 +159,7 @@ class MyQuestion extends ChangeNotifier {
 
   /// Lines said while a check ran were not in it: look at them once the speaker pauses.
   void _checkAgainIfMoreWasSaid() {
-    if (!_searching || transcript.finalLines().length - _fromLine <= _sentCount) return;
+    if (!_searching || transcript.lastNumber <= _sentUpTo) return;
     _settleTimer?.cancel();
     _settleTimer = Timer(settle, _check);
   }

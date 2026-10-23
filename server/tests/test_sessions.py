@@ -1,4 +1,4 @@
-from app.sessions import ALPHABET, CODE_LENGTH, SessionRegistry
+from app.sessions import ALPHABET, CODE_LENGTH, SWEEP_INTERVAL_SECONDS, SessionRegistry
 
 
 class FakeClock:
@@ -59,3 +59,28 @@ def test_session_with_connected_peer_does_not_expire():
     registry.get(code).add(object(), "presenter")
     clock.now += 3600
     assert registry.get(code) is not None
+
+
+def test_expired_session_is_gone_even_between_sweeps():
+    clock = FakeClock()
+    registry = SessionRegistry(ttl_seconds=60, clock=clock)
+    old = registry.create()
+    clock.now += 30
+    fresh = registry.create()
+    clock.now += 31
+    assert registry.get(old) is None
+    assert registry.get(fresh) is not None
+
+
+def test_sweep_runs_at_most_once_per_interval():
+    # A full scan on every create/join stalls the event loop once the registry is large.
+    clock = FakeClock()
+    registry = SessionRegistry(ttl_seconds=10, clock=clock)
+    codes = [registry.create() for _ in range(5)]
+    clock.now += 11
+    registry.create()
+    assert len(registry._sessions) == 6
+    assert registry.get(codes[0]) is None
+    clock.now += SWEEP_INTERVAL_SECONDS
+    registry.create()
+    assert all(code not in registry._sessions for code in codes)

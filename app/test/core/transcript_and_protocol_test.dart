@@ -29,6 +29,37 @@ void main() {
       expect(transcript.finalNumbers(), {'a': 1, 'c': 2});
     });
 
+    test('a partial that turns final late takes the next number and later lines keep theirs', () {
+      final transcript = Transcript()
+        ..upsert(caption('a', 'în lucru', isFinal: false))
+        ..upsert(caption('b', 'unu'))
+        ..upsert(caption('c', 'doi'))
+        ..upsert(caption('a', 'gata'));
+      expect(transcript.finalNumbers(), {'a': 3, 'b': 1, 'c': 2});
+      expect(transcript.finalLines().map((l) => (l.number, l.text)), [(3, 'gata'), (1, 'unu'), (2, 'doi')]);
+      expect(transcript.lastNumber, 3);
+    });
+
+    test('removing a final caption does not renumber the others and its number is not reused', () {
+      final transcript = Transcript()
+        ..upsert(caption('a', 'unu'))
+        ..upsert(caption('b', 'doi'))
+        ..upsert(caption('c', 'trei'))
+        ..remove('a')
+        ..upsert(caption('d', 'patru'));
+      expect(transcript.finalNumbers(), {'b': 2, 'c': 3, 'd': 4});
+      expect(transcript.finalLines().map((l) => l.number), [2, 3, 4]);
+    });
+
+    test('clear starts the numbering again from 1', () {
+      final transcript = Transcript()
+        ..upsert(caption('a', 'unu'))
+        ..clear()
+        ..upsert(caption('b', 'doi'));
+      expect(transcript.finalNumbers(), {'b': 1});
+      expect(transcript.lastNumber, 1);
+    });
+
     test('blank captions are ignored and remove drops a caption', () {
       final transcript = Transcript()
         ..upsert(caption('a', '   '))

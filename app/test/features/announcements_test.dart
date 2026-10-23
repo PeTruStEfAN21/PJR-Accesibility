@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pjr_accesibilitate/widgets/echo_mascot.dart';
 import 'package:pjr_accesibilitate/core/org/org_store.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/features/alerts/alert_controller.dart';
@@ -34,12 +35,19 @@ Future<void> tapText(WidgetTester tester, String text) async {
   await tester.pumpAndSettle();
 }
 
+/// The phone's Dashboard keeps the announcements behind the large mascot: a tap opens them.
+Future<void> openAnnouncements(WidgetTester tester) async {
+  await tester.tap(find.byType(EchoMascot).first);
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets('an employee sees the announcement in a simple list and opening it marks it seen', (tester) async {
     final (h, org) = await company(tester, me: 'ana@firma.ro');
     h.orgStore!.addAnnouncement(org, 'Dezinsecție', 'Mâine plecăm toți cu 2 ore mai devreme.', important: true);
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
+    await openAnnouncements(tester);
 
     expect(find.text('Anunțuri'), findsOneWidget);
     expect(find.text('Dezinsecție'), findsOneWidget);
@@ -79,6 +87,54 @@ void main() {
 
     network.complete();
     await tester.pumpAndSettle();
+    await openAnnouncements(tester);
+    expect(find.text('Niciun anunț acum.'), findsOneWidget);
+    // Open, the mascot reads its page beside the heading.
+    expect(mascot(MascotPose.reading), findsOneWidget);
+  });
+
+  testWidgets('on the phone the large mascot says how many are new and opens the list, shrinking into a corner',
+      (tester) async {
+    final (h, org) = await company(tester, me: 'ana@firma.ro');
+    h.orgStore!.addAnnouncement(org, 'Dezinsecție', 'Text');
+    h.orgStore!.addAnnouncement(org, 'Ședință', 'Text');
+    final handle = tester.ensureSemantics();
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ai 2 anunțuri noi!'), findsOneWidget);
+    expect(mascot(MascotPose.news), findsOneWidget);
+    expect(tester.getSize(mascot(MascotPose.news)).width, 168);
+    expect(find.text('Dezinsecție'), findsNothing);
+    expect(find.bySemanticsLabel('Ai 2 anunțuri noi!'), findsOneWidget);
+    expect(tester.getSemantics(find.bySemanticsLabel('Ai 2 anunțuri noi!')), isSemantics(isButton: true, hasTapAction: true));
+
+    await tester.tap(find.text('Ai 2 anunțuri noi!'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 120));
+    final midway = tester.getSize(find.byType(EchoMascot).first).width;
+    expect(midway, lessThan(168));
+    expect(midway, greaterThan(56));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Ai 2 anunțuri noi!'), findsNothing);
+    expect(find.text('Dezinsecție'), findsOneWidget);
+    expect(tester.getSize(mascot(MascotPose.reading)), const Size(56, 56));
+    // Small, it sits at the heading's end.
+    expect(tester.getCenter(mascot(MascotPose.reading)).dx, greaterThan(tester.getCenter(find.text('Anunțuri')).dx));
+    handle.dispose();
+  });
+
+  testWidgets('with nothing new the mascot says Vezi anunțurile!; in high contrast the list is open', (tester) async {
+    final (h, org) = await company(tester, me: 'ana@firma.ro');
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    expect(find.text('Vezi anunțurile!'), findsOneWidget);
+    expect(mascot(MascotPose.hello), findsOneWidget);
+
+    h.settings.update((s) => s.highContrast = true);
+    await tester.pumpAndSettle();
+    expect(find.text('Vezi anunțurile!'), findsNothing);
     expect(find.text('Niciun anunț acum.'), findsOneWidget);
   });
 
@@ -88,6 +144,7 @@ void main() {
     h.orgStore!.addAnnouncement(org, 'Obișnuit', 'Text', at: DateTime(2026, 10, 23));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
+    await openAnnouncements(tester);
     expect(tester.getTopLeft(find.text('Urgent')).dy, lessThan(tester.getTopLeft(find.text('Obișnuit')).dy));
   });
 
@@ -96,6 +153,7 @@ void main() {
     final (h, org) = await company(tester, me: 'sef@firma.ro');
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
+    await openAnnouncements(tester);
     expect(find.textContaining('Scrie primul anunț pentru echipă'), findsOneWidget);
 
     await tapText(tester, 'Anunț nou');

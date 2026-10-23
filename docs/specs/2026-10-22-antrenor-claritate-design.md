@@ -59,7 +59,7 @@ Camera (fața, buzele), jargonul, raportul de după meeting, integrarea directă
 
 ## 8. Riscuri
 
-1. **Numărarea silabelor** e mai puțin precisă decât o transcriere; de aceea alerta cere ~20 s de vorbire și un prag calibrat, iar pragul se ajustează după primele meetinguri.
+1. **Numărarea silabelor** e mai puțin precisă decât o transcriere; de aceea alerta cere ~20 s de vorbire și un prag calibrat, iar pragul se ajustează după primele meetinguri. *Verificat pe 2026-10-23 pe 2054 de ferestre de la vorbitori nefolosiți la calibrare: la pragul 4,75 alerta prinde ~19% din vorbirea de 170–190 cuvinte pe minut și ~33% peste 190, cu 3% alerte false la vorbire normală; în practică sare pe la ~200 de cuvinte pe minut. Pragul rămâne 4,75 (decizia echipei); 4,60 ar prinde ~47% din 170–190 cu 8% alerte false.*
 2. **Document Picture-in-Picture** e doar în Chrome / Edge pe desktop.
 3. **Fără căști și fără vocea învățată**, vocile colegilor din difuzoare pot declanșa alerte; pagina recomandă căști sau vocea învățată.
 

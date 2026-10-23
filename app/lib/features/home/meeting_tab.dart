@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/glass.dart';
 import '../../widgets/grouped_list.dart';
+import '../../widgets/echo_mascot.dart';
 import '../../widgets/large_title.dart';
 import '../../widgets/pressable.dart';
 import '../participant/join_screen.dart';
@@ -91,9 +92,13 @@ class _PresentPanel extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.fromLTRB(20, 16, 20, 32 + bottom),
       children: [
-        Semantics(header: true, child: Text(l10n.presentIntroTitle, style: theme.textTheme.headlineSmall)),
-        const SizedBox(height: 10),
-        const SizedBox(height: 24),
+        Row(
+          children: [
+            Expanded(child: Semantics(header: true, child: Text(l10n.presentIntroTitle, style: theme.textTheme.headlineSmall))),
+            const EchoMascot(MascotPose.hello, size: 80),
+          ],
+        ),
+        const SizedBox(height: 18),
         point(Icons.qr_code_2_rounded, l10n.presentPointCode),
         point(Icons.mark_chat_unread_outlined, l10n.presentPointQuestions),
         point(Icons.record_voice_over_outlined, l10n.presentPointVoice),

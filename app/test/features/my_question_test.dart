@@ -293,4 +293,40 @@ void main() {
       expect(sent.last.text, 'replica 249');
     });
   });
+
+  test('after a line is removed, the next new line still triggers a check', () {
+    fakeAsync((async) {
+      start();
+      question
+        ..asked('q1', 'Când?')
+        ..markRead('q1');
+      transcript.upsert(line('c', 'unu'));
+      async.elapse(const Duration(seconds: 3));
+      expect(checker.calls, hasLength(1));
+
+      transcript.remove('c');
+      transcript.upsert(line('d', 'Termenul e vineri'));
+      async.elapse(const Duration(seconds: 3));
+      expect(checker.calls, hasLength(2));
+      expect(checker.calls.last.$2.map((l) => l.toJson()), [
+        {'id': 4, 'speaker': 'coordinator', 'text': 'Termenul e vineri'},
+      ]);
+    });
+  });
+
+  test('a line in progress when the question was asked counts once it turns final', () {
+    fakeAsync((async) {
+      transcript = Transcript()
+        ..upsert(line('a', 'Bun venit'))
+        ..upsert(line('b', 'Termenul', isFinal: false));
+      checker = FakeChecker();
+      question = MyQuestion(transcript: transcript, check: checker.call)
+        ..asked('q1', 'Când?')
+        ..markRead('q1');
+      transcript.upsert(line('c', 'altceva'));
+      transcript.upsert(line('b', 'Termenul e vineri'));
+      async.elapse(const Duration(seconds: 3));
+      expect(checker.calls.single.$2.map((l) => (l.number, l.text)), [(3, 'Termenul e vineri'), (2, 'altceva')]);
+    });
+  });
 }

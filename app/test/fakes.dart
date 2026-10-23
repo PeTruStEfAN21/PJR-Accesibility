@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
+import 'package:pjr_accesibilitate/widgets/echo_mascot.dart';
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/join_link.dart';
 import 'package:pjr_accesibilitate/features/emergency/alarm_logic.dart' show Position;
@@ -926,6 +927,9 @@ Future<void> openTab(WidgetTester tester, String label) async {
   await tester.tap(inBar(label));
   await tester.pumpAndSettle();
 }
+
+/// The mascot in [pose].
+Finder mascot(MascotPose pose) => find.byWidgetPredicate((w) => w is EchoMascot && w.pose == pose);
 
 /// Starts presenting the phone's way: Meeting in the bar, then Prezint, then Pornește meetingul.
 Future<void> startPresenting(WidgetTester tester) async {

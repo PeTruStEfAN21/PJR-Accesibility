@@ -43,6 +43,7 @@ Fiecare rând are: ora (serverului), evenimentul, cine a făcut (cont + email), 
 - `record_colleague_alarm(...)`: `security definer`, executabilă doar de rolul `echo_audit`; leagă rândul de companiile autorului.
 - La ștergerea contului: un trigger pe `auth.users` șterge rândurile de meeting ale omului și le lasă pe cele de alarmă (cu `actor_id` gol, emailul rămâne).
 - Păstrarea: fiecare scriere în istoric șterge ce e mai vechi de 12 luni, iar citirile nu arată niciodată ce a trecut de termen; `purge_activity_log()` face același lucru și o apelează serverul o dată pe zi.
+- Ștergerea la scriere e limitată: cel mult 200 de rânduri vechi pe scriere, alese cu `for update skip locked`, deci o scriere nu așteaptă niciodată după tranzacția altcuiva și nu plătește pentru o restanță mare; restul pleacă la scrierile următoare sau cu `purge_activity_log()`.
 - Rolul `echo_audit` se creează fără parolă în migrație; la instalare i se pune parola (`alter role echo_audit with login password '…'`) și se trece în `AUDIT_DATABASE_URL` în `.env`.
 
 ## 5. Server

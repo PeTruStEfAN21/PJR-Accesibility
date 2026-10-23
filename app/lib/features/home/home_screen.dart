@@ -247,7 +247,7 @@ class HomeScreen extends StatelessWidget {
               padding: EdgeInsets.fromLTRB(side, wide ? 56 : 12, side, 32 + MediaQuery.paddingOf(context).bottom),
               children: [
                 // No greeting: the phone's Dashboard opens on the announcements, the laptop on its cards.
-                if (shell != null) const AnnouncementsSection(first: true),
+                if (shell != null) const AnnouncementsSection(first: true, folded: true),
                 if (experience != null) ...[
                   const AnnouncementsSection(first: true),
                   joinAction(),

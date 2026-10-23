@@ -207,3 +207,29 @@ def test_speaking_needs_active(client):
         ws.receive_json()
         ws.send_json({"type": "speaking", "id": "s1", "ts": 5})
         assert ws.receive_json() == {"type": "error", "message": "invalid message"}
+
+
+def test_binary_frame_returns_error_and_keeps_the_socket(client):
+    with connected_pair(client) as (presenter, participant):
+        presenter.send_bytes(b"\x00\x01")
+        assert presenter.receive_json() == {"type": "error", "message": "invalid message"}
+        presenter.send_json(caption("Încă aici"))
+        assert participant.receive_json() == caption("Încă aici")
+
+
+def test_session_creation_is_limited_per_hour(monkeypatch):
+    monkeypatch.setenv("SESSIONS_PER_HOUR", "2")
+    client = TestClient(create_app(ai_client=None))
+    new_code(client)
+    new_code(client)
+    blocked = client.post("/api/sessions")
+    assert blocked.status_code == 429
+    assert int(blocked.headers["Retry-After"]) > 0
+
+
+def test_session_limit_does_not_use_the_ai_budget(monkeypatch):
+    monkeypatch.setenv("SESSIONS_PER_HOUR", "1")
+    monkeypatch.setenv("AI_ANONYMOUS_REQUESTS_PER_HOUR", "1")
+    client = TestClient(create_app(ai_client=None))
+    new_code(client)
+    assert client.post("/api/ai/simplify", json={"lang": "ro", "text": "Text"}).status_code != 429

@@ -8,6 +8,7 @@ import '../alerts/alert_controller.dart';
 import '../alerts/alert_overlay.dart';
 import '../alerts/location_sounds.dart';
 import '../alerts/sound_alert.dart';
+import '../../widgets/echo_mascot.dart';
 import '../../widgets/grouped_list.dart';
 import '../../widgets/large_title.dart';
 import 'learn_sound_screen.dart';
@@ -62,7 +63,7 @@ class SoundsScreen extends StatelessWidget {
         child: ListView(
         padding: EdgeInsets.fromLTRB(16, 0, 16, 32 + MediaQuery.paddingOf(context).bottom),
         children: [
-          LargeTitle(l10n.soundsTitle),
+          LargeTitle(l10n.soundsTitle, trailing: const EchoMascot(MascotPose.alert, size: 60)),
           EchoGroup(
             rows: [
               SwitchListTile(
