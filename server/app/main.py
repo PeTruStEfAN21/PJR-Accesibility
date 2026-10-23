@@ -101,6 +101,7 @@ def create_app(
     verifier: TokenVerifier | None = verifier_from_env() if verifier is _DEFAULT else verifier
     user_limit = _limit("AI_REQUESTS_PER_HOUR", 120)
     anonymous_limit = _limit("AI_ANONYMOUS_REQUESTS_PER_HOUR", 60)
+    session_limit = _limit("SESSIONS_PER_HOUR", 60)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI):
@@ -246,7 +247,10 @@ def create_app(
                 await websocket.close(code=4503, reason="accounts are not configured")
                 return
             try:
-                first = await asyncio.wait_for(websocket.receive_json(), timeout=10)
+                frame = await asyncio.wait_for(websocket.receive(), timeout=10)
+                if frame["type"] == "websocket.disconnect":
+                    return
+                first = json.loads(frame.get("text") or "")  # A binary frame is not an auth message.
                 if not isinstance(first, dict) or first.get("type") != "auth":
                     raise InvalidToken("auth expected")
                 listener = await verifier.identity(str(first.get("token") or ""))
@@ -258,15 +262,25 @@ def create_app(
             alarm_feed.subscribe(websocket, listener.user_id)
             for alarm in await alarm_feed.active(time.time(), viewer=listener.user_id):
                 await websocket.send_json(alarm.public())
-            while True:
-                await websocket.receive_text()  # Later client messages are ignored.
+            # Later client messages, text or binary, are ignored.
+            while (await websocket.receive())["type"] != "websocket.disconnect":
+                pass
         except WebSocketDisconnect:
             pass
         finally:
             alarm_feed.unsubscribe(websocket)
 
     @app.post("/api/sessions", status_code=status.HTTP_201_CREATED)
-    async def create_session() -> dict:
+    async def create_session(who: Caller = Depends(caller)) -> dict:
+        # No account needed, so the limit stops anyone from filling the registry. Phones behind
+        # Docker on the Mac can all show up as one address, hence the generous default.
+        retry_after = await limiter.hit(f"session:{who.key}", session_limit)
+        if retry_after is not None:
+            raise HTTPException(
+                status.HTTP_429_TOO_MANY_REQUESTS,
+                "Too many meetings created, try again later",
+                headers={"Retry-After": str(retry_after)},
+            )
         return {"code": await hub.create()}
 
     @app.post("/api/ai/summary")
@@ -308,9 +322,14 @@ def create_app(
 
         try:
             while True:
-                raw = await websocket.receive_text()
+                frame = await websocket.receive()
+                if frame["type"] == "websocket.disconnect":
+                    break
+                raw = frame.get("text")
                 error = None
-                if len(raw.encode()) > MAX_MESSAGE_BYTES:
+                if raw is None:
+                    error = "invalid message"  # Binary frame: the protocol is JSON text only.
+                elif len(raw.encode()) > MAX_MESSAGE_BYTES:
                     error = "message too large"
                 else:
                     try:

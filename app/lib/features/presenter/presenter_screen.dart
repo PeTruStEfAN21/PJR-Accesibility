@@ -19,6 +19,7 @@ import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../widgets/caption_tile.dart';
 import '../../widgets/connection_banner.dart';
+import '../../widgets/echo_mascot.dart';
 import 'enroll_view.dart';
 import 'test_meeting.dart';
 import 'test_meeting_review.dart';
@@ -164,6 +165,11 @@ class _PresenterScreenState extends State<PresenterScreen> {
     final services = ServicesScope.of(context);
     final server = defaultServer(SettingsScope.of(context));
     final api = services.api(server);
+    // A retry never leaves an earlier connection (or its listener) behind.
+    unawaited(_events?.cancel());
+    _connection?.dispose();
+    _events = null;
+    _connection = null;
     final code = await api.createSession();
     final publicServer = await api.publicUrl();
 
@@ -281,6 +287,7 @@ class _PresenterScreenState extends State<PresenterScreen> {
     final settings = SettingsScope.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final failed = AppLocalizations.of(context).presenterReadFailed;
+    final unavailable = AppLocalizations.of(context).speechUnavailable;
     final text = message.notify.text;
     // The browser's voice sometimes never reports the end: give up after a generous time for the text.
     final limit = Duration(milliseconds: 5000 + 120 * text.length);
@@ -296,9 +303,18 @@ class _PresenterScreenState extends State<PresenterScreen> {
     } on Object {
       spoken = false;
     } finally {
-      // Captioning restarts whatever happened, unless the speaker pressed Stop meanwhile; the next line is
-      // judged only on what is heard after the laptop's voice.
-      if (wasListening && _listening) await _speech.start(settings.speechLocaleId);
+      // Captioning restarts whatever happened, unless the speaker pressed Stop or closed the page meanwhile;
+      // the next line is judged only on what is heard after the laptop's voice.
+      if (mounted && wasListening && _listening) {
+        final restarted = await _speech.start(settings.speechLocaleId);
+        if (!mounted) {
+          if (restarted) unawaited(_speech.stop());
+        } else if (!restarted) {
+          unawaited(_segments?.cancel());
+          setState(() => _listening = false);
+          messenger.showSnackBar(SnackBar(content: Text(unavailable)));
+        }
+      }
       _labeler?.startWindowAt(clock.now());
     }
     if (!mounted) return;
@@ -363,6 +379,7 @@ class _PresenterScreenState extends State<PresenterScreen> {
               _VoiceStage.ready when _justEnrolled => l10n.enrollDone,
               _ => null,
             },
+            voiceJustLearned: _voiceStage == _VoiceStage.ready && _justEnrolled,
             onRelearn: _voiceStage == _VoiceStage.ready ? _relearnVoice : null,
             testMeeting: _testMeeting != null,
             onTestMeeting: _voiceStage == _VoiceStage.ready && !_listening ? _toggleTestMeeting : null,
@@ -425,6 +442,7 @@ class _JoinPanel extends StatelessWidget {
     required this.forceSpeaker,
     required this.onForceSpeaker,
     required this.voiceNote,
+    this.voiceJustLearned = false,
     required this.onRelearn,
     required this.testMeeting,
     required this.onTestMeeting,
@@ -440,6 +458,9 @@ class _JoinPanel extends StatelessWidget {
 
   /// How voice recognition is doing („Vocea ta e învățată”, or that it does not work here).
   final String? voiceNote;
+
+  /// The voice has just been learned: the mascot cheers instead of the plain icon.
+  final bool voiceJustLearned;
 
   /// „Reînvață vocea”; null when there is no voice recognition.
   final VoidCallback? onRelearn;
@@ -464,7 +485,10 @@ class _JoinPanel extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.record_voice_over),
+                    if (voiceJustLearned && EchoMascot.shows(context))
+                      const EchoMascot(MascotPose.bravo, size: 72)
+                    else
+                      const Icon(Icons.record_voice_over),
                     const SizedBox(width: 8),
                     Flexible(child: Text(note, style: theme.textTheme.titleMedium)),
                   ],

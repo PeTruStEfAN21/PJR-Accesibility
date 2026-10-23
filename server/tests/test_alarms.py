@@ -340,6 +340,27 @@ def test_listening_needs_an_account():
         assert closed.value.code == 4401
 
 
+def test_binary_auth_frame_is_refused():
+    client, _ = alarm_app()
+    with client, client.websocket_connect("/ws/alarms") as socket:
+        socket.send_bytes(b"\x00")
+        with pytest.raises(WebSocketDisconnect) as closed:
+            socket.receive_json()
+        assert closed.value.code == 4401
+
+
+def test_binary_frame_after_auth_is_ignored():
+    client, _ = alarm_app()
+    with client:
+        ws, socket = listen(client, "user-2")
+        try:
+            socket.send_bytes(b"\x00")
+            assert client.post("/api/alarms", json=FIRE, headers=bearer()).status_code == 201
+            assert socket.receive_json()["type"] == "alarm"
+        finally:
+            ws.__exit__(None, None, None)
+
+
 def test_listening_needs_accounts_configured():
     client = TestClient(create_app(ai_client=None, verifier=None))
     with client, client.websocket_connect("/ws/alarms") as socket:

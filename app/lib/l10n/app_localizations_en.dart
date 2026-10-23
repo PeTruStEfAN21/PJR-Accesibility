@@ -1669,6 +1669,20 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get announcementsSee => 'See the announcements!';
+
+  @override
+  String announcementsSeeNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You have $count new announcements!',
+      one: 'You have 1 new announcement!',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get announcementsEmpty => 'No announcements right now.';
 
   @override

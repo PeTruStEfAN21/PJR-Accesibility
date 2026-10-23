@@ -172,6 +172,27 @@ void main() {
     expect(find.text('Ți s-a răspuns'), findsNothing);
   });
 
+  testWidgets('a cited line stays the right one when an earlier partial turns final later', (tester) async {
+    final h = await TestHarness.create()
+      ..httpClient = aiServer(answer: {'answered': true, 'answer': 'Vineri la prânz.', 'line_ids': [1]});
+    await joinMeeting(tester, h);
+    h.channel.receive({...caption('c0', 'coordinator', 'Deci'), 'final': false});
+    await settle(tester);
+    final question = await askQuestion(tester, h, 'Când e termenul?');
+    h.channel.receive({'type': 'read', 'id': question['id'] as String, 'by': 'voice'});
+    await settle(tester);
+
+    h.channel.receive(caption('c1', 'coordinator', 'Termenul e vineri la prânz'));
+    h.channel.receive(caption('c0', 'coordinator', 'Deci să vedem'));
+    await settle(tester);
+    await tester.pump(const Duration(seconds: 3));
+    await settle(tester);
+
+    expect(find.text('Ți s-a răspuns'), findsOneWidget);
+    expect(find.text('#1 Termenul e vineri la prânz'), findsOneWidget);
+    expect(find.text('#1 Deci să vedem'), findsNothing);
+  });
+
   testWidgets('a question from the room is marked with an icon and a label', (tester) async {
     final h = await TestHarness.create()..httpClient = aiServer(questions: [1]);
     await joinMeeting(tester, h);

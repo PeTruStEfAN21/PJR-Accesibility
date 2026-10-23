@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pjr_accesibilitate/widgets/echo_mascot.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/features/home/echo_home.dart';
 import 'package:pjr_accesibilitate/features/home/home_screen.dart';
@@ -65,6 +66,27 @@ void main() {
     await tester.tap(bar('Setări'));
     await tester.pumpAndSettle();
     expect(find.byType(SettingsScreen), findsOneWidget);
+  });
+
+  testWidgets('the mascot waves on Prezint and raises its hand on Vibrații, but not in high contrast', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Meeting'));
+    await tester.pumpAndSettle();
+    expect(mascot(MascotPose.hello), findsNothing);
+    await tester.tap(find.text('Prezint'));
+    await tester.pumpAndSettle();
+    expect(mascot(MascotPose.hello), findsOneWidget);
+
+    await tester.tap(bar('Vibrații'));
+    await tester.pumpAndSettle();
+    expect(mascot(MascotPose.alert), findsOneWidget);
+    expect(tester.getSize(mascot(MascotPose.alert)), const Size(60, 60));
+
+    h.settings.update((s) => s.highContrast = true);
+    await tester.pumpAndSettle();
+    expect(tester.getSize(mascot(MascotPose.alert)), Size.zero);
   });
 
   testWidgets('on the phone, Dashboard has no greeting and nothing the bar already holds', (tester) async {

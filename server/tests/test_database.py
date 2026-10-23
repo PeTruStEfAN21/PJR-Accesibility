@@ -1445,3 +1445,142 @@ def test_deleting_an_account_takes_its_seen_marks(db):
     run(db, worker, "select public.delete_my_account()")
     assert db.execute("select count(*) from public.org_announcement_reads where user_id = %s",
                       (worker,)).fetchone()[0] == 0
+# The activity log at scale -------------------------------------------------------------
+
+REPORT = "select public.report_alarm(%s, null, 'fireAlarm')"
+
+
+def old_rows(db, ref, count=1):
+    db.execute(
+        "insert into public.activity_log (at, event, ref)"
+        " select now() - interval '13 months', 'colleague_alarm_raised', %s from generate_series(1, %s)",
+        (ref, count),
+    )
+
+
+def left(db, ref):
+    return db.execute("select count(*) from public.activity_log where ref = %s", (ref,)).fetchone()[0]
+
+
+def test_a_write_never_waits_for_someone_else_clearing_old_history(db):
+    org_a, _, worker_a = company(db)
+    org_b, _, worker_b = company(db)
+    old_rows(db, "old-wait")
+
+    # The first write clears the old row and keeps its transaction open; the second goes on.
+    outcome = race(db, (worker_a, REPORT, (org_a,)), (worker_b, REPORT, (org_b,)))
+
+    assert not outcome["waited"], "the second write should not wait for the first one's clearing"
+    assert outcome["first"] == "ok" and outcome["second"] == "ok"
+    assert left(db, "old-wait") == 0
+
+
+def test_each_write_clears_only_a_bounded_part_of_a_backlog_and_the_rest_goes_later(db):
+    _, _, worker = company(db)
+    old_rows(db, "old-many", 250)
+
+    colleague_alarm(db, worker, alarm_id="b1")
+    assert 0 < left(db, "old-many") < 250
+    colleague_alarm(db, worker, alarm_id="b2")
+    assert left(db, "old-many") == 0
+
+
+def test_reporting_the_same_alarm_again_is_logged_once_per_person(db):
+    org, admin, worker = company(db)
+    event = report(db, worker, org)
+    for _ in range(5):
+        assert report(db, worker, org) == event
+    report(db, admin, org)
+    # A new alarm is reported again.
+    run(db, admin, "update public.alarm_events set ended_at = now() where id = %s", (event,))
+    assert report(db, worker, org) != event
+
+    reported = [e for e in events_seen_by(db, admin, org) if e == "org_alarm_reported"]
+    assert len(reported) == 3
+
+
+def test_a_closed_alarm_takes_no_more_answers(db):
+    org, admin, worker = company(db)
+    other = new_user(db)
+    join(db, admin, org, other)
+    event = report(db, worker, org)
+    answer(db, worker, org, event, "safe")
+    run(db, admin, "update public.alarm_events set ended_at = now() where id = %s", (event,))
+
+    for user, sql in (
+        (worker, "update public.alarm_acks set status = 'need_help' where event_id = %(e)s"),
+        (other, "insert into public.alarm_acks (event_id, org_id, user_id, status) values (%(e)s, %(o)s, %(u)s, 'safe')"),
+    ):
+        with as_user(db, user), pytest.raises(psycopg.errors.InsufficientPrivilege):
+            db.execute(sql, {"e": event, "o": org, "u": user})
+    answered = [e for e in events_seen_by(db, admin, org) if e == "org_alarm_answered"]
+    assert answered == ["org_alarm_answered"]
+
+
+def test_nobody_reads_who_started_invited_or_created_from_the_app(db):
+    org, admin, worker = company(db)
+    invited = new_user(db)
+    invite(db, admin, org, invited)
+    run(db, admin, "insert into public.org_location_sounds (org_id, label, model, fingerprint)"
+                   " values (%s, 'Alarma halei', 'tflite', %s)", (org, PRINT))
+    report(db, worker, org)
+
+    for user, sql in (
+        (worker, "select started_by from public.alarm_events"),
+        (worker, "select created_by from public.org_location_sounds"),
+        (invited, "select invited_by from public.org_invites"),
+        (admin, "select started_by from public.alarm_events"),
+        (admin, "select invited_by from public.org_invites"),
+        (admin, "select created_by from public.org_location_sounds"),
+        (worker, "select * from public.alarm_events"),
+    ):
+        with as_user(db, user), pytest.raises(psycopg.errors.InsufficientPrivilege):
+            db.execute(sql)
+
+    # What the app asks for still works.
+    with as_user(db, admin):
+        assert len(db.execute(
+            "select id, email, role, department from public.org_invites"
+            " where org_id = %s and accepted_at is null and expires_at > now() order by created_at desc", (org,),
+        ).fetchall()) == 1
+    with as_user(db, worker):
+        assert len(db.execute(
+            "select id, label, level, fingerprint from public.org_location_sounds where org_id = %s and model = 'tflite'",
+            (org,),
+        ).fetchall()) == 1
+        assert len(db.execute(
+            "select id, kind, started_at from public.alarm_events where org_id = %s and ended_at is null"
+            " order by started_at desc", (org,),
+        ).fetchall()) == 1
+    with as_user(db, admin):
+        assert db.execute("delete from public.org_invites where org_id = %s and accepted_at is null", (org,)).rowcount == 1
+
+
+def test_lines_and_summaries_are_checked_without_a_function_call_per_row(db):
+    quals = db.execute(
+        "select tablename, qual, with_check from pg_policies"
+        " where schemaname = 'public' and tablename in ('meeting_lines', 'summaries')"
+    ).fetchall()
+    assert len(quals) == 2
+    for table, qual, check in quals:
+        assert "owns_meeting" not in qual and "owns_meeting" not in check, table
+
+
+@pytest.mark.parametrize("company_wide", [False, True])
+def test_the_history_pages_back_by_id_without_gaps_or_repeats(db, company_wide):
+    org, admin, worker = company(db)
+    for alarm_id in ("p1", "p2", "p3", "p4", "p5"):
+        colleague_alarm(db, worker, alarm_id=alarm_id)
+    user, call = (admin, "public.company_activity(%(o)s, %(b)s, 2)") if company_wide else \
+        (worker, "public.my_activity(%(b)s, 2)")
+
+    seen, before = [], None
+    while True:
+        with as_user(db, user):
+            page = db.execute(f"select id, ref from {call}", {"o": org, "b": before}).fetchall()
+        if not page:
+            break
+        assert len(page) <= 2
+        seen += page
+        before = page[-1][0]
+    assert [ref for _, ref in seen] == ["p5", "p4", "p3", "p2", "p1"]

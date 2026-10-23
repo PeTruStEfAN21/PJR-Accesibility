@@ -149,7 +149,7 @@ def main(argv: list[str] | None = None) -> None:
             loss.backward()
             optimizer.step()
             seen += waves.shape[0]
-            total += float(loss)
+            total += loss.item()
             if step % 50 == 0:
                 print(f"epoch {epoch} step {step}/{len(loader)} loss {total / step:.3f} "
                       f"{seen / (time.time() - started):.0f} clips/s", flush=True)

@@ -1675,6 +1675,21 @@ class AppLocalizationsRo extends AppLocalizations {
   }
 
   @override
+  String get announcementsSee => 'Vezi anunțurile!';
+
+  @override
+  String announcementsSeeNew(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ai $count de anunțuri noi!',
+      few: 'Ai $count anunțuri noi!',
+      one: 'Ai un anunț nou!',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get announcementsEmpty => 'Niciun anunț acum.';
 
   @override

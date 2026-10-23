@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
+import 'package:pjr_accesibilitate/widgets/echo_mascot.dart';
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
@@ -116,6 +117,42 @@ void main() {
 
     expect(tester.takeException(), isNull);
     expect(find.text('A B C 2 3 4'), findsOneWidget);
+  });
+
+  testWidgets('a retry after the public address failed opens a single presenter connection', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+
+    var configAttempts = 0;
+    var connections = 0;
+    final h = await TestHarness.create(prefs: {'uiLanguage': 'ro', 'serverUrl': 'http://localhost:8000'});
+    await tester.pumpWidget(EchoApp(
+      settings: h.settings,
+      alerts: h.alerts,
+      services: AppServices(
+        speech: h.speech,
+        sounds: h.sounds,
+        channelFactory: (uri) {
+          connections++;
+          return h.channel..uri = uri;
+        },
+        httpClient: MockClient((request) async => switch (request.url.path) {
+              '/api/sessions' => http.Response(jsonEncode({'code': 'ABC234'}), 201),
+              '/api/config' when ++configAttempts == 1 => http.Response('down', 500),
+              '/api/config' => http.Response(jsonEncode({'public_url': 'http://172.20.10.2:8000'}), 200),
+              _ => http.Response('not found', 404),
+            }),
+      ),
+    ));
+    await startPresenting(tester);
+    expect(find.text('Reîncearcă'), findsOneWidget);
+
+    await tester.tap(find.text('Reîncearcă'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('A B C 2 3 4'), findsOneWidget);
+    expect(connections, 1);
   });
 
   testWidgets('presenter shows the code, captions speech and marks messages as seen', (tester) async {
@@ -235,6 +272,49 @@ void main() {
     expect(find.text('Nu am putut citi întrebarea; citește-o tu'), findsOneWidget);
   });
 
+  testWidgets('when captioning cannot restart after reading aloud, the page says so and shows Start again', (tester) async {
+    final h = await openPresenter(tester);
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.tts.autoFinish = false;
+    await receiveQuestion(tester, h, 'Când e termenul?');
+    await tester.tap(find.text('Citește cu voce tare'));
+    await tester.pump();
+
+    h.speech.available = false;
+    h.tts.finish(true);
+    await tester.pump();
+    await tester.pump();
+
+    expect(readMessages(h).single, {'type': 'read', 'id': 'q1', 'by': 'voice'});
+    expect(find.text('Pornește subtitrarea'), findsOneWidget);
+    expect(find.text('Oprește subtitrarea'), findsNothing);
+    expect(
+      find.text('Recunoașterea vorbirii nu e disponibilă. Verifică permisiunile pentru microfon și vorbire.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets('closing the page while the laptop reads does not turn the microphone back on', (tester) async {
+    final h = await openPresenter(tester);
+    await tester.tap(find.text('Pornește subtitrarea'));
+    await tester.pump();
+    h.tts.autoFinish = false;
+    await receiveQuestion(tester, h, 'Când e termenul?');
+    await tester.tap(find.text('Citește cu voce tare'));
+    await tester.pump();
+
+    tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Citește cu voce tare'), findsNothing);
+    h.tts.finish(true);
+    await tester.pump();
+    await tester.pump();
+
+    expect(h.speech.state.value, SpeechState.idle);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('read aloud is disabled when the laptop has no voice for the language', (tester) async {
     final h = await openPresenter(tester);
     h.tts.available = false;
@@ -269,6 +349,7 @@ void main() {
     await tester.pump();
 
     expect(find.text('Vocea ta e învățată'), findsOneWidget);
+    expect(mascot(MascotPose.bravo), findsOneWidget);
     expect(find.text('A B C 2 3 4'), findsOneWidget);
     expect(h.settings.voiceprint, isNotNull);
     expect(h.settings.voiceprintModel, 'redimnet2-b6-vb2+vox2_v0-lm');

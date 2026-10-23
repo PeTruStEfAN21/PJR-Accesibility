@@ -9,6 +9,7 @@ from typing import Any
 ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 CODE_LENGTH = 6
 DEFAULT_TTL_SECONDS = 12 * 60 * 60
+SWEEP_INTERVAL_SECONDS = 60
 
 
 class Session:
@@ -48,6 +49,7 @@ class SessionRegistry:
         self._ttl = ttl_seconds
         self._clock = clock
         self._sessions: dict[str, Session] = {}
+        self._last_sweep = clock()
 
     def create(self) -> str:
         self._prune()
@@ -59,14 +61,22 @@ class SessionRegistry:
 
     def get(self, code: str) -> Session | None:
         self._prune()
-        return self._sessions.get(code.upper())
+        code = code.upper()
+        session = self._sessions.get(code)
+        if session is not None and self._expired(session, self._clock()):
+            del self._sessions[code]
+            return None
+        return session
+
+    def _expired(self, session: Session, now: float) -> bool:
+        return not session.peers and now - session.last_active > self._ttl
 
     def _prune(self) -> None:
+        # A full scan blocks the event loop, so it runs at most once per interval; get() checks its own session.
         now = self._clock()
-        expired = [
-            code
-            for code, session in self._sessions.items()
-            if not session.peers and now - session.last_active > self._ttl
-        ]
+        if now - self._last_sweep < SWEEP_INTERVAL_SECONDS:
+            return
+        self._last_sweep = now
+        expired = [code for code, session in self._sessions.items() if self._expired(session, now)]
         for code in expired:
             del self._sessions[code]

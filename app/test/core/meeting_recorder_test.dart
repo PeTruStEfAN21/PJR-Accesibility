@@ -34,6 +34,23 @@ void main() {
     });
   });
 
+  test('saved numbers match the live ones after a late final and a removal', () {
+    fakeAsync((async) {
+      recorder.start();
+      transcript
+        ..upsert(caption('a', 'în lucru', isFinal: false))
+        ..upsert(caption('b', 'unu'))
+        ..upsert(caption('a', 'gata'))
+        ..remove('b')
+        ..upsert(caption('c', 'doi'));
+      async.elapse(const Duration(seconds: 30));
+
+      final saved = store.lines[recorder.meetingId]!;
+      expect([for (final l in saved) (l.seq, l.captionId)], [(1, 'b'), (2, 'a'), (3, 'c')]);
+      expect(transcript.finalNumbers(), {'a': 2, 'c': 3});
+    });
+  });
+
   test('creates the meeting only once something was said', () {
     fakeAsync((async) {
       recorder.start();

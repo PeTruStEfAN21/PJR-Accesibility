@@ -2954,6 +2954,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 anunț nou} few{{count} anunțuri noi} other{{count} de anunțuri noi}}'**
   String announcementsNew(int count);
 
+  /// No description provided for @announcementsSee.
+  ///
+  /// In ro, this message translates to:
+  /// **'Vezi anunțurile!'**
+  String get announcementsSee;
+
+  /// No description provided for @announcementsSeeNew.
+  ///
+  /// In ro, this message translates to:
+  /// **'{count, plural, =1{Ai un anunț nou!} few{Ai {count} anunțuri noi!} other{Ai {count} de anunțuri noi!}}'**
+  String announcementsSeeNew(int count);
+
   /// No description provided for @announcementsEmpty.
   ///
   /// In ro, this message translates to:

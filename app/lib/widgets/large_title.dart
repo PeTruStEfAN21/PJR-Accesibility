@@ -8,9 +8,12 @@ bool _pushed(BuildContext context) => ModalRoute.of(context)?.canPop ?? false;
 /// It grows with the text size up to 150%, so it stays the biggest text without filling the screen.
 /// On a pushed screen the title sits in the top bar instead ([backBarIfPushed]) and this shows nothing.
 class LargeTitle extends StatelessWidget {
-  const LargeTitle(this.text, {super.key});
+  const LargeTitle(this.text, {super.key, this.trailing});
 
   final String text;
+
+  /// Beside the title, at its end (the mascot on Vibrații).
+  final Widget? trailing;
 
   @override
   Widget build(BuildContext context) {
@@ -20,18 +23,26 @@ class LargeTitle extends StatelessWidget {
       maxScaleFactor: 1.5,
       child: Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(4, 8, 4, 16),
-        child: Semantics(
-          header: true,
-          child: Text(
-            text,
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-              fontSize: 34,
-              height: 1.15,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.6,
-              color: palette.text,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  text,
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontSize: 34,
+                    height: 1.15,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.6,
+                    color: palette.text,
+                  ),
+                ),
+              ),
             ),
-          ),
+            ?trailing,
+          ],
         ),
       ),
     );

@@ -4,7 +4,7 @@ Listens to the microphone (or reads a file) and prints the alerts by severity, u
 YAMNet (app/assets/models/yamnet.tflite), our trained danger-sound head (danger_head.json), the YAMNet
 class names, "2 windows in a row" and "the same alert at most once every 10 s". Nothing leaves the laptop.
 
-    .venv/Scripts/pip install ai-edge-litert numpy scipy soundfile sounddevice
+    .venv/Scripts/pip install ai-edge-litert numpy scipy scikit-learn soundfile sounddevice   # --file reads audio with train_danger_sounds.py
     .venv/Scripts/python tools/sound_demo.py                       # listen to the microphone
     .venv/Scripts/python tools/sound_demo.py --file alarm.wav      # run on a recording
     .venv/Scripts/python tools/sound_demo.py --learn "Alarma halei 2" --level critical   # learn a workplace sound (3 samples)
