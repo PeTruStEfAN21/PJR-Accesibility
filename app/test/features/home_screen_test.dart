@@ -79,7 +79,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Eu prezint'), findsOneWidget);
     expect(find.text('Conectează-te la speaker'), findsOneWidget);
-    expect(find.text('Sunete'), findsOneWidget);
+    expect(find.text('Vibrații'), findsOneWidget);
     expect(find.text('Vorbesc cu cineva'), findsOneWidget);
     // The clarity coach stays in the app but is hidden from the home page for now.
     expect(find.text('Sunt coleg într-un meeting online'), findsNothing);
@@ -128,8 +128,8 @@ void main() {
     // ignore: invalid_use_of_protected_member
     listening.notifyListeners();
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.hearing_disabled), findsOneWidget);
-    expect(find.byIcon(Icons.hearing), findsNothing);
+    expect(find.byIcon(Icons.notifications_off_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.vibration_outlined), findsNothing);
   });
 
   testWidgets('first-run tip: "Am înțeles" hides it for good', (tester) async {
@@ -207,17 +207,17 @@ void main() {
     final h = await TestHarness.create(accounts: true);
     await tester.pumpWidget(laptopApp(h));
     await tester.pumpAndSettle();
-    expect(find.text('Alarmă de urgență'), findsNothing);
+    expect(find.text('Urgență'), findsNothing);
 
     h.account!.signInAs('a@example.com');
     await tester.pumpAndSettle();
-    expect(find.text('Alarmă de urgență'), findsOneWidget);
-    expect(find.text('Când aplicația nu aude pericolul'), findsOneWidget);
-    expect(find.byIcon(Icons.emergency_share), findsOneWidget);
+    expect(find.text('Urgență'), findsOneWidget);
+    expect(find.text('Anunță colegii din apropiere'), findsOneWidget);
+    expect(find.byIcon(Icons.emergency_share_outlined), findsOneWidget);
 
-    await tester.ensureVisible(find.text('Alarmă de urgență'));
+    await tester.ensureVisible(find.text('Urgență'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Alarmă de urgență'));
+    await tester.tap(find.text('Urgență'));
     await tester.pumpAndSettle();
     expect(find.byType(EmergencyScreen), findsOneWidget);
   });

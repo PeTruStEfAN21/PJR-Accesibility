@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../settings/app_settings.dart';
-import '../../theme/echo_style.dart';
+import '../settings/app_settings.dart';
+import '../theme/echo_style.dart';
 
 /// An iOS-style grouped section: a small header, rows on one tonal panel with hairline dividers,
 /// and an optional note under the panel.
@@ -114,6 +114,26 @@ class EchoGroupRow extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// The icon at the start of a row, the same across Echo: an outlined glyph in a small soft square.
+class RowIcon extends StatelessWidget {
+  const RowIcon(this.icon, {super.key});
+
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = EchoPalette.of(context);
+    return ExcludeSemantics(
+      child: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(color: palette.accentTint, borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, size: 20, color: palette.accent),
       ),
     );
   }

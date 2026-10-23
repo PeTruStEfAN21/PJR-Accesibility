@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
 import '../../theme/echo_style.dart';
+import '../../widgets/large_title.dart';
 import '../../widgets/pressable.dart';
 import '../alerts/sound_alert.dart';
 import 'alarm_api.dart';
@@ -138,14 +139,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
     return Scaffold(
       backgroundColor: palette.ground,
-      appBar: AppBar(
-        backgroundColor: palette.ground,
-        foregroundColor: palette.text,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        centerTitle: false,
-        title: Text(l10n.emergencyTitle, style: theme.textTheme.titleLarge?.copyWith(color: palette.text, fontWeight: FontWeight.w600)),
-      ),
+      appBar: backBarIfPushed(context, l10n.emergencyTitle),
       body: SafeArea(
         bottom: false,
         child: Align(
@@ -153,8 +147,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 560),
             child: ListView(
-              padding: EdgeInsets.fromLTRB(20, 8, 20, 32 + MediaQuery.paddingOf(context).bottom),
+              padding: EdgeInsets.fromLTRB(20, 0, 20, 32 + MediaQuery.paddingOf(context).bottom),
               children: [
+                LargeTitle(l10n.emergencyTitle),
                 Text(l10n.emergencyIntro, style: theme.textTheme.bodyLarge?.copyWith(color: palette.text)),
                 const SizedBox(height: 8),
                 Row(

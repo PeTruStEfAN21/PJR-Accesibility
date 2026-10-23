@@ -8,7 +8,8 @@ import '../alerts/alert_controller.dart';
 import '../alerts/alert_overlay.dart';
 import '../alerts/location_sounds.dart';
 import '../alerts/sound_alert.dart';
-import 'grouped_list.dart';
+import '../../widgets/grouped_list.dart';
+import '../../widgets/large_title.dart';
 import 'learn_sound_screen.dart';
 import 'vibration_picker.dart';
 
@@ -55,16 +56,13 @@ class SoundsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: palette.ground,
-      appBar: AppBar(
-        backgroundColor: palette.ground,
-        foregroundColor: palette.text,
-        surfaceTintColor: Colors.transparent,
-        scrolledUnderElevation: 0,
-        title: Text(l10n.soundsTitle),
-      ),
-      body: ListView(
-        padding: EdgeInsets.fromLTRB(16, 8, 16, 32 + MediaQuery.paddingOf(context).bottom),
+      appBar: backBarIfPushed(context, l10n.soundsTitle),
+      body: SafeArea(
+        bottom: false,
+        child: ListView(
+        padding: EdgeInsets.fromLTRB(16, 0, 16, 32 + MediaQuery.paddingOf(context).bottom),
         children: [
+          LargeTitle(l10n.soundsTitle),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Text(l10n.soundsExplain, style: theme.textTheme.bodyLarge?.copyWith(color: palette.text)),
@@ -93,7 +91,7 @@ class SoundsScreen extends StatelessWidget {
               for (final level in AlertLevel.values)
                 EchoGroupRow(
                   key: ValueKey('level-${level.name}'),
-                  leading: Icon(levelIcon(level), color: palette.text),
+                  leading: RowIcon(levelIcon(level)),
                   title: levelLabel(l10n, level),
                   subtitle: [examples(level), if (stacked) hapticName(l10n, settings.hapticFor(level))],
                   trailing: Row(
@@ -117,7 +115,7 @@ class SoundsScreen extends StatelessWidget {
             rows: [
               for (final kind in [SoundKind.fireAlarm, SoundKind.horn, SoundKind.name])
                 EchoGroupRow(
-                  leading: Icon(soundIcon(kind), color: palette.text),
+                  leading: RowIcon(soundIcon(kind)),
                   title: soundLabel(l10n, kind),
                   onTap: () => alerts.show(SoundAlert(kind, at: DateTime.now())),
                 ),
@@ -128,6 +126,7 @@ class SoundsScreen extends StatelessWidget {
             _LocationSounds(store: services.locationSounds!),
           ],
         ],
+        ),
       ),
     );
   }

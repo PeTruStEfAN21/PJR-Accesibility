@@ -495,28 +495,28 @@ class AppLocalizationsEn extends AppLocalizations {
       'A signal from a machine. Watch the machines around you.';
 
   @override
-  String get soundsTitle => 'Visible sound';
+  String get soundsTitle => 'Vibrations';
 
   @override
   String get soundsListening =>
-      'Listening to sounds around you, also with the phone locked. Starts by itself every time you open the app.';
+      'On, even with the phone locked. They start by themselves whenever the app opens.';
 
   @override
-  String get soundsIdle => 'Listening is off.';
+  String get soundsIdle => 'Alerts are off.';
 
   @override
   String get soundsPaused =>
-      'Listening is paused while captions run. It starts again by itself afterwards.';
+      'Paused while captions run. They start again by themselves afterwards.';
 
   @override
-  String get homeSounds => 'Sounds';
+  String get homeSounds => 'Vibrations';
 
   @override
   String get homeSoundsOn =>
-      'On: your phone alerts you to alarms, horns and your name.';
+      'On: the phone vibrates for alarms, horns and your name.';
 
   @override
-  String get homeSoundsOff => 'Off: tap to turn sound alerts on.';
+  String get homeSoundsOff => 'Off: tap to turn on vibration alerts.';
 
   @override
   String get homeSoundsPaused => 'Paused while captions run.';
@@ -530,17 +530,17 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get soundsDetectorMissing =>
-      'Sound recognition does not work on this device. You can test the alerts below.';
+      'Automatic alerts don\'t work on this device. You can test the vibrations below.';
 
   @override
   String get soundsExplain =>
-      'Important sounds around you become alerts on screen and vibrations. Everything stays on the phone.';
+      'Your phone vibrates and shows you on screen when something important happens around you. Everything stays on the phone.';
 
   @override
-  String get soundsSwitch => 'Sound alerts';
+  String get soundsSwitch => 'Vibration alerts';
 
   @override
-  String get soundsVibrations => 'Vibrations';
+  String get soundsVibrations => 'Vibration for each level';
 
   @override
   String get soundsLevelExamplesCritical => 'Fire alarm, siren';
@@ -1218,10 +1218,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get emergencyTitle => 'Emergency alarm';
+  String get emergencyTitle => 'Emergency';
 
   @override
-  String get emergencyHomeHint => 'When the app can\'t hear the danger';
+  String get emergencyHomeHint => 'Alert colleagues nearby';
 
   @override
   String get emergencyIntro => 'The alarm reaches colleagues within 500 m.';
@@ -1488,27 +1488,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navLabel => 'Main navigation';
 
   @override
-  String get navHome => 'Home';
+  String get navHome => 'Dashboard';
 
   @override
   String get navMeeting => 'Meeting';
 
   @override
-  String get navSounds => 'Sounds';
+  String get navSounds => 'Vibrations';
 
   @override
-  String get navAlarm => 'Alarm';
+  String get navAlarm => 'Emergency';
 
   @override
   String get navSettings => 'Settings';
 
   @override
   String get alarmNeedsAccount =>
-      'The emergency alarm needs an account: your name goes with the alarm, so colleagues know who raised it.';
+      'An emergency needs an account: your name goes with it, so colleagues know who sent it.';
 
   @override
   String get alarmAccountsOff =>
-      'Accounts are not turned on for this server, so the emergency alarm cannot be sent from here.';
+      'Accounts are not turned on for this server, so an emergency cannot be sent from here.';
 
   @override
   String get meetingTitle => 'Meeting';

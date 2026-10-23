@@ -34,7 +34,7 @@ Future<void> openSounds(WidgetTester tester) async {
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpAndSettle();
-  await openTab(tester, 'Sunete');
+  await openTab(tester, 'Vibrații');
 }
 
 Float32List print(double x) => normalized([x, 1]);

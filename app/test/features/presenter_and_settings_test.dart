@@ -9,6 +9,8 @@ import 'package:http/testing.dart';
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/services.dart';
 import 'package:pjr_accesibilitate/core/speech/speech_service.dart';
+import 'package:pjr_accesibilitate/settings/app_settings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../fakes.dart';
 
@@ -151,25 +153,31 @@ void main() {
     expect(find.text('Văzut'), findsOneWidget);
   });
 
-  testWidgets('accessibility settings are applied and saved', (tester) async {
+  testWidgets('settings keep only what makes sense: no dyslexia, contrast or role colours', (tester) async {
+    // Tall enough that the whole list is built.
+    tester.view.physicalSize = const Size(500, 4000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
     await tester.tap(inBar('Setări'));
     await tester.pumpAndSettle();
 
-    await tapVisible(tester, find.text('Mod dislexie'));
-    expect(h.settings.dyslexiaMode, isTrue);
-    expect(Theme.of(tester.element(find.text('Mod dislexie'))).textTheme.bodyLarge!.fontFamily, 'OpenDyslexic');
-
-    await tapVisible(tester, find.text('Tritanopie (albastru greu de văzut)'));
-    expect(h.settings.palette.name, 'tritanopia');
-
-    // Back to the top: the first "English" is the app language, the second the spoken one.
-    await tester.scrollUntilVisible(find.text('Limba aplicației'), -200, scrollable: find.byType(Scrollable).first);
-    await tester.pumpAndSettle();
+    for (final gone in ['Mod dislexie', 'Contrast ridicat', 'Culori pentru roluri']) {
+      expect(find.text(gone), findsNothing, reason: gone);
+    }
+    // The first "English" is the app language, the second the spoken one.
     await tester.tap(find.text('English').first);
     await tester.pumpAndSettle();
-    expect(find.widgetWithText(AppBar, 'Settings'), findsOneWidget);
+    expect(find.text('Settings'), findsWidgets);
+  });
+
+  test('a dyslexia font or high contrast saved before is not applied any more', () async {
+    SharedPreferences.setMockInitialValues({'dyslexiaMode': true, 'highContrast': true, 'palette': 'tritanopia'});
+    final settings = AppSettings(await SharedPreferences.getInstance());
+    expect(settings.dyslexiaMode, isFalse);
+    expect(settings.highContrast, isFalse);
+    expect(settings.palette, RolePaletteKind.standard);
   });
 
   testWidgets('a raised hand shows a big alert with an icon', (tester) async {
