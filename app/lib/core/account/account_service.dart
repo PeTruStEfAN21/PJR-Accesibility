@@ -29,6 +29,10 @@ abstract class AccountService extends ChangeNotifier {
 
   Future<void> signInWithGoogle();
 
+  /// Only the demo accounts made by tools/seed_test_accounts.py have a password; real accounts
+  /// sign in with an emailed code.
+  Future<void> signInWithPassword(String email, String password);
+
   Future<void> signOut();
 
   /// Deletes the account and everything saved with it, then signs out.
@@ -70,6 +74,11 @@ class SupabaseAccountService extends AccountService {
   @override
   Future<void> signInWithGoogle() async {
     await _client.auth.signInWithOAuth(OAuthProvider.google, redirectTo: _redirect);
+  }
+
+  @override
+  Future<void> signInWithPassword(String email, String password) async {
+    await _client.auth.signInWithPassword(email: email.trim(), password: password);
   }
 
   @override

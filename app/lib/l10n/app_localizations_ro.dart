@@ -1663,4 +1663,23 @@ class AppLocalizationsRo extends AppLocalizations {
 
   @override
   String get signInPresentWithout => 'Prezinți un meeting? Intră fără cont';
+
+  @override
+  String get demoSignInLink => 'Cont de test pentru demo';
+
+  @override
+  String get demoSignInTitle => 'Cont de test';
+
+  @override
+  String get demoSignInHint =>
+      'Doar pentru conturile de demo făcute de echipă. Conturile reale intră cu un cod pe email.';
+
+  @override
+  String get demoSignInPassword => 'Parola';
+
+  @override
+  String get demoSignInGo => 'Intră';
+
+  @override
+  String get demoSignInFailed => 'Emailul sau parola nu sunt bune.';
 }

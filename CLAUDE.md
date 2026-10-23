@@ -49,6 +49,7 @@
 
 - **Contul.** Fără `SUPABASE_URL` / `SUPABASE_ANON_KEY` aplicația și serverul merg exact ca înainte, anonim. Cu ele, **aplicația de telefon pornește pe ecranul de login** (logo mare, Admin / Angajat) și intră în aplicație după login. Fără cont rămân: pagina de laptop, linkul „Prezinți un meeting? Intră fără cont” și linkul din QR al participantului. Prezentatorul nu are niciodată cont.
 - **Login fără parolă**: cod de 6 cifre pe email și Google. Fără Apple deocamdată (decizie de echipă). Fără CAPTCHA și fără coduri dictate prin apel (utilizatori surzi).
+- **Conturi de demo** (singura excepție de la „fără parolă”): `tools/seed_test_accounts.py` face pe Supabase-ul găzduit adminul, angajatul care citește și pe cel care aude, legați în compania „Echo Demo”, cu parolă (`ECHO_DEMO_PASSWORD` în `supabase/.env`) și un cod de companie nou. În aplicație intră din „Cont de test pentru demo”.
 - **Admin / Angajat** (`docs/superpowers/specs/2026-10-23-login-cod-companie-design.md`): adminul intră cu email (sau Google) și își face compania; din Compania mea generează **codul companiei** (8 caractere, 7 zile, păstrat doar ca amprentă, 5 încercări greșite pe oră). Angajatul intră cu codul, numele, „Citesc / Aud ce se spune” și emailul confirmat; adminul îl vede în listă și îl poate scoate.
 - **Ce se salvează**: doar replicile finale (text), rezumatul și setările, în contul participantului, plus istoricul activității (alarme și meetinguri, `activity_log`). Niciodată audio sau video.
 - **Row Level Security pe fiecare tabel**: fiecare utilizator vede doar rândurile lui. Excepție: adminii unei companii văd istoricul companiei și meetingurile salvate pentru ea, doar prin funcții (`company_activity`, `company_meeting`) care înregistrează citirea în istoricul angajatului.
@@ -106,6 +107,7 @@ cd app && flutter run -d <iphone>  # doar de pe Mac
 cd ml/voice && .venv/Scripts/python -m pytest -q                       # teste recunoașterea vocii (instalare: ml/voice/README.md)
 cd ml/voice && .venv/Scripts/python -m echo_voice.train --data data/speakers --out runs/<nume> --batch 6
 cd ml/voice && .venv/Scripts/python -m echo_voice.ship                 # alege și exportă modelul de voce în app/web/voice/
+server/.venv/Scripts/python -I tools/seed_test_accounts.py   # conturile de demo (admin + 2 angajați) și un cod de companie nou
 ```
 
 ## Mod de lucru

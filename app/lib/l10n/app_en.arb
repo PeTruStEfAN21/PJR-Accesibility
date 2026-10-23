@@ -507,5 +507,11 @@
   "memberReads": "Reads what is said",
   "memberHears": "Hears what is said",
   "signInWelcome": "Sign in or create your account",
-  "signInPresentWithout": "Presenting a meeting? Go in without an account"
+  "signInPresentWithout": "Presenting a meeting? Go in without an account",
+  "demoSignInLink": "Demo test account",
+  "demoSignInTitle": "Test account",
+  "demoSignInHint": "Only for the demo accounts the team made. Real accounts sign in with an emailed code.",
+  "demoSignInPassword": "Password",
+  "demoSignInGo": "Sign in",
+  "demoSignInFailed": "The email or the password is wrong."
 }

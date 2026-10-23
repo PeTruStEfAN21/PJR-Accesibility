@@ -538,5 +538,11 @@
   "memberReads": "Citește ce se spune",
   "memberHears": "Aude ce se spune",
   "signInWelcome": "Intră în cont sau creează-ți unul",
-  "signInPresentWithout": "Prezinți un meeting? Intră fără cont"
+  "signInPresentWithout": "Prezinți un meeting? Intră fără cont",
+  "demoSignInLink": "Cont de test pentru demo",
+  "demoSignInTitle": "Cont de test",
+  "demoSignInHint": "Doar pentru conturile de demo făcute de echipă. Conturile reale intră cu un cod pe email.",
+  "demoSignInPassword": "Parola",
+  "demoSignInGo": "Intră",
+  "demoSignInFailed": "Emailul sau parola nu sunt bune."
 }
