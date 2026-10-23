@@ -33,6 +33,15 @@ Future<T> guardLastAdmin<T>(Future<T> call) async {
   }
 }
 
+/// How a member takes part (supabase/migrations/…_member_experience.sql): [visual] reads what is
+/// said, [standard] hears it. A need, never a diagnosis.
+enum MemberExperience { standard, visual }
+
+/// Five wrong company codes in the last hour (SQLSTATE EJ002): the database refuses for a while.
+class JoinCodeTooManyAttempts implements Exception {
+  const JoinCodeTooManyAttempts();
+}
+
 /// Which YAMNet made a fingerprint: phone and browser fingerprints do not match each other.
 enum SoundModel { tflite, tfjs }
 
@@ -113,6 +122,7 @@ class OrgMember {
     this.displayName,
     this.department,
     this.needs,
+    this.experience = MemberExperience.standard,
   });
 
   final String userId;
@@ -120,6 +130,7 @@ class OrgMember {
   final String? email;
   final String? displayName;
   final String? department;
+  final MemberExperience experience;
 
   /// Null until the employee shares them.
   final MemberNeeds? needs;
@@ -164,6 +175,18 @@ abstract class OrgStore {
   Future<void> cancelInvite(String inviteId);
   Future<void> setRole(String orgId, String userId, OrgRole role);
   Future<void> removeMember(String orgId, String userId);
+
+  /// The company code employees join with (…_company_join_codes.sql). A new one replaces the old
+  /// and is shown only now: the database keeps just its fingerprint.
+  Future<String> newJoinCode(String orgId);
+
+  /// Until when the company's code works, or null without one.
+  Future<DateTime?> joinCodeInfo(String orgId);
+  Future<void> revokeJoinCode(String orgId);
+
+  /// Joins the company of [code] as an employee. Returns the company, or null for a wrong or
+  /// expired code; throws [JoinCodeTooManyAttempts] after too many wrong ones.
+  Future<String?> joinWithCode(String code, String name, MemberExperience experience);
 
   /// Sounds an admin learned once, for every employee's device of the same [model].
   Future<List<LocationSound>> sharedSounds(String orgId, SoundModel model);
@@ -246,7 +269,7 @@ class SupabaseOrgStore implements OrgStore {
   Future<List<OrgMember>> members(String orgId) async {
     final rows = await _client
         .from('org_members')
-        .select('user_id, role, email, display_name, department')
+        .select('user_id, role, email, display_name, department, experience')
         .eq('org_id', orgId)
         .order('joined_at');
     final needs = await _client.from('member_needs').select().eq('org_id', orgId);
@@ -260,8 +283,36 @@ class SupabaseOrgStore implements OrgStore {
           displayName: row['display_name'] as String?,
           department: row['department'] as String?,
           needs: byUser[row['user_id']],
+          experience: MemberExperience.values.byName(row['experience'] as String? ?? 'standard'),
         ),
     ];
+  }
+
+  @override
+  Future<String> newJoinCode(String orgId) async =>
+      await _client.rpc('new_join_code', params: {'target_org': orgId}) as String;
+
+  @override
+  Future<DateTime?> joinCodeInfo(String orgId) async {
+    final rows = await _client.rpc('join_code_info', params: {'target_org': orgId}) as List<dynamic>;
+    return rows.isEmpty ? null : DateTime.parse(rows.first['expires_at'] as String).toLocal();
+  }
+
+  @override
+  Future<void> revokeJoinCode(String orgId) => _client.rpc('revoke_join_code', params: {'target_org': orgId});
+
+  @override
+  Future<String?> joinWithCode(String code, String name, MemberExperience experience) async {
+    try {
+      return await _client.rpc('join_with_code', params: {
+        'code': code,
+        'member_name': name.trim(),
+        'member_experience': experience.name,
+      }) as String?;
+    } on PostgrestException catch (e) {
+      if (e.code == 'EJ002') throw const JoinCodeTooManyAttempts();
+      rethrow;
+    }
   }
 
   @override

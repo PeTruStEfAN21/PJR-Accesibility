@@ -1,12 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/org/org_store.dart';
 import '../../core/org/organizations.dart';
 import '../../core/services.dart';
 import '../../l10n/app_localizations.dart';
 import '../../settings/app_settings.dart';
+import '../../theme/echo_style.dart';
+import '../../widgets/grouped_list.dart';
 import '../activity/activity_screen.dart';
 import '../alerts/alert_overlay.dart';
 import '../alerts/sound_alert.dart';
@@ -381,6 +384,8 @@ class _AdminViewState extends State<_AdminView> {
         Text(_roleText(l10n, widget.membership.role)),
         // Admins' own meetings saved for the company are readable by the other admins too.
         _privacyNote(context, l10n.orgEmployeeNotice),
+        const SizedBox(height: 24),
+        _JoinCodeSection(store: _store, orgId: _orgId),
 
         _header(context, l10n.orgAlarms),
         if (_alarms.isEmpty) Text(l10n.orgNoAlarms),
@@ -392,11 +397,33 @@ class _AdminViewState extends State<_AdminView> {
             contentPadding: EdgeInsets.zero,
             leading: Icon(member.role == OrgRole.admin ? Icons.admin_panel_settings : Icons.person_outline),
             title: Text(member.name),
-            subtitle: Text([
-              _roleText(l10n, member.role),
-              if (member.department != null) member.department!,
-              _needsText(l10n, member.needs),
-            ].where((part) => part.isNotEmpty).join('\n')),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // How they use Echo: icon + text, never colour alone.
+                Row(
+                  children: [
+                    ExcludeSemantics(
+                      child: Icon(
+                        member.experience == MemberExperience.visual
+                            ? Icons.closed_caption_outlined
+                            : Icons.record_voice_over_outlined,
+                        size: 18,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(member.experience == MemberExperience.visual ? l10n.memberReads : l10n.memberHears),
+                    ),
+                  ],
+                ),
+                Text([
+                  _roleText(l10n, member.role),
+                  if (member.department != null) member.department!,
+                  _needsText(l10n, member.needs),
+                ].where((part) => part.isNotEmpty).join('\n')),
+              ],
+            ),
             isThreeLine: true,
             trailing: member.userId == me
                 ? null
@@ -531,6 +558,134 @@ class _AdminViewState extends State<_AdminView> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The company code: made here, shown once (the database keeps only its fingerprint), copied and
+/// handed to colleagues, who join with it from Sign in → Employee.
+class _JoinCodeSection extends StatefulWidget {
+  const _JoinCodeSection({required this.store, required this.orgId});
+  final OrgStore store;
+  final String orgId;
+
+  @override
+  State<_JoinCodeSection> createState() => _JoinCodeSectionState();
+}
+
+class _JoinCodeSectionState extends State<_JoinCodeSection> {
+  DateTime? _expires;
+  String? _shown;
+  bool _busy = false;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.store.joinCodeInfo(widget.orgId).then((expires) {
+      if (mounted) setState(() => _expires = expires);
+    }, onError: (Object e) => debugPrint('Company code not loaded: $e'));
+  }
+
+  Future<void> _make() async {
+    setState(() => _busy = true);
+    String? code;
+    final ok = await _attempt(context, () async => code = await widget.store.newJoinCode(widget.orgId));
+    final expires = ok ? await widget.store.joinCodeInfo(widget.orgId).catchError((Object _) => null) : _expires;
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      if (ok) _shown = code;
+      _expires = expires;
+    });
+  }
+
+  Future<void> _revoke() async {
+    setState(() => _busy = true);
+    final ok = await _attempt(context, () => widget.store.revokeJoinCode(widget.orgId));
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      if (ok) {
+        _shown = null;
+        _expires = null;
+      }
+    });
+  }
+
+  Future<void> _copy() async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    await Clipboard.setData(ClipboardData(text: _shown!));
+    messenger.showSnackBar(SnackBar(content: Text(l10n.orgCodeCopied)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final theme = Theme.of(context);
+    final palette = EchoPalette.of(context);
+    final shown = _shown;
+    final expires = _expires;
+    final localizations = MaterialLocalizations.of(context);
+    String until(DateTime d) =>
+        '${localizations.formatMediumDate(d)}, ${localizations.formatTimeOfDay(TimeOfDay.fromDateTime(d))}';
+
+    return EchoGroup(
+      title: l10n.orgCodeTitle,
+      footer: Text(l10n.orgCodeHint),
+      rows: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (shown != null) ...[
+                Text(l10n.orgCodeShown, style: theme.textTheme.bodyLarge),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Semantics(
+                        liveRegion: true,
+                        // Read letter by letter, as it will be typed.
+                        label: shown.split('').join(' '),
+                        excludeSemantics: true,
+                        child: Text(
+                          shown,
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 3,
+                            color: palette.text,
+                          ),
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: l10n.orgCodeCopy,
+                      onPressed: _copy,
+                      icon: Icon(Icons.copy_rounded, color: palette.accent),
+                    ),
+                  ],
+                ),
+                if (expires != null) Text(l10n.orgCodeActiveUntil(until(expires)), style: theme.textTheme.bodyMedium),
+              ] else
+                Text(
+                  expires != null ? l10n.orgCodeActiveUntil(until(expires)) : l10n.orgCodeNone,
+                  style: theme.textTheme.bodyLarge,
+                ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(50)),
+                onPressed: _busy ? null : _make,
+                icon: const Icon(Icons.vpn_key_outlined),
+                label: Text(l10n.orgCodeNew),
+              ),
+              if (expires != null || shown != null)
+                TextButton(onPressed: _busy ? null : _revoke, child: Text(l10n.orgCodeRevoke)),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1546,4 +1546,109 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get presentStart => 'Start the meeting';
+
+  @override
+  String get signInRoleLabel => 'How you sign in to Echo';
+
+  @override
+  String get signInRoleAdmin => 'Admin';
+
+  @override
+  String get signInRoleEmployee => 'Employee';
+
+  @override
+  String get signInAdminIntro =>
+      'For whoever runs the team. Set up your company and give colleagues its code. No password needed.';
+
+  @override
+  String get signInEmployeeIntro =>
+      'Type the code your admin gave you, your name and how you use Echo. Then confirm your email with a code.';
+
+  @override
+  String get companyCodeLabel => 'Company code';
+
+  @override
+  String get joinNameLabel => 'Your name';
+
+  @override
+  String get joinExperienceTitle => 'How do you use Echo?';
+
+  @override
+  String get experienceVisual => 'I read what is said';
+
+  @override
+  String get experienceVisualHint =>
+      'Captions, sounds and alarms on screen and by vibration';
+
+  @override
+  String get experienceStandard => 'I hear what is said';
+
+  @override
+  String get experienceStandardHint =>
+      'Tools for the colleague who speaks: conversation, an alarm for a colleague';
+
+  @override
+  String get joinPrivacy =>
+      'You join the company that gave you the code. Its admins see your name, email and how you use Echo, so they know how to reach you during an alarm. You can leave any time from My company.';
+
+  @override
+  String get companyCodeInvalid =>
+      'The company code has 8 letters and digits, for example ABCD-EFGH.';
+
+  @override
+  String get joinNameMissing => 'Type your name.';
+
+  @override
+  String get joinExperienceMissing => 'Choose how you use Echo.';
+
+  @override
+  String get joinWrongCode =>
+      'The company code is wrong or has expired. Ask your admin for it again.';
+
+  @override
+  String get joinTooMany => 'Too many wrong codes. Try again in an hour.';
+
+  @override
+  String get joinRetry => 'Join the company';
+
+  @override
+  String joinDone(String company) {
+    return 'You joined $company.';
+  }
+
+  @override
+  String get orgCodeTitle => 'Company code';
+
+  @override
+  String get orgCodeHint =>
+      'Colleagues join with it from Sign in → Employee. It works for 7 days.';
+
+  @override
+  String orgCodeActiveUntil(String date) {
+    return 'A code works until $date. For safety you only see it when you make it.';
+  }
+
+  @override
+  String get orgCodeNone => 'No code is active.';
+
+  @override
+  String get orgCodeShown => 'Give colleagues this code:';
+
+  @override
+  String get orgCodeNew => 'Make a new code';
+
+  @override
+  String get orgCodeCopy => 'Copy the code';
+
+  @override
+  String get orgCodeCopied => 'Code copied';
+
+  @override
+  String get orgCodeRevoke => 'Cancel the code';
+
+  @override
+  String get memberReads => 'Reads what is said';
+
+  @override
+  String get memberHears => 'Hears what is said';
 }

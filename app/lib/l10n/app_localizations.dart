@@ -2743,6 +2743,192 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Pornește meetingul'**
   String get presentStart;
+
+  /// No description provided for @signInRoleLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cum intri în Echo'**
+  String get signInRoleLabel;
+
+  /// No description provided for @signInRoleAdmin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Admin'**
+  String get signInRoleAdmin;
+
+  /// No description provided for @signInRoleEmployee.
+  ///
+  /// In ro, this message translates to:
+  /// **'Angajat'**
+  String get signInRoleEmployee;
+
+  /// No description provided for @signInAdminIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Pentru cine administrează echipa. Îți faci compania și le dai colegilor codul ei. Nu ai nevoie de parolă.'**
+  String get signInAdminIntro;
+
+  /// No description provided for @signInEmployeeIntro.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie codul primit de la administrator, numele tău și cum folosești Echo. Apoi confirmi emailul cu un cod.'**
+  String get signInEmployeeIntro;
+
+  /// No description provided for @companyCodeLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul companiei'**
+  String get companyCodeLabel;
+
+  /// No description provided for @joinNameLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Numele tău'**
+  String get joinNameLabel;
+
+  /// No description provided for @joinExperienceTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Cum folosești Echo?'**
+  String get joinExperienceTitle;
+
+  /// No description provided for @experienceVisual.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citesc ce se spune'**
+  String get experienceVisual;
+
+  /// No description provided for @experienceVisualHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Subtitrări, sunete și alarme pe ecran și prin vibrații'**
+  String get experienceVisualHint;
+
+  /// No description provided for @experienceStandard.
+  ///
+  /// In ro, this message translates to:
+  /// **'Aud ce se spune'**
+  String get experienceStandard;
+
+  /// No description provided for @experienceStandardHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Uneltele colegului care vorbește: conversație, alarmă pentru un coleg'**
+  String get experienceStandardHint;
+
+  /// No description provided for @joinPrivacy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intri în compania care ți-a dat codul. Administratorii ei văd numele, emailul și cum folosești Echo, ca să știe cum te anunță la o alarmă. Poți ieși oricând din Compania mea.'**
+  String get joinPrivacy;
+
+  /// No description provided for @companyCodeInvalid.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul companiei are 8 litere și cifre, de exemplu ABCD-EFGH.'**
+  String get companyCodeInvalid;
+
+  /// No description provided for @joinNameMissing.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie-ți numele.'**
+  String get joinNameMissing;
+
+  /// No description provided for @joinExperienceMissing.
+  ///
+  /// In ro, this message translates to:
+  /// **'Alege cum folosești Echo.'**
+  String get joinExperienceMissing;
+
+  /// No description provided for @joinWrongCode.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul companiei nu e bun sau a expirat. Cere-l din nou administratorului.'**
+  String get joinWrongCode;
+
+  /// No description provided for @joinTooMany.
+  ///
+  /// In ro, this message translates to:
+  /// **'Prea multe coduri greșite. Încearcă din nou peste o oră.'**
+  String get joinTooMany;
+
+  /// No description provided for @joinRetry.
+  ///
+  /// In ro, this message translates to:
+  /// **'Intră în companie'**
+  String get joinRetry;
+
+  /// No description provided for @joinDone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ai intrat în {company}.'**
+  String joinDone(String company);
+
+  /// No description provided for @orgCodeTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul companiei'**
+  String get orgCodeTitle;
+
+  /// No description provided for @orgCodeHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Colegii intră cu el din Intră în cont → Angajat. Merge 7 zile.'**
+  String get orgCodeHint;
+
+  /// No description provided for @orgCodeActiveUntil.
+  ///
+  /// In ro, this message translates to:
+  /// **'Un cod merge până pe {date}. Din motive de siguranță, îl vezi doar când îl generezi.'**
+  String orgCodeActiveUntil(String date);
+
+  /// No description provided for @orgCodeNone.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nu ai niciun cod activ.'**
+  String get orgCodeNone;
+
+  /// No description provided for @orgCodeShown.
+  ///
+  /// In ro, this message translates to:
+  /// **'Dă-le colegilor acest cod:'**
+  String get orgCodeShown;
+
+  /// No description provided for @orgCodeNew.
+  ///
+  /// In ro, this message translates to:
+  /// **'Generează un cod nou'**
+  String get orgCodeNew;
+
+  /// No description provided for @orgCodeCopy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Copiază codul'**
+  String get orgCodeCopy;
+
+  /// No description provided for @orgCodeCopied.
+  ///
+  /// In ro, this message translates to:
+  /// **'Codul a fost copiat'**
+  String get orgCodeCopied;
+
+  /// No description provided for @orgCodeRevoke.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anulează codul'**
+  String get orgCodeRevoke;
+
+  /// No description provided for @memberReads.
+  ///
+  /// In ro, this message translates to:
+  /// **'Citește ce se spune'**
+  String get memberReads;
+
+  /// No description provided for @memberHears.
+  ///
+  /// In ro, this message translates to:
+  /// **'Aude ce se spune'**
+  String get memberHears;
 }
 
 class _AppLocalizationsDelegate

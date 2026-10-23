@@ -52,6 +52,10 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Confirmă codul'), findsNothing);
+    // Admin is the default: the company screen comes next, to make the company; back goes home.
+    expect(find.text('Creează o companie'), findsOneWidget);
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
     expect(find.byTooltip('Contul meu'), findsOneWidget);
     await openHistory(tester);
     expect(find.byType(Scaffold), findsWidgets);
