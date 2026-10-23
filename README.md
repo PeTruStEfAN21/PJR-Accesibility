@@ -65,14 +65,13 @@ Ca să-l aibă toată echipa, nu doar tu:
 1. Instalează-l la nivel de proiect: `claude plugin install <plugin>@<marketplace> --scope project`. Comanda îl trece în `enabledPlugins` din `.claude/settings.json`.
 2. Dacă marketplace-ul nu e cel oficial (`claude-plugins-official`), adaugă-l în `extraKnownMarketplaces` din același fișier.
 3. Adaugă-l în lista de mai sus (link + o propoziție) și în comenzile de instalare manuală.
-4. Adaugă-l în secțiunea „Mod de lucru” din `CLAUDE.md`, dacă schimbă felul în care lucrăm.
-5. Fă commit la `.claude/settings.json` și `README.md` împreună.
+4. Fă commit la `.claude/settings.json` și `README.md` împreună.
 
 La fel pentru un server MCP: `claude mcp add --scope project <nume> -- <comandă>` (ajunge în `.mcp.json`), cu versiune fixă, apoi numele lui în `enabledMcpjsonServers` și o linie în „Servere MCP”.
 
 ## Proiectul
 
-Platformă care face meetingurile față în față accesibile persoanelor surde. Contextul complet e în `CLAUDE.md`, designul în `docs/superpowers/specs/`.
+Platformă care face meetingurile față în față accesibile persoanelor surde. Prezentarea produsului e în `docs/prezentare-generala.tex`, designul în `docs/superpowers/specs/`.
 
 - `app/`: aplicația Flutter (iPhone + pagina prezentatorului în Chrome)
 - `server/`: serverul Python (FastAPI): legătura telefon–laptop și partea de AI
@@ -97,6 +96,7 @@ Fără pașii de mai jos aplicația merge anonim, ca înainte. Detalii în `docs
 5. În `.env`: `SUPABASE_URL`. Pentru aplicație creează `app/supabase.env.json` (ignorat de git) cu `{"SUPABASE_URL": "...", "SUPABASE_ANON_KEY": "<cheia publishable>"}`, apoi `flutter run --dart-define-from-file=supabase.env.json` (la fel pentru `flutter build web`).
 
 Local, fără cloud: `npx supabase start` (cere Docker), iar emailurile apar în Mailpit pe http://localhost:54324.
+
 ### Aplicația Android (APK)
 
 ```
@@ -104,7 +104,6 @@ cd app && flutter build apk --release --dart-define-from-file=supabase.env.json 
 ```
 
 Rezultatul e `app/build/app/outputs/flutter-apk/app-release.apk` (toate arhitecturile, ~96 MB), cu conturile din `supabase.env.json` și serverul găzduit pe Render ca adresă implicită. Cere Android SDK și un JDK (`flutter doctor`). Semnătura e cea de debug a calculatorului care îl construiește: un APK nou se instalează peste cel vechi doar dacă vine de pe același calculator. Iconițele aplicației (Android, notificări, iOS) se refac din logo cu `python tools/app_icon.py`.
-
 
 ### Companii (organizații)
 
