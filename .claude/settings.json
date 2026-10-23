@@ -1,6 +1,7 @@
 {
   "enabledMcpjsonServers": [
-    "playwright"
+    "playwright",
+    "krea"
   ],
   "enabledPlugins": {
     "superpowers@claude-plugins-official": true,

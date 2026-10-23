@@ -6,6 +6,10 @@
       "args": [
         "@playwright/mcp@0.0.83"
       ]
+    },
+    "krea": {
+      "type": "http",
+      "url": "https://api.krea.ai/mcp"
     }
   }
 }

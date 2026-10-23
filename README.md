@@ -41,7 +41,22 @@ Dacă nu apare promptul, instalează manual:
 
 - [Playwright MCP](https://github.com/microsoft/playwright-mcp) (`@playwright/mcp@0.0.83`): Claude deschide și controlează Chrome, ca să verifice pagina prezentatorului (`flutter build web` + server pe http://localhost:8000). Necesită Node 18+ și Chrome.
 
-Dacă nu pornește singur: `claude mcp add --scope project playwright -- npx @playwright/mcp@0.0.83`.
+- [Krea MCP](https://www.krea.ai/mcp) (`https://api.krea.ai/mcp`): generare de imagini și clipuri video cu AI, pentru videoul de prezentare. Serverul e găzduit de Krea, deci nu are versiune; contul se leagă prin OAuth, fără cheie în repo: în Claude Code rulezi `/mcp`, alegi `krea` și te loghezi în Krea în browser. Consumă creditele contului Krea.
+
+Dacă nu pornește singur: `claude mcp add --scope project playwright -- npx @playwright/mcp@0.0.83` și `claude mcp add --scope project --transport http krea https://api.krea.ai/mcp`.
+
+### Videoul de prezentare (`video/`)
+
+`video/` conține [Claude Code Video Toolkit](https://github.com/digitalsamba/claude-code-video-toolkit) (licență MIT, în `video/LICENSE`), copiat la commitul `da3f474` (2026-10-22), găsit prin lista [wilwaldon/Claude-Code-Video-Toolkit](https://github.com/wilwaldon/Claude-Code-Video-Toolkit). Am păstrat skillurile (Remotion, FFmpeg, ElevenLabs, înregistrare cu Playwright etc.), comenzile (`/video`, `/record-demo`, `/scene-review`, `/generate-voiceover`), componentele, șabloanele `product-demo` și `sprint-review` și uneltele Python. Am scos exemplele, showcase-ul, imaginile Docker pentru GPU în cloud și testele toolkitului.
+
+Lucrezi din folderul lui, ca să se încarce skillurile, comenzile și `video/CLAUDE.md`:
+
+```
+cd video
+claude            # apoi /video; proiectul Echo stă în video/projects/ și intră în git
+```
+
+Necesită Node 18+; pentru unelte (voce, muzică, subtitrări) și `uv` (`uv sync` în `video/`). Cheile opționale (de ex. `ELEVENLABS_API_KEY`) stau în `video/.env`, după modelul `video/.env.example`; fișierul e ignorat de git. Videourile randate (`out/`, `*.mp4`) nu intră în git. Pe Windows, rulează o dată `git config core.longpaths true`, pentru că unele căi din skillul Remotion sunt lungi.
 
 ### Adaugi un plugin nou
 

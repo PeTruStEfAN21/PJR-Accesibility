@@ -85,6 +85,7 @@ supabase/       config.toml, migrations/ (schema + RLS), templates/ (emailul cu 
 ml/voice/       Python: antrenarea și evaluarea recunoașterii vocii; datele audio nu intră în git
 docs/           prezentare (LaTeX), specificații și planuri superpowers
 tools/          scripturi: refacerea modelului YAMNet, antrenarea detectorului de sunete, demo în terminal
+video/          videoul de prezentare: Claude Code Video Toolkit (Remotion) + Krea MCP; se lucrează cu `cd video && claude`, proiectele în video/projects/
 docker-compose.yml
 ```
 
