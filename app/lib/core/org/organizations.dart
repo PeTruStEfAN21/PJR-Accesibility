@@ -23,6 +23,22 @@ class Organizations extends ChangeNotifier {
 
   bool get any => memberships.isNotEmpty;
 
+  bool get isAdminAnywhere => memberships.any((m) => m.isAdmin);
+
+  /// How an employee (not an admin) takes part, which picks the phone's tabs; null for an admin or
+  /// someone in no company, who keep them all (for now). Reading wins over hearing across companies.
+  MemberExperience? get employeeExperience {
+    if (memberships.isEmpty || memberships.any((m) => m.isAdmin)) return null;
+    return memberships.any((m) => m.experience == MemberExperience.visual)
+        ? MemberExperience.visual
+        : MemberExperience.standard;
+  }
+
+  /// Colleague emergencies go to those who read what is said; hearing colleagues and admins send them.
+  /// Someone in no company keeps receiving them, as before.
+  bool get receivesColleagueAlarms =>
+      memberships.isEmpty || memberships.any((m) => m.experience == MemberExperience.visual);
+
   /// Reloads everything; a network error keeps what was loaded before.
   Future<void> refresh() async {
     if (!account.isSignedIn) {

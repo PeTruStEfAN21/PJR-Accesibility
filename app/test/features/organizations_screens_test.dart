@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pjr_accesibilitate/features/home/phone_shell.dart';
 import 'package:pjr_accesibilitate/core/org/org_store.dart';
 import 'package:pjr_accesibilitate/features/alerts/sound_alert.dart';
 import 'package:pjr_accesibilitate/features/alerts/yamnet_logic.dart';
@@ -195,7 +196,14 @@ void main() {
     await h.locationSounds.add('Alarma halei', AlertLevel.critical, print(1));
     await h.organizations!.refresh();
     await tester.pumpWidget(h.app());
-    await openSounds(tester);
+    // The admin has no Vibrații tab (the team's choice): the screen is opened directly here.
+    tester.view.physicalSize = const Size(390, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpAndSettle();
+    Navigator.of(tester.element(find.byType(PhoneShell)))
+        .push(MaterialPageRoute<void>(builder: (_) => const SoundsScreen()));
+    await tester.pumpAndSettle();
 
     await tapShown(tester, find.byTooltip('Împarte cu compania'));
 

@@ -230,12 +230,6 @@ abstract class AppLocalizations {
   /// **'Conectează-te la speaker'**
   String get joinTitle;
 
-  /// No description provided for @joinIntro.
-  ///
-  /// In ro, this message translates to:
-  /// **'Scrie codul de pe laptopul speakerului.'**
-  String get joinIntro;
-
   /// No description provided for @joinServerChange.
   ///
   /// In ro, this message translates to:
@@ -1027,12 +1021,6 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Alertele automate nu merg pe acest dispozitiv. Poți testa vibrațiile mai jos.'**
   String get soundsDetectorMissing;
-
-  /// No description provided for @soundsExplain.
-  ///
-  /// In ro, this message translates to:
-  /// **'Telefonul vibrează și îți arată pe ecran când se întâmplă ceva important în jur. Totul rămâne pe telefon.'**
-  String get soundsExplain;
 
   /// No description provided for @soundsSwitch.
   ///
@@ -2714,12 +2702,6 @@ abstract class AppLocalizations {
   /// **'Tu ții meetingul'**
   String get presentIntroTitle;
 
-  /// No description provided for @presentIntroBody.
-  ///
-  /// In ro, this message translates to:
-  /// **'Echo ascultă sala de pe acest dispozitiv și face subtitrarea în timp ce vorbești.'**
-  String get presentIntroBody;
-
   /// No description provided for @presentPointCode.
   ///
   /// In ro, this message translates to:
@@ -2762,18 +2744,6 @@ abstract class AppLocalizations {
   /// **'Angajat'**
   String get signInRoleEmployee;
 
-  /// No description provided for @signInAdminIntro.
-  ///
-  /// In ro, this message translates to:
-  /// **'Pentru cine administrează echipa. Îți faci compania și le dai colegilor codul ei. Nu ai nevoie de parolă.'**
-  String get signInAdminIntro;
-
-  /// No description provided for @signInEmployeeIntro.
-  ///
-  /// In ro, this message translates to:
-  /// **'Scrie codul primit de la administrator, numele tău și cum folosești Echo. Apoi confirmi emailul cu un cod.'**
-  String get signInEmployeeIntro;
-
   /// No description provided for @companyCodeLabel.
   ///
   /// In ro, this message translates to:
@@ -2795,32 +2765,26 @@ abstract class AppLocalizations {
   /// No description provided for @experienceVisual.
   ///
   /// In ro, this message translates to:
-  /// **'Citesc ce se spune'**
+  /// **'Echo mă ajută să urmăresc'**
   String get experienceVisual;
-
-  /// No description provided for @experienceVisualHint.
-  ///
-  /// In ro, this message translates to:
-  /// **'Subtitrări, sunete și alarme pe ecran și prin vibrații'**
-  String get experienceVisualHint;
 
   /// No description provided for @experienceStandard.
   ///
   /// In ro, this message translates to:
-  /// **'Aud ce se spune'**
+  /// **'Folosesc Echo ca să-mi ajut colegii'**
   String get experienceStandard;
-
-  /// No description provided for @experienceStandardHint.
-  ///
-  /// In ro, this message translates to:
-  /// **'Uneltele colegului care vorbește: conversație, alarmă pentru un coleg'**
-  String get experienceStandardHint;
 
   /// No description provided for @joinPrivacy.
   ///
   /// In ro, this message translates to:
   /// **'Intri în compania care ți-a dat codul. Administratorii ei văd numele, emailul și cum folosești Echo, ca să știe cum te anunță la o alarmă. Poți ieși oricând din Compania mea.'**
   String get joinPrivacy;
+
+  /// No description provided for @joinPrivacyLink.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ce vede compania?'**
+  String get joinPrivacyLink;
 
   /// No description provided for @companyCodeInvalid.
   ///
@@ -2933,7 +2897,7 @@ abstract class AppLocalizations {
   /// No description provided for @signInWelcome.
   ///
   /// In ro, this message translates to:
-  /// **'Intră în cont sau creează-ți unul'**
+  /// **'Bine ai venit!'**
   String get signInWelcome;
 
   /// No description provided for @signInPresentWithout.
@@ -2977,6 +2941,132 @@ abstract class AppLocalizations {
   /// In ro, this message translates to:
   /// **'Emailul sau parola nu sunt bune.'**
   String get demoSignInFailed;
+
+  /// No description provided for @announcementsTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anunțuri'**
+  String get announcementsTitle;
+
+  /// No description provided for @announcementsNew.
+  ///
+  /// In ro, this message translates to:
+  /// **'{count, plural, =1{1 anunț nou} few{{count} anunțuri noi} other{{count} de anunțuri noi}}'**
+  String announcementsNew(int count);
+
+  /// No description provided for @announcementsEmpty.
+  ///
+  /// In ro, this message translates to:
+  /// **'Niciun anunț acum.'**
+  String get announcementsEmpty;
+
+  /// No description provided for @announcementsEmptyAdmin.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie primul anunț pentru echipă: apare pe telefonul fiecărui coleg.'**
+  String get announcementsEmptyAdmin;
+
+  /// No description provided for @announcementImportant.
+  ///
+  /// In ro, this message translates to:
+  /// **'Important'**
+  String get announcementImportant;
+
+  /// No description provided for @announcementNew.
+  ///
+  /// In ro, this message translates to:
+  /// **'Nou'**
+  String get announcementNew;
+
+  /// No description provided for @announcementSeenBy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Văzut de {seen} din {audience}'**
+  String announcementSeenBy(int seen, int audience);
+
+  /// No description provided for @announcementDelete.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge anunțul'**
+  String get announcementDelete;
+
+  /// No description provided for @announcementDeleteTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Ștergi anunțul?'**
+  String get announcementDeleteTitle;
+
+  /// No description provided for @announcementDeleteBody.
+  ///
+  /// In ro, this message translates to:
+  /// **'Dispare de pe telefoanele tuturor colegilor.'**
+  String get announcementDeleteBody;
+
+  /// No description provided for @announcementDeleteConfirm.
+  ///
+  /// In ro, this message translates to:
+  /// **'Șterge'**
+  String get announcementDeleteConfirm;
+
+  /// No description provided for @composeTitle.
+  ///
+  /// In ro, this message translates to:
+  /// **'Anunț nou'**
+  String get composeTitle;
+
+  /// No description provided for @composeCompany.
+  ///
+  /// In ro, this message translates to:
+  /// **'Compania'**
+  String get composeCompany;
+
+  /// No description provided for @composeTitleLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Titlu'**
+  String get composeTitleLabel;
+
+  /// No description provided for @composeBodyLabel.
+  ///
+  /// In ro, this message translates to:
+  /// **'Mesajul'**
+  String get composeBodyLabel;
+
+  /// No description provided for @composeImportant.
+  ///
+  /// In ro, this message translates to:
+  /// **'Important'**
+  String get composeImportant;
+
+  /// No description provided for @composeImportantHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Apare primul, cu eticheta Important'**
+  String get composeImportantHint;
+
+  /// No description provided for @composePrivacy.
+  ///
+  /// In ro, this message translates to:
+  /// **'Toți angajații companiei văd anunțul. Nu scrie date despre sănătatea sau viața cuiva.'**
+  String get composePrivacy;
+
+  /// No description provided for @composePublish.
+  ///
+  /// In ro, this message translates to:
+  /// **'Publică anunțul'**
+  String get composePublish;
+
+  /// No description provided for @composeMissing.
+  ///
+  /// In ro, this message translates to:
+  /// **'Scrie un titlu și un mesaj.'**
+  String get composeMissing;
+
+  /// No description provided for @orgAnnouncementHint.
+  ///
+  /// In ro, this message translates to:
+  /// **'Apare pe Dashboard-ul fiecărui coleg'**
+  String get orgAnnouncementHint;
 }
 
 class _AppLocalizationsDelegate

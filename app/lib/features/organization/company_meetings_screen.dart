@@ -5,6 +5,7 @@ import '../../l10n/app_localizations.dart';
 import '../../widgets/caption_tile.dart';
 import '../history/history_screen.dart';
 import '../history/saved_meeting_screen.dart';
+import '../../widgets/page_column.dart';
 
 /// A short note with an icon, above a list.
 class _Notice extends StatelessWidget {
@@ -62,7 +63,7 @@ class _CompanyMeetingsScreenState extends State<CompanyMeetingsScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(l10n.orgMeetings)),
-      body: SafeArea(
+      body: PageColumn(child: SafeArea(
         child: FutureBuilder<List<CompanyMeeting>>(
           future: _meetings,
           builder: (context, snapshot) {
@@ -116,7 +117,7 @@ class _CompanyMeetingsScreenState extends State<CompanyMeetingsScreen> {
             );
           },
         ),
-      ),
+      )),
     );
   }
 }
@@ -149,7 +150,7 @@ class _CompanyMeetingScreenState extends State<CompanyMeetingScreen> {
     final ownMeeting = widget.me != null && widget.item.ownerId == widget.me;
     return Scaffold(
       appBar: AppBar(title: Text(meetingTitle(context, widget.item.meeting))),
-      body: SafeArea(
+      body: PageColumn(child: SafeArea(
         child: FutureBuilder<CompanyMeetingContent>(
           future: _content,
           builder: (context, snapshot) {
@@ -192,7 +193,7 @@ class _CompanyMeetingScreenState extends State<CompanyMeetingScreen> {
             );
           },
         ),
-      ),
+      )),
     );
   }
 }

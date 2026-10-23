@@ -1346,3 +1346,102 @@ def test_deleting_the_account_forgets_the_attempts_and_the_join(db):
         "select count(*) from public.activity_log where actor_id = %s or subject_user_id = %s", (worker, worker)
     ).fetchone()[0] == 0
     assert "member_joined" not in events_seen_by(db, admin, org)
+
+
+# Company announcements (docs/superpowers/specs/2026-10-23-anunturi-design.md) ----------------
+
+
+def post(db, admin, org, title="Dezinsecție", body="Mâine plecăm cu 2 ore mai devreme.", important=True, days=1):
+    return run(db, admin, "select public.post_announcement(%s, %s, %s, %s, %s)", (org, title, body, important, days))[0]
+
+
+def titles_seen_by(db, user):
+    with as_user(db, user):
+        return [r[0] for r in db.execute("select title from public.org_announcements order by created_at")]
+
+
+def test_an_admin_posts_and_only_their_company_reads_it(db):
+    org, admin, worker = company(db)
+    other_org, other_admin, outsider = company(db)
+    post(db, admin, org)
+    assert titles_seen_by(db, worker) == ["Dezinsecție"]
+    assert titles_seen_by(db, admin) == ["Dezinsecție"]
+    assert titles_seen_by(db, outsider) == []
+    assert titles_seen_by(db, other_admin) == []
+    with as_user(db, None), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("select * from public.org_announcements")
+
+
+def test_only_an_admin_posts_or_deletes(db):
+    org, admin, worker = company(db)
+    with as_user(db, worker), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("select public.post_announcement(%s, 'x', 'y', false, 1)", (org,))
+    with as_user(db, worker), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("insert into public.org_announcements (org_id, title, body) values (%s, 'x', 'y')", (org,))
+    announcement = post(db, admin, org)
+    with as_user(db, worker), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("select public.delete_announcement(%s)", (announcement,))
+    with as_user(db, worker), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("delete from public.org_announcements where id = %s", (announcement,))
+    run(db, admin, "select public.delete_announcement(%s)", (announcement,))
+    assert titles_seen_by(db, worker) == []
+
+
+def test_title_body_and_how_long_it_shows_are_checked(db):
+    org, admin, _ = company(db)
+    for title, body, days in (("", "y", 1), ("  ", "y", 1), ("x" * 121, "y", 1), ("x", "y" * 2001, 1), ("x", "y", 0), ("x", "y", 91)):
+        with as_user(db, admin), pytest.raises((psycopg.errors.CheckViolation, psycopg.errors.InvalidParameterValue)):
+            db.execute("select public.post_announcement(%s, %s, %s, false, %s)", (org, title, body, days))
+
+
+def test_an_expired_announcement_is_hidden_and_goes_at_the_next_post(db):
+    org, admin, worker = company(db)
+    old = post(db, admin, org, title="Vechi")
+    db.execute("update public.org_announcements set created_at = now() - interval '3 days',"
+               " expires_at = now() - interval '1 hour' where id = %s", (old,))
+    assert titles_seen_by(db, worker) == []
+    post(db, admin, org, title="Nou")
+    assert db.execute("select count(*) from public.org_announcements where id = %s", (old,)).fetchone()[0] == 0
+
+
+def test_each_person_marks_only_their_own_seen_and_the_admin_sees_only_counts(db):
+    org, admin, ana = company(db)
+    ion = new_user(db)
+    join(db, admin, org, ion)
+    outsider = new_user(db)
+    announcement = post(db, admin, org)
+
+    run(db, ana, "insert into public.org_announcement_reads (announcement_id) values (%s) on conflict do nothing",
+        (announcement,))
+    run(db, ana, "insert into public.org_announcement_reads (announcement_id) values (%s) on conflict do nothing",
+        (announcement,))
+    with as_user(db, ana), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("insert into public.org_announcement_reads (announcement_id, user_id) values (%s, %s)",
+                   (announcement, ion))
+    with as_user(db, outsider), pytest.raises(psycopg.errors.InsufficientPrivilege):
+        db.execute("insert into public.org_announcement_reads (announcement_id) values (%s)", (announcement,))
+    with as_user(db, ion):
+        assert db.execute("select count(*) from public.org_announcement_reads").fetchone()[0] == 0
+
+    with as_user(db, admin):
+        assert db.execute("select announcement_id, seen, audience from public.announcement_seen(%s)",
+                          (org,)).fetchall() == [(announcement, 1, 2)]
+    with as_user(db, ana):
+        assert db.execute("select * from public.announcement_seen(%s)", (org,)).fetchall() == []
+
+
+def test_posting_and_deleting_go_into_the_company_history(db):
+    org, admin, _ = company(db)
+    announcement = post(db, admin, org)
+    run(db, admin, "select public.delete_announcement(%s)", (announcement,))
+    events = events_seen_by(db, admin, org)
+    assert events[:2] == ["announcement_deleted", "announcement_posted"]
+
+
+def test_deleting_an_account_takes_its_seen_marks(db):
+    org, admin, worker = company(db)
+    announcement = post(db, admin, org)
+    run(db, worker, "insert into public.org_announcement_reads (announcement_id) values (%s)", (announcement,))
+    run(db, worker, "select public.delete_my_account()")
+    assert db.execute("select count(*) from public.org_announcement_reads where user_id = %s",
+                      (worker,)).fetchone()[0] == 0

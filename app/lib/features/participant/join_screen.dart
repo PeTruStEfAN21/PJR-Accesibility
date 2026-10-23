@@ -118,8 +118,7 @@ class _JoinScreenState extends State<JoinScreen> {
               child: ListView(
                 padding: EdgeInsets.fromLTRB(20, 8, 20, 32 + MediaQuery.paddingOf(context).bottom),
                 children: [
-                  Text(l10n.joinIntro, style: theme.textTheme.bodyLarge?.copyWith(color: palette.text)),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 8),
                   // The label sits above the field, never inside it.
                   Text(l10n.joinCodeLabel, style: label),
                   const SizedBox(height: 8),

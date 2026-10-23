@@ -78,6 +78,7 @@ void main() {
     await tester.pumpWidget(webHome(h));
     await tester.pumpAndSettle();
     expect(find.text('Eu prezint'), findsOneWidget);
+    expect(find.text('Bună! Cu ce începem?'), findsNothing);
     expect(find.text('Conectează-te la speaker'), findsOneWidget);
     expect(find.text('Vibrații'), findsOneWidget);
     expect(find.text('Vorbesc cu cineva'), findsOneWidget);
@@ -196,7 +197,7 @@ void main() {
     final h = await TestHarness.create();
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
-    expect(Theme.of(tester.element(find.text('Bună! Cu ce începem?'))).brightness, Brightness.light);
+    expect(Theme.of(tester.element(find.byType(HomeScreen))).brightness, Brightness.light);
   });
 
   testWidgets('laptop: the emergency row appears only when signed in', (tester) async {

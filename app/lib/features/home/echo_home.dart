@@ -9,8 +9,9 @@ import 'phone_shell.dart';
 
 /// Where the app starts: the phone app with its floating bar on a phone-sized screen (the native app,
 /// or a browser up to [HomeScreen.phoneMaxWidth]), the presenter's home on a laptop.
-/// With accounts on, the phone app opens on sign-in and goes in once the person is in
-/// (docs/specs/2026-10-23-login-cod-companie-design.md); the laptop never asks (rule 6).
+/// With accounts on, the app opens on sign-in and goes in once the person is in, on the phone and on the
+/// laptop (docs/specs/2026-10-23-login-cod-companie-design.md). The presenter still needs no
+/// account: sign-in links straight to presenting (rule 6), and a QR link opens the captions before this.
 class EchoHome extends StatelessWidget {
   const EchoHome({super.key, this.web = kIsWeb});
 
@@ -19,15 +20,18 @@ class EchoHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final laptop = web && MediaQuery.sizeOf(context).width > HomeScreen.phoneMaxWidth;
-    if (laptop) return const HomeScreen(presenterFirst: true);
+    final app = laptop ? const HomeScreen(presenterFirst: true) : const PhoneShell();
     final account = ServicesScope.of(context).account;
-    return account == null ? const PhoneShell() : _SignInFirst(account: account);
+    return account == null ? app : _SignInFirst(account: account, app: app);
   }
 }
 
 class _SignInFirst extends StatefulWidget {
-  const _SignInFirst({required this.account});
+  const _SignInFirst({required this.account, required this.app});
   final AccountService account;
+
+  /// The phone app or the laptop page.
+  final Widget app;
 
   @override
   State<_SignInFirst> createState() => _SignInFirstState();
@@ -56,6 +60,6 @@ class _SignInFirstState extends State<_SignInFirst> {
 
   @override
   Widget build(BuildContext context) => _inside
-      ? const PhoneShell()
+      ? widget.app
       : SignInScreen(account: widget.account, onDone: () => setState(() => _inside = true));
 }

@@ -42,14 +42,48 @@ class JoinCodeTooManyAttempts implements Exception {
   const JoinCodeTooManyAttempts();
 }
 
+/// What the admin tells the whole team (…_announcements.sql). [seen]: the signed-in person marked it.
+class Announcement {
+  const Announcement({
+    required this.id,
+    required this.orgId,
+    required this.orgName,
+    required this.title,
+    required this.body,
+    required this.important,
+    required this.createdAt,
+    this.seen = false,
+  });
+
+  final String id;
+  final String orgId;
+  final String orgName;
+  final String title;
+  final String body;
+  final bool important;
+  final DateTime createdAt;
+  final bool seen;
+}
+
+/// How many of the company saw an announcement, out of everyone but its author. Only the count.
+typedef AnnouncementSeen = ({int seen, int audience});
+
 /// Which YAMNet made a fingerprint: phone and browser fingerprints do not match each other.
 enum SoundModel { tflite, tfjs }
 
 class OrgMembership {
-  const OrgMembership({required this.orgId, required this.orgName, required this.role});
+  const OrgMembership({
+    required this.orgId,
+    required this.orgName,
+    required this.role,
+    this.experience = MemberExperience.standard,
+  });
   final String orgId;
   final String orgName;
   final OrgRole role;
+
+  /// How the signed-in person takes part in this company.
+  final MemberExperience experience;
 
   bool get isAdmin => role == OrgRole.admin;
 }
@@ -188,6 +222,18 @@ abstract class OrgStore {
   /// expired code; throws [JoinCodeTooManyAttempts] after too many wrong ones.
   Future<String?> joinWithCode(String code, String name, MemberExperience experience);
 
+  /// The announcements still showing in all of the signed-in person's companies, newest first.
+  Future<List<Announcement>> announcements();
+
+  /// Admins only; it shows for [days] (1 to 90).
+  Future<void> postAnnouncement(String orgId,
+      {required String title, required String body, required bool important, required int days});
+  Future<void> deleteAnnouncement(String announcementId);
+  Future<void> markAnnouncementSeen(String announcementId);
+
+  /// Admins only: per announcement of the company, how many saw it.
+  Future<Map<String, AnnouncementSeen>> announcementSeen(String orgId);
+
   /// Sounds an admin learned once, for every employee's device of the same [model].
   Future<List<LocationSound>> sharedSounds(String orgId, SoundModel model);
   Future<void> shareSound(String orgId, LocationSound sound, SoundModel model);
@@ -211,7 +257,7 @@ class SupabaseOrgStore implements OrgStore {
     if (userId == null) return const [];
     final rows = await _client
         .from('org_members')
-        .select('org_id, role, organizations(name)')
+        .select('org_id, role, experience, organizations(name)')
         .eq('user_id', userId)
         .order('joined_at');
     return [
@@ -220,6 +266,7 @@ class SupabaseOrgStore implements OrgStore {
           orgId: row['org_id'] as String,
           orgName: (row['organizations'] as Map<String, dynamic>)['name'] as String,
           role: OrgRole.values.byName(row['role'] as String),
+          experience: MemberExperience.values.byName(row['experience'] as String? ?? 'standard'),
         ),
     ];
   }
@@ -286,6 +333,61 @@ class SupabaseOrgStore implements OrgStore {
           experience: MemberExperience.values.byName(row['experience'] as String? ?? 'standard'),
         ),
     ];
+  }
+
+  @override
+  Future<List<Announcement>> announcements() async {
+    final rows = await _client
+        .from('org_announcements')
+        .select('id, org_id, title, body, important, created_at, organizations(name)')
+        .order('created_at', ascending: false);
+    final reads = await _client.from('org_announcement_reads').select('announcement_id');
+    final seen = {for (final r in reads) r['announcement_id'] as String};
+    return [
+      for (final row in rows)
+        Announcement(
+          id: row['id'] as String,
+          orgId: row['org_id'] as String,
+          orgName: (row['organizations'] as Map<String, dynamic>?)?['name'] as String? ?? '',
+          title: row['title'] as String,
+          body: row['body'] as String,
+          important: row['important'] as bool,
+          createdAt: DateTime.parse(row['created_at'] as String).toLocal(),
+          seen: seen.contains(row['id']),
+        ),
+    ];
+  }
+
+  @override
+  Future<void> postAnnouncement(String orgId,
+          {required String title, required String body, required bool important, required int days}) =>
+      _client.rpc('post_announcement', params: {
+        'target_org': orgId,
+        'title': title.trim(),
+        'body': body.trim(),
+        'important': important,
+        'days': days,
+      });
+
+  @override
+  Future<void> deleteAnnouncement(String announcementId) =>
+      _client.rpc('delete_announcement', params: {'announcement': announcementId});
+
+  @override
+  Future<void> markAnnouncementSeen(String announcementId) async {
+    // The database fills in who (the caller) and when; marking twice changes nothing.
+    await _client
+        .from('org_announcement_reads')
+        .upsert({'announcement_id': announcementId}, onConflict: 'announcement_id,user_id', ignoreDuplicates: true);
+  }
+
+  @override
+  Future<Map<String, AnnouncementSeen>> announcementSeen(String orgId) async {
+    final rows = await _client.rpc('announcement_seen', params: {'target_org': orgId}) as List<dynamic>;
+    return {
+      for (final row in rows)
+        row['announcement_id'] as String: (seen: row['seen'] as int, audience: row['audience'] as int),
+    };
   }
 
   @override

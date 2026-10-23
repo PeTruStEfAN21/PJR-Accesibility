@@ -8,6 +8,7 @@ import '../../l10n/app_localizations.dart';
 import '../activity/activity_screen.dart';
 import '../history/history_screen.dart';
 import '../organization/org_screen.dart';
+import '../../widgets/page_column.dart';
 
 /// Who is signed in, the saved meetings, sign out and account deletion.
 class AccountScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _AccountScreenState extends State<AccountScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.account)),
-      body: SafeArea(
+      body: PageColumn(child: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -128,7 +129,7 @@ class _AccountScreenState extends State<AccountScreen> {
             if (_busy) const Padding(padding: EdgeInsets.all(16), child: Center(child: CircularProgressIndicator())),
           ],
         ),
-      ),
+      )),
     );
   }
 }

@@ -7,6 +7,7 @@ import '../alerts/alert_overlay.dart';
 import '../alerts/sound_alert.dart';
 import '../emergency/alarm_logic.dart';
 import '../history/history_screen.dart';
+import '../../widgets/page_column.dart';
 
 /// One page of history, older than [beforeId] when given.
 typedef ActivityLoader = Future<ActivityPage> Function(int? beforeId, int maxRows);
@@ -154,7 +155,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(title: Text(widget.title)),
-      body: SafeArea(child: _body(context, l10n, theme)),
+      body: PageColumn(child: SafeArea(child: _body(context, l10n, theme))),
     );
   }
 

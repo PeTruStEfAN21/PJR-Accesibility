@@ -25,8 +25,8 @@ void main() {
   testWidgets('the interface switches to English', (tester) async {
     final h = await TestHarness.create(prefs: {'uiLanguage': 'en'});
     await tester.pumpWidget(h.app());
-    expect(find.text('Hi! Where do we start?'), findsOneWidget);
     expect(inBar('Dashboard'), findsOneWidget);
+    expect(inBar('Settings'), findsOneWidget);
     h.alerts.dispose();
   });
 

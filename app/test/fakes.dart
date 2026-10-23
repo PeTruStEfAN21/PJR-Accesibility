@@ -8,6 +8,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:pjr_accesibilitate/app.dart';
 import 'package:pjr_accesibilitate/core/join_link.dart';
+import 'package:pjr_accesibilitate/features/emergency/alarm_logic.dart' show Position;
+import 'package:pjr_accesibilitate/features/emergency/position_source.dart';
 import 'package:pjr_accesibilitate/core/account/account_service.dart';
 import 'package:pjr_accesibilitate/core/history/meeting_store.dart';
 import 'package:pjr_accesibilitate/core/org/activity_store.dart';
@@ -447,6 +449,16 @@ class FakeMeetingStore implements MeetingStore {
   }
 }
 
+/// A phone that knows where it is: next to the test alarms (44.0, 26.0).
+class FakePositions implements PositionSource {
+  @override
+  Future<Position?> current({Duration timeout = const Duration(seconds: 5), bool ask = true}) async =>
+      const Position(lat: 44.0, lon: 26.0, accuracyM: 10);
+
+  @override
+  Future<Position?> lastKnown({bool ask = true}) async => null;
+}
+
 class TestHarness {
   TestHarness._(this.settings, this.speech, this.sounds, this.channel, this.alerts, this.account, this.meetings,
       this.locationSounds, this.orgStore, this.organizations, this.activity) {
@@ -525,6 +537,7 @@ class TestHarness {
           channelFactory: (uri) => (uri.path == '/ws/alarms' ? alarmChannel = FakeChannel() : channel)..uri = uri,
           account: account,
           meetings: meetings,
+          positions: FakePositions(),
           locationSounds: locationSounds,
           organizations: organizations,
           activity: activity,
@@ -549,6 +562,30 @@ class FakeOrgStore implements OrgStore {
 
   /// Company codes that work, without dashes, to their company.
   final joinCodes = <String, String>{};
+
+  final _announcements = <Announcement>[];
+  final _seen = <String, Set<String>>{};
+
+  /// Every postAnnouncement call, as the admin made it.
+  final posted = <({String orgId, String title, String body, bool important, int days})>[];
+
+  /// An announcement already there (test setup).
+  String addAnnouncement(String orgId, String title, String body, {bool important = false, DateTime? at}) {
+    final id = _id('ann');
+    _announcements.add(Announcement(
+      id: id,
+      orgId: orgId,
+      orgName: orgNames[orgId]!,
+      title: title,
+      body: body,
+      important: important,
+      createdAt: at ?? DateTime(2026, 10, 23, 9, 12),
+    ));
+    return id;
+  }
+
+  List<Announcement> announcementsOf(String orgId) => [..._announcements.where((a) => a.orgId == orgId)];
+  Set<String> seenBy(String userId) => {...?_seen[userId]};
 
   /// Makes joinWithCode refuse, as after five wrong codes in an hour.
   bool tooManyAttempts = false;
@@ -588,7 +625,12 @@ class FakeOrgStore implements OrgStore {
   Future<List<OrgMembership>> myOrganizations() async => [
         for (final MapEntry(key: orgId, value: people) in people.entries)
           if (account.user != null && people.containsKey(_me))
-            OrgMembership(orgId: orgId, orgName: orgNames[orgId]!, role: people[_me]!.role),
+            OrgMembership(
+              orgId: orgId,
+              orgName: orgNames[orgId]!,
+              role: people[_me]!.role,
+              experience: people[_me]!.experience,
+            ),
       ];
 
   @override
@@ -641,6 +683,63 @@ class FakeOrgStore implements OrgStore {
           experience: m.experience,
         ),
     ];
+  }
+
+  /// When set, announcements() waits for it: a slow network.
+  Future<void>? announcementsWait;
+
+  @override
+  Future<List<Announcement>> announcements() async {
+    await announcementsWait;
+    final mine = {for (final MapEntry(key: org, value: members) in people.entries) if (members.containsKey(_me)) org};
+    final seen = _seen[_me] ?? const <String>{};
+    return [
+      for (final a in _announcements.reversed)
+        if (mine.contains(a.orgId))
+          Announcement(
+            id: a.id,
+            orgId: a.orgId,
+            orgName: a.orgName,
+            title: a.title,
+            body: a.body,
+            important: a.important,
+            createdAt: a.createdAt,
+            seen: seen.contains(a.id),
+          ),
+    ];
+  }
+
+  @override
+  Future<void> postAnnouncement(String orgId,
+      {required String title, required String body, required bool important, required int days}) async {
+    _requireAdmin(orgId);
+    posted.add((orgId: orgId, title: title, body: body, important: important, days: days));
+    addAnnouncement(orgId, title.trim(), body.trim(), important: important, at: DateTime(2026, 10, 23, 10));
+  }
+
+  @override
+  Future<void> deleteAnnouncement(String announcementId) async {
+    final a = _announcements.firstWhere((a) => a.id == announcementId);
+    _requireAdmin(a.orgId);
+    _announcements.remove(a);
+  }
+
+  @override
+  Future<void> markAnnouncementSeen(String announcementId) async {
+    _seen.putIfAbsent(_me, () => {}).add(announcementId);
+  }
+
+  @override
+  Future<Map<String, AnnouncementSeen>> announcementSeen(String orgId) async {
+    _requireAdmin(orgId);
+    final members = people[orgId]!.keys.where((id) => id != _me);
+    return {
+      for (final a in _announcements.where((a) => a.orgId == orgId))
+        a.id: (
+          seen: members.where((id) => _seen[id]?.contains(a.id) ?? false).length,
+          audience: members.length,
+        ),
+    };
   }
 
   static String _plain(String code) => code.toUpperCase().replaceAll(RegExp('[^A-Z0-9]'), '');

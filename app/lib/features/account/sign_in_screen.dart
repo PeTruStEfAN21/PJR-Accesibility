@@ -74,7 +74,7 @@ class _SignInScreenState extends State<SignInScreen> {
 
   /// The admin goes on to the company screen (where the company is made the first time).
   /// The employee's joining runs after the email code is confirmed, in [_verify].
-  void _onAccountChanged() {
+  Future<void> _onAccountChanged() async {
     if (!widget.account.isSignedIn || _closed || _demo || !mounted || _role != SignInRole.admin) return;
     _closed = true;
     final organizations = ServicesScope.of(context).organizations;
@@ -84,6 +84,7 @@ class _SignInScreenState extends State<SignInScreen> {
         : MaterialPageRoute<void>(builder: (_) => OrgScreen(organizations: organizations));
     if (widget.onDone case final done?) {
       // The app takes this screen's place; the company screen opens over it.
+      await _companiesLoaded();
       done();
       if (company != null) navigator.push(company);
     } else if (company != null) {
@@ -94,9 +95,18 @@ class _SignInScreenState extends State<SignInScreen> {
   }
 
   /// In: back to the app (first screen) or to where sign-in was opened from.
-  void _finish(NavigatorState navigator) {
+  /// The companies, loaded before the app shows, so its page (which depends on them) does not change
+  /// under the person's eyes a second later. At most 5 s: without the network the app still opens.
+  Future<void> _companiesLoaded() async {
+    final organizations = ServicesScope.of(context).organizations;
+    if (organizations == null) return;
+    await organizations.refresh().timeout(const Duration(seconds: 5), onTimeout: () {}).catchError((Object _) {});
+  }
+
+  Future<void> _finish(NavigatorState navigator) async {
     _closed = true;
     if (widget.onDone case final done?) {
+      await _companiesLoaded();
       done();
     } else {
       navigator.pop();
@@ -198,6 +208,18 @@ class _SignInScreenState extends State<SignInScreen> {
     if (signedIn == true && mounted) _finish(navigator);
   }
 
+  void _showPrivacy() {
+    final l10n = AppLocalizations.of(context);
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.joinPrivacyLink),
+        content: Text(l10n.joinPrivacy),
+        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.close))],
+      ),
+    );
+  }
+
   void _stayToFix(String error) {
     if (!mounted) return;
     setState(() {
@@ -225,38 +247,26 @@ class _SignInScreenState extends State<SignInScreen> {
     final big = FilledButton.styleFrom(minimumSize: const Size.fromHeight(52));
 
     Widget companyCodeField() => TextField(
-          controller: _companyCode,
-          decoration: InputDecoration(
-            labelText: l10n.companyCodeLabel,
-            hintText: 'ABCD-EFGH',
-            // Thin, so the example never looks like a code already typed.
-            hintStyle: theme.textTheme.titleMedium?.copyWith(
-              letterSpacing: 2,
-              fontWeight: FontWeight.w400,
-              color: palette.muted,
-            ),
-          ),
-          textCapitalization: TextCapitalization.characters,
-          autocorrect: false,
-          enableSuggestions: false,
-          inputFormatters: [LengthLimitingTextInputFormatter(12)],
-          style: theme.textTheme.titleMedium?.copyWith(letterSpacing: 2),
-          textInputAction: TextInputAction.next,
-        );
+      controller: _companyCode,
+      decoration: InputDecoration(labelText: l10n.companyCodeLabel),
+      textCapitalization: TextCapitalization.characters,
+      autocorrect: false,
+      enableSuggestions: false,
+      inputFormatters: [LengthLimitingTextInputFormatter(12)],
+      style: theme.textTheme.titleMedium?.copyWith(letterSpacing: 2),
+      textInputAction: TextInputAction.next,
+    );
 
-    Widget experienceChoice(MemberExperience value, IconData icon, String title, String hint) => EchoGroupRow(
-          leading: RowIcon(icon),
-          title: title,
-          subtitle: [hint],
-          selected: _experience == value,
-          trailing: _experience == value
-              ? Icon(Icons.check_rounded, color: palette.accent)
-              : const SizedBox(width: 24),
-          onTap: () => setState(() {
-            _experience = value;
-            _error = null;
-          }),
-        );
+    Widget experienceChoice(MemberExperience value, IconData icon, String title) => EchoGroupRow(
+      leading: RowIcon(icon),
+      title: title,
+      selected: _experience == value,
+      trailing: _experience == value ? Icon(Icons.check_rounded, color: palette.accent) : const SizedBox(width: 24),
+      onTap: () => setState(() {
+        _experience = value;
+        _error = null;
+      }),
+    );
 
     final emailField = TextField(
       controller: _email,
@@ -273,166 +283,176 @@ class _SignInScreenState extends State<SignInScreen> {
       appBar: widget.onDone == null ? AppBar(backgroundColor: Colors.transparent) : null,
       body: SafeArea(
         child: AutofillGroup(
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
-            children: [
-              Center(child: EchoLogo(height: 96, semanticLabel: l10n.appTitle)),
-              const SizedBox(height: 16),
-              Semantics(
-                header: true,
-                child: Text(
-                  l10n.signInWelcome,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(color: palette.text),
-                ),
-              ),
-              const SizedBox(height: 28),
-              if (sentTo == null && !_joinPending) ...[
-                GlassSegmented<SignInRole>(
-                  semanticLabel: l10n.signInRoleLabel,
-                  selected: _role,
-                  onChanged: (role) => setState(() {
-                    _role = role;
-                    _error = null;
-                  }),
-                  options: [
-                    (SignInRole.admin, Icons.admin_panel_settings_outlined, Icons.admin_panel_settings, l10n.signInRoleAdmin),
-                    (SignInRole.employee, Icons.badge_outlined, Icons.badge, l10n.signInRoleEmployee),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Text(
-                    employee ? l10n.signInEmployeeIntro : l10n.signInAdminIntro,
-                    style: theme.textTheme.bodyLarge?.copyWith(color: palette.muted),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                emailField,
-                const SizedBox(height: 16),
-                if (employee) ...[
-                  companyCodeField(),
+          // A narrow column in the middle of a wide screen, like the other forms; the whole width on a phone.
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 440),
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+                children: [
+                  Center(child: EchoLogo(height: 96, semanticLabel: l10n.appTitle)),
                   const SizedBox(height: 16),
-                  TextField(
-                    controller: _name,
-                    decoration: InputDecoration(labelText: l10n.joinNameLabel),
-                    textCapitalization: TextCapitalization.words,
-                    autofillHints: const [AutofillHints.name],
-                    inputFormatters: [LengthLimitingTextInputFormatter(100)],
-                    textInputAction: TextInputAction.done,
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      l10n.signInWelcome,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleLarge?.copyWith(color: palette.text),
+                    ),
                   ),
                   const SizedBox(height: 28),
-                  EchoGroup(
-                    title: l10n.joinExperienceTitle,
-                    rows: [
-                      experienceChoice(MemberExperience.visual, Icons.closed_caption_outlined, l10n.experienceVisual,
-                          l10n.experienceVisualHint),
-                      experienceChoice(MemberExperience.standard, Icons.record_voice_over_outlined,
-                          l10n.experienceStandard, l10n.experienceStandardHint),
+                  if (sentTo == null && !_joinPending) ...[
+                    GlassSegmented<SignInRole>(
+                      semanticLabel: l10n.signInRoleLabel,
+                      selected: _role,
+                      onChanged: (role) => setState(() {
+                        _role = role;
+                        _error = null;
+                      }),
+                      options: [
+                        (
+                          SignInRole.admin,
+                          Icons.admin_panel_settings_outlined,
+                          Icons.admin_panel_settings,
+                          l10n.signInRoleAdmin,
+                        ),
+                        (SignInRole.employee, Icons.badge_outlined, Icons.badge, l10n.signInRoleEmployee),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                    emailField,
+                    const SizedBox(height: 16),
+                    if (employee) ...[
+                      companyCodeField(),
+                      const SizedBox(height: 16),
+                      TextField(
+                        controller: _name,
+                        decoration: InputDecoration(labelText: l10n.joinNameLabel),
+                        textCapitalization: TextCapitalization.words,
+                        autofillHints: const [AutofillHints.name],
+                        inputFormatters: [LengthLimitingTextInputFormatter(100)],
+                        textInputAction: TextInputAction.done,
+                      ),
+                      const SizedBox(height: 28),
+                      EchoGroup(
+                        title: l10n.joinExperienceTitle,
+                        rows: [
+                          experienceChoice(
+                            MemberExperience.visual,
+                            Icons.closed_caption_outlined,
+                            l10n.experienceVisual,
+                          ),
+                          experienceChoice(
+                            MemberExperience.standard,
+                            Icons.record_voice_over_outlined,
+                            l10n.experienceStandard,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // What the company will see, one tap away before anything is sent (GDPR art. 13).
+                      Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: TextButton.icon(
+                          onPressed: _showPrivacy,
+                          icon: const Icon(Icons.info_outline_rounded),
+                          label: Text(l10n.joinPrivacyLink),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                     ],
-                  ),
-                  const SizedBox(height: 16),
-                  // What the company will see, said before anything is sent (GDPR art. 13).
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ExcludeSemantics(child: Icon(Icons.info_outline_rounded, color: palette.muted)),
-                      const SizedBox(width: 10),
-                      Expanded(child: Text(l10n.joinPrivacy, style: theme.textTheme.bodyMedium?.copyWith(color: palette.muted))),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                ],
-                FilledButton(style: big, onPressed: _busy ? null : _sendCode, child: Text(l10n.signInSendCode)),
-              ] else if (_joinPending) ...[
-                companyCodeField(),
-                const SizedBox(height: 16),
-                FilledButton(style: big, onPressed: _busy ? null : _retryJoin, child: Text(l10n.joinRetry)),
-              ] else ...[
-                Semantics(liveRegion: true, child: Text(l10n.signInCodeSent(sentTo!), style: theme.textTheme.bodyLarge)),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _code,
-                  decoration: InputDecoration(labelText: l10n.signInCodeLabel),
-                  keyboardType: TextInputType.number,
-                  autofillHints: const [AutofillHints.oneTimeCode],
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _verify(),
-                ),
-                const SizedBox(height: 16),
-                FilledButton(style: big, onPressed: _busy ? null : _verify, child: Text(l10n.signInVerify)),
-                const SizedBox(height: 4),
-                TextButton(
-                  onPressed: _busy
-                      ? null
-                      : () => setState(() {
-                            _sentTo = null;
-                            _code.clear();
-                            _error = null;
-                          }),
-                  child: Text(l10n.signInOtherEmail),
-                ),
-              ],
-              if (_error case final error?) ...[
-                const SizedBox(height: 16),
-                // Icon + text, so the error never depends on colour alone.
-                Semantics(
-                  liveRegion: true,
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(Icons.error_outline_rounded, color: theme.colorScheme.error),
-                      const SizedBox(width: 10),
-                      Expanded(child: Text(error, style: theme.textTheme.bodyLarge)),
-                    ],
-                  ),
-                ),
-              ],
-              if (_busy) ...[
-                const SizedBox(height: 16),
-                const Center(child: CircularProgressIndicator()),
-              ],
-              if (!employee && sentTo == null) ...[
-                const SizedBox(height: 32),
-                Row(
-                  children: [
-                    const Expanded(child: Divider()),
-                    Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text(l10n.signInOr)),
-                    const Expanded(child: Divider()),
+                    FilledButton(style: big, onPressed: _busy ? null : _sendCode, child: Text(l10n.signInSendCode)),
+                  ] else if (_joinPending) ...[
+                    companyCodeField(),
+                    const SizedBox(height: 16),
+                    FilledButton(style: big, onPressed: _busy ? null : _retryJoin, child: Text(l10n.joinRetry)),
+                  ] else ...[
+                    Semantics(
+                      liveRegion: true,
+                      child: Text(l10n.signInCodeSent(sentTo!), style: theme.textTheme.bodyLarge),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _code,
+                      decoration: InputDecoration(labelText: l10n.signInCodeLabel),
+                      keyboardType: TextInputType.number,
+                      autofillHints: const [AutofillHints.oneTimeCode],
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly, LengthLimitingTextInputFormatter(10)],
+                      textInputAction: TextInputAction.done,
+                      onSubmitted: (_) => _verify(),
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(style: big, onPressed: _busy ? null : _verify, child: Text(l10n.signInVerify)),
+                    const SizedBox(height: 4),
+                    TextButton(
+                      onPressed: _busy
+                          ? null
+                          : () => setState(() {
+                              _sentTo = null;
+                              _code.clear();
+                              _error = null;
+                            }),
+                      child: Text(l10n.signInOtherEmail),
+                    ),
                   ],
-                ),
-                const SizedBox(height: 16),
-                OutlinedButton.icon(
-                  style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
-                  onPressed: _busy ? null : () => _run(widget.account.signInWithGoogle),
-                  icon: const Icon(Icons.account_circle_outlined),
-                  label: Text(l10n.signInGoogle),
-                ),
-              ],
-              if (sentTo == null && !_joinPending) ...[
-                const SizedBox(height: 16),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: _busy ? null : _openDemoSignIn,
-                    icon: const Icon(Icons.science_outlined),
-                    label: Text(l10n.demoSignInLink),
-                  ),
-                ),
-              ],
-              if (widget.onDone != null && sentTo == null && !_joinPending) ...[
-                const SizedBox(height: 4),
-                Center(
-                  child: TextButton.icon(
-                    onPressed: () =>
-                        Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PresenterScreen())),
-                    icon: const Icon(Icons.co_present_outlined),
-                    label: Text(l10n.signInPresentWithout, textAlign: TextAlign.center),
-                  ),
-                ),
-              ],
-            ],
+                  if (_error case final error?) ...[
+                    const SizedBox(height: 16),
+                    // Icon + text, so the error never depends on colour alone.
+                    Semantics(
+                      liveRegion: true,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.error_outline_rounded, color: theme.colorScheme.error),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(error, style: theme.textTheme.bodyLarge)),
+                        ],
+                      ),
+                    ),
+                  ],
+                  if (_busy) ...[const SizedBox(height: 16), const Center(child: CircularProgressIndicator())],
+                  if (!employee && sentTo == null) ...[
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(padding: const EdgeInsets.symmetric(horizontal: 12), child: Text(l10n.signInOr)),
+                        const Expanded(child: Divider()),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(minimumSize: const Size.fromHeight(52)),
+                      onPressed: _busy ? null : () => _run(widget.account.signInWithGoogle),
+                      icon: const Icon(Icons.account_circle_outlined),
+                      label: Text(l10n.signInGoogle),
+                    ),
+                  ],
+                  if (sentTo == null && !_joinPending) ...[
+                    const SizedBox(height: 16),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: _busy ? null : _openDemoSignIn,
+                        icon: const Icon(Icons.science_outlined),
+                        label: Text(l10n.demoSignInLink),
+                      ),
+                    ),
+                  ],
+                  if (widget.onDone != null && sentTo == null && !_joinPending) ...[
+                    const SizedBox(height: 4),
+                    Center(
+                      child: TextButton.icon(
+                        onPressed: () =>
+                            Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PresenterScreen())),
+                        icon: const Icon(Icons.co_present_outlined),
+                        label: Text(l10n.signInPresentWithout, textAlign: TextAlign.center),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
       ),

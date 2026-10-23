@@ -51,6 +51,7 @@ class _EchoAppState extends State<EchoApp> {
     _sounds = widget.services.sounds.alerts.listen(_alerts.show);
     _lifecycle = AppLifecycleListener(onResume: _resumed);
     widget.services.account?.addListener(_accountChanged);
+    widget.services.organizations?.addListener(_accountChanged);
     widget.settings.addListener(_settingsChanged);
     _accountChanged();
   }
@@ -69,11 +70,13 @@ class _EchoAppState extends State<EchoApp> {
     if (_alarmFeed != null) _warmPosition();
   }
 
-  /// Colleague alarms are listened to only while signed in.
+  /// Colleague alarms are listened to only while signed in, and only by those who receive them: a hearing
+  /// employee's phone does not even subscribe (docs/specs/2026-10-23-taburi-dupa-tip-design.md).
   void _accountChanged() {
     final account = widget.services.account;
     if (account == null) return;
-    if (account.isSignedIn && _alarmFeed == null) {
+    final receives = account.isSignedIn && (widget.services.organizations?.receivesColleagueAlarms ?? true);
+    if (receives && _alarmFeed == null) {
       final feed = AlarmFeed(
         defaultServer(widget.settings),
         account: account,
@@ -85,7 +88,7 @@ class _EchoAppState extends State<EchoApp> {
       _alarmFeed = feed;
       _warmPosition();
       if (mounted) setState(() {});
-    } else if (!account.isSignedIn && _alarmFeed != null) {
+    } else if (!receives && _alarmFeed != null) {
       _alarmFeed!.stop();
       _alarmFeed = null;
       if (mounted) setState(() {});
@@ -100,6 +103,7 @@ class _EchoAppState extends State<EchoApp> {
   @override
   void dispose() {
     widget.services.account?.removeListener(_accountChanged);
+    widget.services.organizations?.removeListener(_accountChanged);
     widget.settings.removeListener(_settingsChanged);
     _alarmFeed?.stop();
     _lifecycle.dispose();

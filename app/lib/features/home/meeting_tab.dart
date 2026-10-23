@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../theme/echo_style.dart';
 import '../../widgets/glass.dart';
 import '../../widgets/grouped_list.dart';
 import '../../widgets/large_title.dart';
@@ -72,7 +71,6 @@ class _PresentPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
-    final palette = EchoPalette.of(context);
     final bottom = MediaQuery.paddingOf(context).bottom;
     Widget point(IconData icon, String text) => Padding(
       padding: const EdgeInsets.only(bottom: 14),
@@ -95,7 +93,6 @@ class _PresentPanel extends StatelessWidget {
       children: [
         Semantics(header: true, child: Text(l10n.presentIntroTitle, style: theme.textTheme.headlineSmall)),
         const SizedBox(height: 10),
-        Text(l10n.presentIntroBody, style: theme.textTheme.bodyLarge?.copyWith(color: palette.muted)),
         const SizedBox(height: 24),
         point(Icons.qr_code_2_rounded, l10n.presentPointCode),
         point(Icons.mark_chat_unread_outlined, l10n.presentPointQuestions),

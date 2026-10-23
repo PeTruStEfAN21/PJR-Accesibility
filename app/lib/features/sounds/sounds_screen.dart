@@ -63,11 +63,6 @@ class SoundsScreen extends StatelessWidget {
         padding: EdgeInsets.fromLTRB(16, 0, 16, 32 + MediaQuery.paddingOf(context).bottom),
         children: [
           LargeTitle(l10n.soundsTitle),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4),
-            child: Text(l10n.soundsExplain, style: theme.textTheme.bodyLarge?.copyWith(color: palette.text)),
-          ),
-          const SizedBox(height: 24),
           EchoGroup(
             rows: [
               SwitchListTile(

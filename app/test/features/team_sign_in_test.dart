@@ -77,10 +77,13 @@ void main() {
     await tapText(tester, 'Angajat');
     await fill(tester, 'Codul companiei', code.toLowerCase().replaceAll('-', ' '));
     await fill(tester, 'Numele tău', 'Ana Pop');
-    await tapText(tester, 'Citesc ce se spune');
-    expect(tester.getSemantics(find.text('Citesc ce se spune')), isSemantics(isSelected: true, isButton: true));
-    // What the company will see is said before anything is sent (GDPR art. 13).
+    await tapText(tester, 'Echo mă ajută să urmăresc');
+    expect(tester.getSemantics(find.text('Echo mă ajută să urmăresc')), isSemantics(isSelected: true, isButton: true));
+    // What the company will see is one tap away before anything is sent (GDPR art. 13).
+    expect(find.textContaining('Administratorii ei văd numele'), findsNothing);
+    await tapText(tester, 'Ce vede compania?');
     expect(find.textContaining('Administratorii ei văd numele'), findsOneWidget);
+    await tapText(tester, 'Închide');
     await fill(tester, 'Adresa de email', 'ana@firma.ro');
     await tapText(tester, 'Trimite-mi un cod');
     await confirmEmail(tester);
@@ -117,7 +120,7 @@ void main() {
     await tapText(tester, 'Angajat');
     await fill(tester, 'Codul companiei', 'ZZZZ-ZZZZ');
     await fill(tester, 'Numele tău', 'Ion');
-    await tapText(tester, 'Aud ce se spune');
+    await tapText(tester, 'Folosesc Echo ca să-mi ajut colegii');
     await fill(tester, 'Adresa de email', 'ion@firma.ro');
     await tapText(tester, 'Trimite-mi un cod');
     await confirmEmail(tester);
@@ -138,7 +141,7 @@ void main() {
     await tapText(tester, 'Angajat');
     await fill(tester, 'Codul companiei', 'ZZZZ-ZZZZ');
     await fill(tester, 'Numele tău', 'Ion');
-    await tapText(tester, 'Aud ce se spune');
+    await tapText(tester, 'Folosesc Echo ca să-mi ajut colegii');
     await fill(tester, 'Adresa de email', 'ion@firma.ro');
     await tapText(tester, 'Trimite-mi un cod');
     await confirmEmail(tester);

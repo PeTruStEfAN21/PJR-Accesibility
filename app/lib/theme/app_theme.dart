@@ -7,6 +7,9 @@ import 'role_palette.dart';
 
 const dyslexiaFont = 'OpenDyslexic';
 
+/// One size for every small bold label in Echo (see [buildTheme]).
+const _labelSize = 17.0;
+
 /// The app's one typeface, bundled in assets/fonts.
 const textFont = 'Roboto';
 
@@ -43,7 +46,8 @@ ThemeData buildTheme(AppSettings settings) {
     headlineSmall: base.textTheme.headlineSmall?.copyWith(fontSize: 24, height: 1.3, fontWeight: FontWeight.w500, letterSpacing: -0.2),
     titleLarge: base.textTheme.titleLarge?.copyWith(fontSize: 22, height: 1.3, fontWeight: FontWeight.w600),
     titleMedium: base.textTheme.titleMedium?.copyWith(fontSize: 17, height: 1.4, fontWeight: FontWeight.w600),
-    titleSmall: base.textTheme.titleSmall?.copyWith(fontSize: 15, height: 1.4, fontWeight: FontWeight.w600),
+    // The small bold labels (group headings, labels above fields) share one size with field labels.
+    titleSmall: base.textTheme.titleSmall?.copyWith(fontSize: _labelSize, height: 1.4, fontWeight: FontWeight.w600),
     labelMedium: base.textTheme.labelMedium?.copyWith(fontSize: 13, height: 1.3),
     bodyLarge: base.textTheme.bodyLarge?.copyWith(fontSize: 17, height: 1.5),
     bodyMedium: base.textTheme.bodyMedium?.copyWith(fontSize: 15, height: 1.45),
@@ -95,8 +99,8 @@ ThemeData buildTheme(AppSettings settings) {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        backgroundColor: p.primary,
-        foregroundColor: p.onPrimary,
+        backgroundColor: p.button,
+        foregroundColor: p.onButton,
         minimumSize: const Size(64, 50),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         shape: button,
@@ -105,8 +109,8 @@ ThemeData buildTheme(AppSettings settings) {
     ),
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        backgroundColor: p.primary,
-        foregroundColor: p.onPrimary,
+        backgroundColor: p.button,
+        foregroundColor: p.onButton,
         elevation: 0,
         minimumSize: const Size(64, 50),
         padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -129,8 +133,8 @@ ThemeData buildTheme(AppSettings settings) {
     ),
     iconButtonTheme: IconButtonThemeData(style: IconButton.styleFrom(minimumSize: const Size(48, 48))),
     floatingActionButtonTheme: FloatingActionButtonThemeData(
-      backgroundColor: p.primary,
-      foregroundColor: p.onPrimary,
+      backgroundColor: p.button,
+      foregroundColor: p.onButton,
       elevation: 2,
       shape: const StadiumBorder(),
     ),
@@ -138,8 +142,14 @@ ThemeData buildTheme(AppSettings settings) {
       filled: true,
       fillColor: p.raised,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      labelStyle: textTheme.bodyLarge?.copyWith(color: p.muted),
-      floatingLabelStyle: textTheme.bodyLarge?.copyWith(color: p.accent, fontWeight: FontWeight.w600),
+      // Labels sit on the border (always floating), where Flutter draws them at 75%: sized so they show
+      // at the same 17 px as every other small bold label.
+      labelStyle: textTheme.bodyLarge?.copyWith(color: p.muted, fontSize: _labelSize / 0.75),
+      floatingLabelStyle: textTheme.bodyLarge?.copyWith(
+        color: p.accent,
+        fontWeight: FontWeight.w600,
+        fontSize: _labelSize / 0.75,
+      ),
       hintStyle: textTheme.bodyLarge?.copyWith(color: p.muted),
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(14), borderSide: BorderSide(color: p.control)),

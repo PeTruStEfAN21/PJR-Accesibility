@@ -67,12 +67,12 @@ void main() {
     expect(find.byType(SettingsScreen), findsOneWidget);
   });
 
-  testWidgets('on the phone, Dashboard shows only the greeting: the bar holds the rest', (tester) async {
+  testWidgets('on the phone, Dashboard has no greeting and nothing the bar already holds', (tester) async {
     final h = await sized(tester, const Size(390, 844));
     await tester.pumpWidget(h.app());
     await tester.pumpAndSettle();
     final home = find.byType(HomeScreen);
-    expect(find.text('Bună! Cu ce începem?'), findsOneWidget);
+    expect(find.text('Bună! Cu ce începem?'), findsNothing);
     for (final gone in ['Conectează-te la speaker', 'Vibrații', 'Vorbesc cu cineva', 'Tu prezinți? Deschide modul prezentator']) {
       expect(find.descendant(of: home, matching: find.text(gone)), findsNothing, reason: gone);
     }
@@ -214,5 +214,67 @@ void main() {
     await tester.tap(bar('Meeting'));
     await tester.pumpAndSettle();
     expect(tester.getSemantics(find.text('Prezint')), isSemantics(isSelected: true, isButton: true));
+  });
+
+  testWidgets('tabs slide in from the side of the tab you tapped while the old one slides out the other way',
+      (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    double shiftOf(Type screen) => tester
+        .widget<Transform>(find.ancestor(of: find.byType(screen), matching: find.byType(Transform)).first)
+        .transform
+        .getTranslation()
+        .x;
+    double opacityOf(Type screen) => tester
+        .widget<FadeTransition>(find.ancestor(of: find.byType(screen), matching: find.byType(FadeTransition)).first)
+        .opacity
+        .value;
+
+    await tester.tap(bar('Setări'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    expect(shiftOf(SettingsScreen), greaterThan(0), reason: 'Setări is to the right: it comes from the right');
+    expect(shiftOf(HomeScreen), lessThan(0), reason: 'Dashboard leaves to the left');
+    expect(opacityOf(HomeScreen), lessThan(1));
+    await tester.pumpAndSettle();
+    expect(shiftOf(SettingsScreen), 0);
+
+    await tester.tap(bar('Dashboard'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    expect(shiftOf(HomeScreen), lessThan(0), reason: 'back to the left: it comes from the left');
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('with reduced motion tabs only fade', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(disableAnimations: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Setări'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 60));
+    final shift = tester
+        .widget<Transform>(find.ancestor(of: find.byType(SettingsScreen), matching: find.byType(Transform)).first)
+        .transform
+        .getTranslation()
+        .x;
+    expect(shift, 0);
+    await tester.pumpAndSettle();
+  });
+
+  testWidgets('Meeting says no more than it needs: no line above the code, none under Tu ții meetingul', (tester) async {
+    final h = await sized(tester, const Size(390, 844));
+    await tester.pumpWidget(h.app());
+    await tester.pumpAndSettle();
+    await tester.tap(bar('Meeting'));
+    await tester.pumpAndSettle();
+    expect(find.text('Scrie codul de pe laptopul speakerului.'), findsNothing);
+    expect(find.text('Codul de pe laptopul speakerului'), findsOneWidget);
+    await tester.tap(find.text('Prezint'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('Echo ascultă sala de pe acest dispozitiv'), findsNothing);
   });
 }
