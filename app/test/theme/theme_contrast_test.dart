@@ -62,7 +62,7 @@ void main() {
   test('styles given to the top bar and dialogs carry their own size, not the 14 px fallback', () async {
     SharedPreferences.setMockInitialValues({});
     final theme = buildTheme(AppSettings(await SharedPreferences.getInstance()));
-    expect(theme.appBarTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(17));
+    expect(theme.appBarTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(20));
     expect(theme.dialogTheme.titleTextStyle?.fontSize, greaterThanOrEqualTo(20));
     expect(theme.dialogTheme.contentTextStyle?.fontSize, greaterThanOrEqualTo(16));
   });

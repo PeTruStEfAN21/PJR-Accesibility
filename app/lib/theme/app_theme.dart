@@ -81,9 +81,9 @@ ThemeData buildTheme(AppSettings settings) {
       surfaceTintColor: Colors.transparent,
       scrolledUnderElevation: 0,
       elevation: 0,
-      // Inline titles centred and small, as on iOS; main screens show a large title in the page instead.
+      // Inline titles centred, as on iOS, at 20 px so they read well; main screens show a large title instead.
       centerTitle: true,
-      titleTextStyle: textTheme.titleMedium?.copyWith(color: p.text),
+      titleTextStyle: textTheme.titleLarge?.copyWith(fontSize: 20, color: p.text),
       iconTheme: IconThemeData(color: p.text),
     ),
     cardTheme: CardThemeData(

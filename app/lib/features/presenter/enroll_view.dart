@@ -117,12 +117,14 @@ class _EnrollViewState extends State<EnrollView> with SingleTickerProviderStateM
               ],
             ),
           ] else
-            FilledButton(
-              style: FilledButton.styleFrom(minimumSize: const Size(220, 56)),
-              onPressed: _start,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [const Icon(Icons.mic), const SizedBox(width: 8), Text(l10n.enrollStart)],
+            Center(
+              child: FilledButton(
+                style: FilledButton.styleFrom(minimumSize: const Size(220, 56)),
+                onPressed: _start,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [const Icon(Icons.mic), const SizedBox(width: 8), Text(l10n.enrollStart)],
+                ),
               ),
             ),
         ],
